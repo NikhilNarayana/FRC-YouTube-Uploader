@@ -7,6 +7,7 @@ import random
 import sys
 import time
 import pyperclip
+import urllib
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
@@ -16,13 +17,14 @@ from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
 from TheBlueAlliance import *
 from selenium import webdriver
+from BeautifulSoup import BeautifulSoup
 
-#Default Variables
+#Default Variables - A lot needs to be changed based on event
 DEFAULT_DESCRIPTION = "Footage of the 2016 IndianaFIRST FRC District Championship Event is courtesy the Indiana FIRST AV Crew. \n \n To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp \n \n Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). \n \n For more information and future event schedules, visit our website: www.indianafirst.org \n \n Thanks for watching!"
 DEFAULT_VIDEO_CATEGORY = 28
-DEFAULT_TAGS = ""
-DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Qualification Match %s"
-DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Qualification Match %s.mp4"
+DEFAULT_TAGS = "2016incmp, FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
+DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Qualification Match %s" #CHANGE BASED ON EVENT
+DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Qualification Match %s.mp4" #CHANGE BASED ON EVENT
 DEFAULT_THUMBNAIL = "thumbnail.png"
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
@@ -177,10 +179,14 @@ def resumable_upload(insert_request, mnum):
       if 'id' in response:
         print "Video id '%s' was successfully uploaded." % response['id']
         print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-        add_to_TBA("https://www.youtube.com/watch?v=%s" % response['id'],options.mnum)
         upload_thumbnail(youtube, response['id'], "thumbnail.png")
         print "Video thumbnail added"
         os.system("python addtoplaylist.py --vID " + response['id'])
+        pyperclip.copy('https://www.youtube.com/watch?v=%s' % response['id'])
+        spam = pyperclip.paste()
+        print "YouTube link copied to clipboard for safety"
+        #add_to_TBA("https://www.youtube.com/watch?v=%s" % response['id'],mnum)
+        #print "YouTube link added to TheBlueAlliance"
       else:
         exit("The upload failed with an unexpected response: %s" % response)
     except HttpError, e:
