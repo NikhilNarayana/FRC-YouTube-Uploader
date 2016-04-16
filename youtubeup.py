@@ -15,8 +15,15 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
 from TheBlueAlliance import *
+from selenium import webdriver
 
-
+#Default Variables
+DEFAULT_DESCRIPTION = "Footage of the 2016 IndianaFIRST FRC District Championship Event is courtesy the Indiana FIRST AV Crew. \n \n To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp \n \n Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). \n \n For more information and future event schedules, visit our website: www.indianafirst.org \n \n Thanks for watching!"
+DEFAULT_VIDEO_CATEGORY = 28
+DEFAULT_TAGS = ""
+DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Qualification Match %s"
+DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Qualification Match %s.mp4"
+DEFAULT_THUMBNAIL = "thumbnail.png"
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
@@ -116,8 +123,8 @@ def initialize_upload(youtube, options):
 
   body=dict(
     snippet=dict(
-      title=options.title,
-      description=options.description,
+      title=options.title % options.mnum,
+      description=options.description % options.mnum,
       tags=tags,
       categoryId=options.category
     ),
@@ -188,21 +195,22 @@ def resumable_upload(insert_request):
       time.sleep(sleep_seconds)
 
 if __name__ == '__main__':
-  argparser.add_argument("--file", required=True, help="Video file to upload")
-  argparser.add_argument("--title", required=True, help="Video title")
+  argparser.add_argument("--mnum", help="Match Number to add", required=True)
+  argparser.add_argument("--file", help="Video file to upload", default=DEFAULT_FILE)
+  argparser.add_argument("--title", help="Video title", default=DEFAULT_TITLE)
   argparser.add_argument("--description", help="Video description",
-    default="Footage of the 2016 IndianaFIRST Indiana State Championship FRC Event is courtesy the IndianaFIRST AV Crew. \n \n To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp \n \n Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). \n \n For more information and future event schedules, visit our website: www.indianafirst.org \n \n Thanks for watching!")
-  argparser.add_argument("--category", default="28",
+    default=DEFAULT_DESCRIPTION)
+  argparser.add_argument("--category", default=DEFAULT_VIDEO_CATEGORY,
     help="Numeric video category. " +
       "See https://developers.google.com/youtube/v3/docs/videoCategories/list")
   argparser.add_argument("--keywords", help="Video keywords, comma separated",
-    default="")
+    default=DEFAULT_TAGS)
   argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
     default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
   args = argparser.parse_args()
 
   if not os.path.exists(args.file):
-    exit("Please specify a valid file using the --file= and --title= parameters.")
+    exit("Please specify the match number with the --mnum parameter")
 
   youtube = get_authenticated_service(args)
   try:
