@@ -22,10 +22,23 @@ from BeautifulSoup import BeautifulSoup
 #Default Variables - A lot needs to be changed based on event
 DEFAULT_DESCRIPTION = "Footage of the 2016 IndianaFIRST FRC District Championship Event is courtesy the Indiana FIRST AV Crew. \n \n To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp \n \n Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). \n \n For more information and future event schedules, visit our website: www.indianafirst.org \n \n Thanks for watching!"
 DEFAULT_VIDEO_CATEGORY = 28
-DEFAULT_TAGS = "2016incmp, FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
-DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Qualification Match %s" #CHANGE BASED ON EVENT
-DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Qualification Match %s.mp4" #CHANGE BASED ON EVENT
 DEFAULT_THUMBNAIL = "thumbnail.png"
+DEFAULT_TAGS = "!2016incmp!, FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
+#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Qualification Match %s" #CHANGE BASED ON EVENT
+#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Qualification Match %s.mp4" #CHANGE BASED ON EVENT
+#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Quarterfinal Match %s" #CHANGE BASED ON EVENT
+#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Quarterfinal Match %s.mp4" #CHANGE BASED ON EVENT
+#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Quarterfinal Tiebreaker %s" #CHANGE BASED ON EVENT
+#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Quarterfinal Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
+DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Match %s" #CHANGE BASED ON EVENT
+DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal %s.mp4" #CHANGE BASED ON EVENT
+#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Tiebreaker %s" #CHANGE BASED ON EVENT
+#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
+#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Match %s" #CHANGE BASED ON EVENT
+#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Match %s.mp4" #CHANGE BASED ON EVENT
+#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Tiebreaker %s" #CHANGE BASED ON EVENT
+#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
+
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
@@ -103,16 +116,16 @@ def upload_thumbnail(youtube, video_id, file):
     media_body=file
   ).execute()
 
-def add_to_TBA(link, mnum):
-  post_params = {
-    match_key : "2016incmp_qm%s" % mnum,
-    youtube_url : link,
-        }
-post_args = urllib.urlencode(post_params)
+# def add_to_TBA(link, mnum):
+#   post_params = (
+#     match_key : "2016incmp_qm%s" % mnum,
+#     youtube_url : link,
+#         )
+#   post_args = urllib.urlencode(post_params)
 
-url = "http://www.thebluealliance.com/suggest/match/video?match_key=2016incmp_qm%s" % mnum
-fp = urllib.urlopen(url, post_args)
-soup = BeautifulSoup(fp)
+#     url = "http://www.thebluealliance.com/suggest/match/video?match_key=2016incmp_qm%s" % mnum
+#     fp = urllib.urlopen(url, post_args)
+#     soup = BeautifulSoup(fp)
 
 
 def add_video_to_playlist(youtube,videoID,playlistID):
@@ -186,8 +199,8 @@ def resumable_upload(insert_request, mnum):
         pyperclip.copy('https://www.youtube.com/watch?v=%s' % response['id'])
         spam = pyperclip.paste()
         print "YouTube link copied to clipboard for safety"
-        add_to_TBA("https://www.youtube.com/watch?v=%s" % response['id'],mnum)
-        print "YouTube link added to TheBlueAlliance, unless it failed in which case sorry"
+        #add_to_TBA("https://www.youtube.com/watch?v=%s" % response['id'],mnum)
+        #print "YouTube link added to TheBlueAlliance, unless it failed in which case sorry"
       else:
         exit("The upload failed with an unexpected response: %s" % response)
     except HttpError, e:
