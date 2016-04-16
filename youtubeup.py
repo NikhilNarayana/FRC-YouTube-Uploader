@@ -103,6 +103,18 @@ def upload_thumbnail(youtube, video_id, file):
     media_body=file
   ).execute()
 
+def add_to_TBA(link, mnum):
+  post_params = {
+    match_key : "2016incmp_qm%s" % mnum,
+    youtube_url : link,
+        }
+post_args = urllib.urlencode(post_params)
+
+url = "http://www.thebluealliance.com/suggest/match/video?match_key=2016incmp_qm%s" % mnum
+fp = urllib.urlopen(url, post_args)
+soup = BeautifulSoup(fp)
+
+
 def add_video_to_playlist(youtube,videoID,playlistID):
   add_video_request=youtube.playlistItems().insert(
     part="snippet",
@@ -174,8 +186,8 @@ def resumable_upload(insert_request, mnum):
         pyperclip.copy('https://www.youtube.com/watch?v=%s' % response['id'])
         spam = pyperclip.paste()
         print "YouTube link copied to clipboard for safety"
-        #add_to_TBA("https://www.youtube.com/watch?v=%s" % response['id'],mnum)
-        #print "YouTube link added to TheBlueAlliance"
+        add_to_TBA("https://www.youtube.com/watch?v=%s" % response['id'],mnum)
+        print "YouTube link added to TheBlueAlliance, unless it failed in which case sorry"
       else:
         exit("The upload failed with an unexpected response: %s" % response)
     except HttpError, e:
