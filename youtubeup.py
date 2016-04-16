@@ -101,6 +101,17 @@ def upload_thumbnail(youtube, video_id, file):
     media_body=file
   ).execute()
 
+def add_to_TBA(link, mnum):
+    WEBPAGE="http://www.thebluealliance.com/suggest/match/video?match_key=2016incmp_qm%s" % mnum
+    driver = webdriver.Chrome()
+    driver.get(WEBPAGE)
+
+    sbox = driver.find_element_by_class_name("form-control")
+    sbox.send_keys(link)
+
+    submit = driver.find_element_by_class_name("input-group-btn")
+    submit.click()
+
 def add_video_to_playlist(youtube,videoID,playlistID):
   add_video_request=youtube.playlistItems().insert(
     part="snippet",
@@ -124,7 +135,7 @@ def initialize_upload(youtube, options):
   body=dict(
     snippet=dict(
       title=options.title % options.mnum,
-      description=options.description % options.mnum,
+      description=options.description,
       tags=tags,
       categoryId=options.category
     ),
@@ -148,14 +159,14 @@ def initialize_upload(youtube, options):
     # practice, but if you're using Python older than 2.6 or if you're
     # running on App Engine, you should set the chunksize to something like
     # 1024 * 1024 (1 megabyte).
-    media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True)
+    media_body=MediaFileUpload(options.file % options.mnum, chunksize=-1, resumable=True)
   )
 
-  resumable_upload(insert_request)
+  resumable_upload(insert_request, options.mnum)
 
 # This method implements an exponential backoff strategy to resume a
 # failed upload.
-def resumable_upload(insert_request):
+def resumable_upload(insert_request, mnum):
   response = None
   error = None
   retry = 0
@@ -166,9 +177,7 @@ def resumable_upload(insert_request):
       if 'id' in response:
         print "Video id '%s' was successfully uploaded." % response['id']
         print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-        pyperclip.copy('https://www.youtube.com/watch?v=%s' % response['id'])
-        spam = pyperclip.paste()
-        print "Link copied to clipboard"
+        add_to_TBA("https://www.youtube.com/watch?v=%s" % response['id'],options.mnum)
         upload_thumbnail(youtube, response['id'], "thumbnail.png")
         print "Video thumbnail added"
         os.system("python addtoplaylist.py --vID " + response['id'])
@@ -208,9 +217,6 @@ if __name__ == '__main__':
   argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
     default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
   args = argparser.parse_args()
-
-  if not os.path.exists(args.file):
-    exit("Please specify the match number with the --mnum parameter")
 
   youtube = get_authenticated_service(args)
   try:
