@@ -103,17 +103,6 @@ def upload_thumbnail(youtube, video_id, file):
     media_body=file
   ).execute()
 
-def add_to_TBA(link, mnum):
-    WEBPAGE="http://www.thebluealliance.com/suggest/match/video?match_key=2016incmp_qm%s" % mnum
-    driver = webdriver.Chrome()
-    driver.get(WEBPAGE)
-
-    sbox = driver.find_element_by_class_name("form-control")
-    sbox.send_keys(link)
-
-    submit = driver.find_element_by_class_name("input-group-btn")
-    submit.click()
-
 def add_video_to_playlist(youtube,videoID,playlistID):
   add_video_request=youtube.playlistItems().insert(
     part="snippet",
