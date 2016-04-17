@@ -30,12 +30,12 @@ DEFAULT_TAGS = "!2016incmp!, FIRST, omgrobots, FRC, FIRST Robotics Competition, 
 #DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Quarterfinal Match %s.mp4" #CHANGE BASED ON EVENT
 #DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Quarterfinal Tiebreaker %s" #CHANGE BASED ON EVENT
 #DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Quarterfinal Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
-DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Match %s" #CHANGE BASED ON EVENT
-DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal %s.mp4" #CHANGE BASED ON EVENT
+#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Match %s" #CHANGE BASED ON EVENT
+#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal %s.mp4" #CHANGE BASED ON EVENT
 #DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Tiebreaker %s" #CHANGE BASED ON EVENT
 #DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
-#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Match %s" #CHANGE BASED ON EVENT
-#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Match %s.mp4" #CHANGE BASED ON EVENT
+DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Match %s" #CHANGE BASED ON EVENT
+DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Match %s.mp4" #CHANGE BASED ON EVENT
 #DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Tiebreaker %s" #CHANGE BASED ON EVENT
 #DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
 
