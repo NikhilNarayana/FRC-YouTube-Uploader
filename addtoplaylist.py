@@ -9,6 +9,9 @@ from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
 
 
+#Default Variables
+DEFAULT_PLAYLIST_ID = ""
+
 # The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
 # the OAuth 2.0 information for this application, including its client_id and
 # client_secret. You can acquire an OAuth 2.0 client ID and client secret from
@@ -79,5 +82,5 @@ if __name__ == '__main__':
     argparser.add_argument("--vID",required=True,help="Video ID to add to playlist")
     args = argparser.parse_args()
     youtube = get_authenticated_service()
-    add_video_to_playlist(youtube,args.vID,"PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2")
+    add_video_to_playlist(youtube,args.vID,DEFAULT_PLAYLIST_ID)
     print "Added to playlist"
