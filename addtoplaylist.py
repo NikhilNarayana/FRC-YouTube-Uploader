@@ -10,16 +10,10 @@ from oauth2client.tools import argparser, run_flow
 
 
 #Default Variables
-CHANNEL_ID = "UCy2Lh8b-y0r-35LlcjOPPzw"
-#How to get Channel ID
-#If you have not applied for a custom channel address you can find it by going to your channel page and looking at the URL for the last part
-#https://www.youtube.com/channel/XXXXXXXXXXXXXXXXXXXXXXXX/ It will look something like that. The number of characters will not be the same.
-#If that doesn't work. The following link will be able to get it: http://johnnythetank.github.io/youtube-channel-name-converter/
-
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
 #How to get Playlist ID:
-#https://developers.google.com/apis-explorer/#p/youtube/v3/youtube.playlists.list?part=snippet%252CcontentDetails&channelId=UC_x5XG1OV2P6uZZ5FSM9Ttw
-#Go to the link above, replace the Channel ID with your own, go to the bottom and find the ID of the playlist you want.
+# Go to the creator studio -> Video Manager -> Playlists and pick the one you want to add to
+# The playlist id will be listed in the URL https://www.youtube.com/playlist?list=PLXXXXXXXXXXXXXXXXXXXXXXX
 
 
 # The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
@@ -33,7 +27,7 @@ DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
 # For more information about the client_secrets.json file format, see:
 #   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 
-CLIENT_SECRETS_FILE = "add_to_playlist_client_secrets.json"
+CLIENT_SECRETS_FILE = "client_secrets.json"
 
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.

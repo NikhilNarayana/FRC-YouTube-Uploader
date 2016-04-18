@@ -11,7 +11,7 @@ from oauth2client.tools import argparser, run_flow
 from updateThumbnail import upload_thumbnail
 
 #Thumbnail file to use
-THUMBNAIL = "2016 Tippecanoe.png"
+THUMBNAIL = ""
 
 # The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
 # the OAuth 2.0 information for this application, including its client_id and

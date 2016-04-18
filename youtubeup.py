@@ -23,6 +23,7 @@ from updateThumbnail import upload_thumbnail
 DEFAULT_DESCRIPTION = "Footage of the 2016 IndianaFIRST FRC District Championship Event is courtesy the Indiana FIRST AV Crew. \n \n To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp \n \n Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). \n \n For more information and future event schedules, visit our website: www.indianafirst.org \n \n Thanks for watching!"
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
+DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
 DEFAULT_TAGS = "2016incmp, FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
 DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Qualification Match %s" #CHANGE BASED ON EVENT
 DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Qualification Match %s.mp4" #CHANGE BASED ON EVENT
@@ -67,7 +68,7 @@ RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 #   https://developers.google.com/youtube/v3/guides/authentication
 # For more information about the client_secrets.json file format, see:
 #   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-CLIENT_SECRETS_FILE = "youtubeup_client_secrets.json"
+CLIENT_SECRETS_FILE = "client_secrets.json"
 
 # This OAuth 2.0 access scope allows an application to upload files to the
 # authenticated user's YouTube channel, but doesn't allow other types of access.
@@ -162,6 +163,7 @@ def resumable_upload(insert_request, mnum, youtube):
         print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
         upload_thumbnail(youtube, response['id'], "thumbnail.png")
         print "Video thumbnail added"
+        add_video_to_playlist(youtube,response['id'],DEFAULT_PLAYLIST_ID)
         os.system("python addtoplaylist.py --vID " + response['id'])
         pyperclip.copy('https://www.youtube.com/watch?v=%s' % response['id'])
         spam = pyperclip.paste()
