@@ -33,7 +33,7 @@ DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
 # For more information about the client_secrets.json file format, see:
 #   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 
-CLIENT_SECRETS_FILE = "client_secretss.json"
+CLIENT_SECRETS_FILE = "add_to_playlist_client_secrets.json"
 
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.

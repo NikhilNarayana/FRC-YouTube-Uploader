@@ -16,6 +16,7 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
 from TheBlueAlliance import *
+from addtoplaylist import add_video_to_playlist
 
 #Default Variables - A lot needs to be changed based on event
 DEFAULT_DESCRIPTION = "Footage of the 2016 IndianaFIRST FRC District Championship Event is courtesy the Indiana FIRST AV Crew. \n \n To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp \n \n Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). \n \n For more information and future event schedules, visit our website: www.indianafirst.org \n \n Thanks for watching!"
@@ -24,18 +25,18 @@ DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_TAGS = "2016incmp, FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
 DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Qualification Match %s" #CHANGE BASED ON EVENT
 DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Qualification Match %s.mp4" #CHANGE BASED ON EVENT
-#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Quarterfinal Match %s" #CHANGE BASED ON EVENT
-#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Quarterfinal Match %s.mp4" #CHANGE BASED ON EVENT
-#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Quarterfinal Tiebreaker %s" #CHANGE BASED ON EVENT
-#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Quarterfinal Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
-#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Match %s" #CHANGE BASED ON EVENT
-#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal %s.mp4" #CHANGE BASED ON EVENT
-#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Tiebreaker %s" #CHANGE BASED ON EVENT
-#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
-#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Match %s" #CHANGE BASED ON EVENT
-#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Match %s.mp4" #CHANGE BASED ON EVENT
-#DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Tiebreaker %s" #CHANGE BASED ON EVENT
-#DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
+# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Quarterfinal Match %s" #CHANGE BASED ON EVENT
+# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Quarterfinal Match %s.mp4" #CHANGE BASED ON EVENT
+# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Quarterfinal Tiebreaker %s" #CHANGE BASED ON EVENT
+# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Quarterfinal Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
+# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Match %s" #CHANGE BASED ON EVENT
+# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal %s.mp4" #CHANGE BASED ON EVENT
+# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Tiebreaker %s" #CHANGE BASED ON EVENT
+# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
+# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Match %s" #CHANGE BASED ON EVENT
+# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Match %s.mp4" #CHANGE BASED ON EVENT
+# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Tiebreaker %s" #CHANGE BASED ON EVENT
+# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
 
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
@@ -65,11 +66,11 @@ RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 #   https://developers.google.com/youtube/v3/guides/authentication
 # For more information about the client_secrets.json file format, see:
 #   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-CLIENT_SECRETS_FILE = "client_secrets.json"
+CLIENT_SECRETS_FILE = "youtubeup_client_secrets.json"
 
 # This OAuth 2.0 access scope allows an application to upload files to the
 # authenticated user's YouTube channel, but doesn't allow other types of access.
-YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
+YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.readonly"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
