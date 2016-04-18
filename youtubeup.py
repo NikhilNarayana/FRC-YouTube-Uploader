@@ -17,6 +17,7 @@ from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
 from TheBlueAlliance import *
 from addtoplaylist import add_video_to_playlist
+from updateThumbnail import upload_thumbnail
 
 #Default Variables - A lot needs to be changed based on event
 DEFAULT_DESCRIPTION = "Footage of the 2016 IndianaFIRST FRC District Championship Event is courtesy the Indiana FIRST AV Crew. \n \n To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp \n \n Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). \n \n For more information and future event schedules, visit our website: www.indianafirst.org \n \n Thanks for watching!"
@@ -109,28 +110,6 @@ def get_authenticated_service(args):
   return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
     http=credentials.authorize(httplib2.Http()))
 
-def upload_thumbnail(youtube, video_id, file):
-  youtube.thumbnails().set(
-    videoId=video_id,
-    media_body=file
-  ).execute()
-
-
-def add_video_to_playlist(youtube,videoID,playlistID):
-  add_video_request=youtube.playlistItems().insert(
-    part="snippet",
-    body={
-      'snippet': {
-        'playlistId': playlistID, 
-        'resourceId': {
-          'kind': 'youtube#video',
-          'videoId': videoID
-          }
-            #'position': 0
-          }
-    }
-).execute()
-
 def initialize_upload(youtube, options):
   tags = None
   if options.keywords:
@@ -166,11 +145,11 @@ def initialize_upload(youtube, options):
     media_body=MediaFileUpload(options.file % options.mnum, chunksize=-1, resumable=True)
   )
 
-  resumable_upload(insert_request, options.mnum)
+  resumable_upload(insert_request, options.mnum, youtube)
 
 # This method implements an exponential backoff strategy to resume a
 # failed upload.
-def resumable_upload(insert_request, mnum):
+def resumable_upload(insert_request, mnum, youtube):
   response = None
   error = None
   retry = 0

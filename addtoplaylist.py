@@ -87,10 +87,10 @@ def add_video_to_playlist(youtube,videoID,playlistID):
             }
     }
 ).execute()
+    print "Added to playlist"
 
 if __name__ == '__main__':
     argparser.add_argument("--vID",required=True,help="Video ID to add to playlist")
     args = argparser.parse_args()
     youtube = get_authenticated_service()
     add_video_to_playlist(youtube,args.vID,DEFAULT_PLAYLIST_ID)
-    print "Added to playlist"
