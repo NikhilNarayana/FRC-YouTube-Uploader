@@ -24,7 +24,19 @@ from youtubeAuthenticate import get_authenticated_service
 NOW = datetime.datetime.now()
 
 #Default Variables - A lot needs to be changed based on event
-DEFAULT_DESCRIPTION = "Footage of the 2016 IndianaFIRST FRC District Championship Event is courtesy the Indiana FIRST AV Crew. \n \n To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp \n \n Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). \n \n For more information and future event schedules, visit our website: www.indianafirst.org \n \n Thanks for watching!"
+DEFAULT_DESCRIPTION = """Footage of the 2016 IndianaFIRST FRC District Championship Event is courtesy the IndianaFIRST AV Crew.
+
+Blue Alliance (%d, %d, %d) - %d
+Red Alliance  (%d, %d, %d) - %d
+
+To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp 
+
+Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). 
+
+For more information and future event schedules, visit our website: www.indianafirst.org 
+
+Thanks for watching!"""
+
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
@@ -42,6 +54,7 @@ FINALST = "Finals Tiebreaker"
 EXTENSION = ".mp4"
 DEFAULT_TITLE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUAL #CHANGE BASED ON EVENT
 DEFAULT_FILE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUAL + EXTENSION #CHANGE BASED ON EVENT
+MATCH_CODES = ["qm%d","qf%dm%d","sf%dm%d","f1m%d"]
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
@@ -80,11 +93,11 @@ def initialize_upload(youtube, options):
     media_body=MediaFileUpload(options.file % options.mnum, chunksize=-1, resumable=True)
   )
 
-  resumable_upload(insert_request, options.mnum, youtube)
+  resumable_upload(insert_request, options.mnum, options.mcode, youtube)
 
 # This method implements an exponential backoff strategy to resume a
 # failed upload.
-def resumable_upload(insert_request, mnum, youtube):
+def resumable_upload(insert_request, mnum, mcode, youtube):
   response = None
   error = None
   retry = 0
@@ -127,10 +140,10 @@ def resumable_upload(insert_request, mnum, youtube):
 
 if __name__ == '__main__':
   argparser.add_argument("--mnum", help="Match Number to add", required=True)
+  argparser.add_argument("--mcode", help="Match code (qm,qf,sf,f) starting at 0 ->3", default=0)
   argparser.add_argument("--file", help="Video file to upload", default=DEFAULT_FILE)
   argparser.add_argument("--title", help="Video title", default=DEFAULT_TITLE)
-  argparser.add_argument("--description", help="Video description",
-    default=DEFAULT_DESCRIPTION)
+  argparser.add_argument("--description", help="Video description", default=DEFAULT_DESCRIPTION)
   argparser.add_argument("--category", default=DEFAULT_VIDEO_CATEGORY,
     help="Numeric video category. " +
       "See https://developers.google.com/youtube/v3/docs/videoCategories/list")
