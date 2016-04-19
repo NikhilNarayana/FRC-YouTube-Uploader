@@ -42,7 +42,7 @@ ORGANIZATION = "INFIRST"
 EVENT_NAME = "Indiana State Championship"
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
-QUARTERT = "Quarterfinal Tiebreaker %s"
+QUARTERT = "Quarterfinal Tiebreaker %s" #Dear FIRST, what the hell?
 SEMI = "Semifinal Match %s"
 SEMIT = "Semifinal Tiebreaker %s"
 FINALS = "Finals Match %s"
@@ -50,7 +50,7 @@ FINALST = "Finals Tiebreaker"
 EXTENSION = ".mp4"
 DEFAULT_TITLE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUAL #CHANGE BASED ON EVENT
 DEFAULT_FILE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUAL + EXTENSION #CHANGE BASED ON EVENT
-MATCH_CODES = ["qm%d","qf%dm%d","sf%dm%d","f1m%d"]
+MATCH_TYPE = ["qm%d","qf%dm%d","sf%dm%d","f1m%d"]
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
@@ -135,22 +135,22 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
       time.sleep(sleep_seconds)
 
 if __name__ == '__main__':
-  argparser.add_argument("--mnum", help="Match Number to add", required=True)
-  argparser.add_argument("--mcode", help="Match code (qm,qf,sf,f) starting at 0 ->3", default=0)
-  argparser.add_argument("--file", help="Video file to upload", default=DEFAULT_FILE)
-  argparser.add_argument("--title", help="Video title", default=DEFAULT_TITLE)
-  argparser.add_argument("--description", help="Video description", default=DEFAULT_DESCRIPTION)
-  argparser.add_argument("--category", default=DEFAULT_VIDEO_CATEGORY,
-    help="Numeric video category. " +
-      "See https://developers.google.com/youtube/v3/docs/videoCategories/list")
-  argparser.add_argument("--keywords", help="Video keywords, comma separated",
-    default=DEFAULT_TAGS)
-  argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
-    default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
-  args = argparser.parse_args()
+    argparser.add_argument("--mnum", help="Match Number to add", required=True)
+    argparser.add_argument("--mcode", help="Match code (qm,qf,sf,f) starting at 0 ->3", default=0)
+    argparser.add_argument("--file", help="Video file to upload", default=DEFAULT_FILE)
+    argparser.add_argument("--title", help="Video title", default=DEFAULT_TITLE)
+    argparser.add_argument("--description", help="Video description", default=DEFAULT_DESCRIPTION)
+    argparser.add_argument("--category", default=DEFAULT_VIDEO_CATEGORY, help="Numeric video category. " +"See https://developers.google.com/youtube/v3/docs/videoCategories/list")
+    argparser.add_argument("--keywords", help="Video keywords, comma separated", default=DEFAULT_TAGS)
+    argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES, default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
+    args = argparser.parse_args()
 
-  youtube = get_authenticated_service(args)
-  try:
-    initialize_upload(youtube, args)
-  except HttpError, e:
-    print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+    youtube = get_authenticated_service(args)
+    event_code = get_events_and_codes(2015, 'Silicon Valley')[1]
+    event = Event('github_user', 'test', '1.0', event_code)
+
+    event.get_event_info()
+    try:
+     initialize_upload(youtube, args)
+    except HttpError, e:
+        print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
