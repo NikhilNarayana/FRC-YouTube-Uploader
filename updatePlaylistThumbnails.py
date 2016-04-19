@@ -8,10 +8,11 @@ from apiclient.discovery import build
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
-from updateThumbnail import upload_thumbnail
+from updateThumbnail import update_thumbnail
 
 #Thumbnail file to use
 THUMBNAIL = ""
+PLAYLISTID = "PL9UFVOe2UANz-C62NqFLnebNieHc4Wiar"
 
 # The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
 # the OAuth 2.0 information for this application, including its client_id and
@@ -45,53 +46,58 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 
 # This OAuth 2.0 access scope allows for read-only access to the authenticated
 # user's account, but not other types of account access.
-YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly "
+YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.upload"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
-  message=MISSING_CLIENT_SECRETS_MESSAGE,
-  scope=YOUTUBE_READONLY_SCOPE)
+def get_authenticated_service(args):
+  flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
+    scope=YOUTUBE_UPLOAD_SCOPE,
+    message=MISSING_CLIENT_SECRETS_MESSAGE)
 
-storage = Storage("%s-oauth2.json" % sys.argv[0])
-credentials = storage.get()
+  storage = Storage("%s-oauth2.json" % sys.argv[0])
+  credentials = storage.get()
 
-if credentials is None or credentials.invalid:
-  flags = argparser.parse_args()
-  credentials = run_flow(flow, storage, flags)
+  if credentials is None or credentials.invalid:
+    credentials = run_flow(flow, storage, args)
 
-youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-  http=credentials.authorize(httplib2.Http()))
+  return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+    http=credentials.authorize(httplib2.Http()))
 
 # Retrieve the contentDetails part of the channel resource for the
 # authenticated user's channel.
-channels_response = youtube.channels().list(
-  mine=True,
-  part="contentDetails"
-).execute()
+def update_thumbnails(youtube,pID):
+    channels_response = youtube.channels().list(
+    mine=True,
+    part="contentDetails"
+    ).execute()
+    for channel in channels_response["items"]:
+    # From the API response, extract the playlist ID that identifies the list
+    # of videos uploaded to the authenticated user's channel.
+    uploads_list_id = channel["contentDetails"]["relatedPlaylists"]["uploads"]
 
-for channel in channels_response["items"]:
-  # From the API response, extract the playlist ID that identifies the list
-  # of videos uploaded to the authenticated user's channel.
-  uploads_list_id = channel["contentDetails"]["relatedPlaylists"]["uploads"]
+    print "Videos in list %s" % uploads_list_id
 
-  print "Videos in list %s" % uploads_list_id
+    # Retrieve the list of videos uploaded to the authenticated user's channel.
+    playlistitems_list_request = youtube.playlistItems().list(
+        playlistId=PLAYLISTID,
+        part="snippet",
+        maxResults=50
+    )
 
-  # Retrieve the list of videos uploaded to the authenticated user's channel.
-  playlistitems_list_request = youtube.playlistItems().list(
-    playlistId="PL9UFVOe2UANz-C62NqFLnebNieHc4Wiar",
-    part="snippet",
-    maxResults=50
-  )
+    while playlistitems_list_request:
+        playlistitems_list_response = playlistitems_list_request.execute()
 
-  while playlistitems_list_request:
-    playlistitems_list_response = playlistitems_list_request.execute()
-
-    # Print information about each video.
+        # Print information about each video.
     for playlist_item in playlistitems_list_response["items"]:
-      title = playlist_item["snippet"]["title"]
-      video_id = playlist_item["snippet"]["resourceId"]["videoId"]
-      os.system("python updateThumbnail.py --vID " + video_id)
+        title = playlist_item["snippet"]["title"]
+        video_id = playlist_item["snippet"]["resourceId"]["videoId"]
+        update_thumbnail(youtube,video_id,THUMBNAIL)
 
     playlistitems_list_request = youtube.playlistItems().list_next(
-      playlistitems_list_request, playlistitems_list_response)
+        playlistitems_list_request, playlistitems_list_response)
+
+if __name__ == '__main__':
+    argparser.add_argument("--pID",required=True,help="PlaylistID of videos to change thumbnails for",default=PLAYLISTID)
+    args = argparser.parse_args()
+    youtube = get_authenticated_service(args)

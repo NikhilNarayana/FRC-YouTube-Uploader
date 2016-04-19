@@ -10,7 +10,7 @@ from oauth2client.tools import argparser, run_flow
 
 
 #Default Variables
-DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
+PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
 #How to get Playlist ID:
 # Go to the creator studio -> Video Manager -> Playlists and pick the one you want to add to
 # The playlist id will be listed in the URL https://www.youtube.com/playlist?list=PLXXXXXXXXXXXXXXXXXXXXXXX
@@ -87,4 +87,4 @@ if __name__ == '__main__':
     argparser.add_argument("--vID",required=True,help="Video ID to add to playlist")
     args = argparser.parse_args()
     youtube = get_authenticated_service()
-    add_video_to_playlist(youtube,args.vID,DEFAULT_PLAYLIST_ID)
+    add_video_to_playlist(youtube,args.vID,PLAYLIST_ID)
