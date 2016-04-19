@@ -6,9 +6,6 @@ import os
 import random
 import sys
 import time
-import pyperclip
-import urllib
-import datetime
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
@@ -17,8 +14,6 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
 from TheBlueAlliance import *
-from addtoplaylist import add_video_to_playlist
-from updateThumbnail import update_thumbnail
 
 httplib2.RETRIES = 1
 
