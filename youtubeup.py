@@ -8,6 +8,7 @@ import sys
 import time
 import pyperclip
 import urllib
+import datetime
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
@@ -19,27 +20,27 @@ from TheBlueAlliance import *
 from addtoplaylist import add_video_to_playlist
 from updateThumbnail import upload_thumbnail
 
+NOW = datetime.datetime.now()
+
 #Default Variables - A lot needs to be changed based on event
 DEFAULT_DESCRIPTION = "Footage of the 2016 IndianaFIRST FRC District Championship Event is courtesy the Indiana FIRST AV Crew. \n \n To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp \n \n Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). \n \n For more information and future event schedules, visit our website: www.indianafirst.org \n \n Thanks for watching!"
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
 DEFAULT_TAGS = "2016incmp, FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
-DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Qualification Match %s" #CHANGE BASED ON EVENT
-DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Qualification Match %s.mp4" #CHANGE BASED ON EVENT
-# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Quarterfinal Match %s" #CHANGE BASED ON EVENT
-# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Quarterfinal Match %s.mp4" #CHANGE BASED ON EVENT
-# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Quarterfinal Tiebreaker %s" #CHANGE BASED ON EVENT
-# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Quarterfinal Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
-# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Match %s" #CHANGE BASED ON EVENT
-# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal %s.mp4" #CHANGE BASED ON EVENT
-# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Semifinal Tiebreaker %s" #CHANGE BASED ON EVENT
-# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Semifinal Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
-# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Match %s" #CHANGE BASED ON EVENT
-# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Match %s.mp4" #CHANGE BASED ON EVENT
-# DEFAULT_TITLE = "2016 INFIRST Indiana State Championship - Finals Tiebreaker %s" #CHANGE BASED ON EVENT
-# DEFAULT_FILE = "2016 INFIRST Indiana State Championship - Finals Tiebreaker %s.mp4" #CHANGE BASED ON EVENT
-
+YEAR = str(NOW.year)
+ORGANIZATION = "INFIRST"
+EVENT_NAME = "Indiana State Championship"
+QUAL = "Qualification Match %s"
+QUARTER = "Quarterfinal Match %s"
+QUARTERT = "Quarterfinal Tiebreaker %s"
+SEMI = "Semifinal Match %s"
+SEMIT = "Semifinal Tiebreaker %s"
+FINALS = "Finals Match %s"
+FINALST = "Finals Tiebreaker"
+EXTENSION = ".mp4"
+DEFAULT_TITLE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUAL #CHANGE BASED ON EVENT
+DEFAULT_FILE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUAL + EXTENSION #CHANGE BASED ON EVENT
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
@@ -164,7 +165,7 @@ def resumable_upload(insert_request, mnum, youtube):
         upload_thumbnail(youtube, response['id'], "thumbnail.png")
         print "Video thumbnail added"
         add_video_to_playlist(youtube,response['id'],DEFAULT_PLAYLIST_ID)
-        os.system("python addtoplaylist.py --vID " + response['id'])
+        #os.system("python addtoplaylist.py --vID " + response['id']) #Use as backup to the previous line
         pyperclip.copy('https://www.youtube.com/watch?v=%s' % response['id'])
         spam = pyperclip.paste()
         print "YouTube link copied to clipboard for TheBlueAlliance"
