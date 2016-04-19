@@ -35,4 +35,7 @@ if __name__ == '__main__':
     argparser.add_argument("--vID",required=True,help="Video ID to add to playlist")
     args = argparser.parse_args()
     youtube = get_authenticated_service(args)
-    add_video_to_playlist(youtube,args.vID,PLAYLIST_ID)
+    try:
+        add_video_to_playlist(youtube,args.vID,PLAYLIST_ID)
+    except HttpError, e:
+        print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)

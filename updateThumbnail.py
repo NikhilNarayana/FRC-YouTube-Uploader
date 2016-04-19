@@ -21,6 +21,7 @@ def update_thumbnail(youtube, video_id, file):
     videoId=video_id,
     media_body=file
   ).execute()
+  print "Thumbnail added to video %s" % video_id
 
 if __name__ == '__main__':
   argparser.add_argument("--vID", help="Video ID of video to edit", required=True)
@@ -30,6 +31,5 @@ if __name__ == '__main__':
   youtube = get_authenticated_service(args)
   try:
     update_thumbnail(youtube,args.vID,args.file)
-    print "Thumbnail added to video %s" % args.vID
   except HttpError, e:
     print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
