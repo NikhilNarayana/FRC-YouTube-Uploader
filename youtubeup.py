@@ -7,15 +7,11 @@ import random
 import sys
 import time
 import pyperclip
-import urllib
 import datetime
 
-from apiclient.discovery import build
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.file import Storage
-from oauth2client.tools import argparser, run_flow
+from oauth2client.tools import argparser
 from TheBlueAlliance import *
 from addtoplaylist import add_video_to_playlist
 from updateThumbnail import update_thumbnail

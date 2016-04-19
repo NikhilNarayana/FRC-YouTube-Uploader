@@ -4,10 +4,7 @@ import httplib2
 import os
 import sys
 
-from apiclient.discovery import build
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.file import Storage
-from oauth2client.tools import argparser, run_flow
+from oauth2client.tools import argparser
 from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import get_authenticated_service
 
