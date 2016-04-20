@@ -24,14 +24,14 @@ from youtubeAuthenticate import get_authenticated_service
 NOW = datetime.datetime.now()
 
 #Default Variables - A lot needs to be changed based on event
-DEFAULT_DESCRIPTION = "Footage of the 2016 IndianaFIRST FRC District Championship Event is courtesy the Indiana FIRST AV Crew. \n \n To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp \n \n Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST). \n \n For more information and future event schedules, visit our website: www.indianafirst.org \n \n Thanks for watching!"
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
-DEFAULT_TAGS = "2016incmp, FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
+DEFAULT_TAGS = EVENT_CODE + ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
 YEAR = str(NOW.year)
 ORGANIZATION = "INFIRST"
 EVENT_NAME = "Indiana State Championship"
+EVENT_CODE = "2016incmp"
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
 QUARTERT = "Quarterfinal Tiebreaker %s"
@@ -42,6 +42,19 @@ FINALST = "Finals Tiebreaker"
 EXTENSION = ".mp4"
 DEFAULT_TITLE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUAL #CHANGE BASED ON EVENT
 DEFAULT_FILE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUAL + EXTENSION #CHANGE BASED ON EVENT
+MATCH_TYPE = ["qm%d","qf%dm%d","sf%dm%d","f1m%d"]
+DEFAULT_DESCRIPTION = "Footage of the " + YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " Event is courtesy the IndianaFIRST AV Crew." + """
+
+Blue Alliance (%d, %d, %d) - %d
+Red Alliance  (%d, %d, %d) - %d
+
+To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016""" + EVENT_CODE + """
+
+Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST).
+
+For more information and future event schedules, visit our website: www.indianafirst.org
+
+Thanks for watching!"""
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
