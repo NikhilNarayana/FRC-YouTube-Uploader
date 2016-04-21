@@ -142,7 +142,7 @@ if __name__ == '__main__':
     argparser.add_argument("--description", help="Video description", default=DEFAULT_DESCRIPTION)
     argparser.add_argument("--category", default=DEFAULT_VIDEO_CATEGORY, help="Numeric video category. " +"See https://developers.google.com/youtube/v3/docs/videoCategories/list")
     argparser.add_argument("--keywords", help="Video keywords, comma separated", default=DEFAULT_TAGS)
-    argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES, default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
+    argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES, default=VALID_PRIVACY_STATUSES[2], help="Video privacy status.")
     args = argparser.parse_args()
 
     youtube = get_authenticated_service(args)
