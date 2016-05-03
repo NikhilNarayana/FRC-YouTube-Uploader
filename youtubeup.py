@@ -23,7 +23,8 @@ NOW = datetime.datetime.now()
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
-DEFAULT_TAGS = EVENT_CODE + ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
+DEFAULT_TAGS = EVENT_CODE + \
+    ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
 YEAR = str(NOW.year)
 ORGANIZATION = "INFIRST"
 EVENT_NAME = "Indiana State Championship"
@@ -36,8 +37,10 @@ SEMIT = "Semifinal Tiebreaker %s"
 FINALS = "Finals Match %s"
 FINALST = "Finals Tiebreaker"
 EXTENSION = ".mp4"
-DEFAULT_TITLE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUAL  # CHANGE BASED ON EVENT
-DEFAULT_FILE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUAL + EXTENSION  # CHANGE BASED ON EVENT
+DEFAULT_TITLE = YEAR + " " + ORGANIZATION + " " + \
+    EVENT_NAME + " - " + QUAL  # CHANGE BASED ON EVENT
+DEFAULT_FILE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + \
+    " - " + QUAL + EXTENSION  # CHANGE BASED ON EVENT
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = "Footage of the " + YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " Event is courtesy the IndianaFIRST AV Crew." + """
 
@@ -55,7 +58,7 @@ Thanks for watching!"""
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
-def get_match_code(mcode, mnum, tbreak):
+def get_match_code(mcode, mnum):
     if mcode == "qm":
         match_code = mcode + mnum
         return EVENT_CODE, match_code
@@ -116,15 +119,8 @@ def get_match_code(mcode, mnum, tbreak):
             match_code = mcode + "2" + "m" + "3"
             return EVENT_CODE, match_code
     if mcode == "f1m":
-        if mnum == 1:
-            match_code = mcode + "1"
-            return EVENT_CODE, match_code
-        if mnum == 2:
-            match_code = mcode + "2"
-            return EVENT_CODE, match_code
-        if mnum == 2:
-            match_code = mcode + "3"
-            return EVENT_CODE, match_code
+        match_code = mcode + mnum
+        return EVENT_CODE, match_code
 
 
 def initialize_upload(youtube, options):
@@ -135,11 +131,18 @@ def initialize_upload(youtube, options):
 
     if options.keywords:
         tags = options.keywords.split(",")
+        tags.apppend("frc"+str(blue1))
+        tags.apppend("frc"+str(blue2))
+        tags.apppend("frc"+str(blue3))
+        tags.apppend("frc"+str(red1))
+        tags.apppend("frc"+str(red2))
+        tags.apppend("frc"+str(red3))
 
     body = dict(
         snippet=dict(
             title=options.title % options.mnum,
-            description=options.description % blue1, blue2, blue3, blue_score, red1, red2, red3, red_score,
+            description=options.description % (blue1, blue2, blue3, blue_score,
+                                               red1, red2, red3, red_score),
             tags=tags,
             categoryId=options.category
         ),
