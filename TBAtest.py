@@ -1,12 +1,16 @@
 #!/usr/bin/python
 import urllib2
-from TheBlueAlliance import *
+import bluealliance as tba
 import requests
+import simplejson as json
 
-class Match(TheBlueAlliance.APIBase):
-	EVENT_KEY = "YEARcode"
-	def __init__(self, event_key):
-		super(API, self).__init__("Nikhil Narayana","FRC Video Uploader","1.0")
-		self.EVENT_KEY = event_key
+def get_match_results(event_key, match_key):
+	tba.set_api_key("Nikki-Narayana","FRC-Match-Uploader","1.0")
+	event = tba.event_get(event_key)
+	match_data = event.get_match(match_key)
+	return match_data
 
-urllib2.urlopen("http://www.thebluealliance.com/api/v2/match/2016incmp_f1m1").read()
+if __name__ == '__main__':
+	match_data = get_match_results("2016incmp","f1m1")
+	for results in match_data['alliances']['blue']['teams']:
+		print results[3:]
