@@ -21,20 +21,18 @@ def parse_data(match_data):
 	red1 = red[0][3:]
 	red2 = red[1][3:]
 	red3 = red[2][3:]
-	print blue1, blue2, blue3
-	print red1, red2, red3
 	blue_score = match_data['alliances']['blue']['score']
 	red_score = match_data['alliances']['red']['score']
-	print blue_score, red_score
 	return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score
 
 
-def post_video(token, secret, request_path, request_body, event_key, match_videos):
+def post_video(token, secret, request_body, event_key):
 	set_auth_id(token)
-	set_auth_sig(secret, request_path, request_body)
-	post_request_video(event_key, match_videos)
+	set_auth_sig(secret, event_key, request_body)
+	post_request_video(event_key, request_body)
+	print "Successfully added to TBA"
 
 if __name__ == '__main__':
-	match_data = get_match_results("2016incmp","f1m3")
+	match_data = get_match_results("2016inpmh","f1m3")
 	blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = parse_data(match_data)
-	print blue1, blue2, blue3, blue_score, red1, red2, red3, red_score
+	print blue1, blue2, blue3, blue_score, "Points", red1, red2, red3, red_score, "Points"

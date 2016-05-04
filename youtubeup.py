@@ -17,18 +17,16 @@ from addtoplaylist import add_video_to_playlist
 from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import get_authenticated_service
 
-NOW = datetime.datetime.now()
-
 # Default Variables - A lot needs to be changed based on event
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "Thumbnails/thumbnail.png"
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
+TBA_TOKEN = "" # Contact TBA for a token unique to each event
+TBA_SECRET = "" # ^
+EVENT_CODE = "2016incmp"
 DEFAULT_TAGS = EVENT_CODE + \
     ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
-YEAR = str(NOW.year)
-ORGANIZATION = "INFIRST"
-EVENT_NAME = "Indiana State Championship"
-EVENT_CODE = "2016incmp"
+EVENT_NAME = "2016 INFIRST Indiana State Championship"
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
 QUARTERT = "Quarterfinal Tiebreaker %s"  # Dear FIRST, what the hell?
@@ -37,12 +35,10 @@ SEMIT = "Semifinal Tiebreaker %s"
 FINALS = "Finals Match %s"
 FINALST = "Finals Tiebreaker"
 EXTENSION = ".mp4"
-DEFAULT_TITLE = YEAR + " " + ORGANIZATION + " " + \
-    EVENT_NAME + " - " + QUAL
-DEFAULT_FILE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + \
-    " - " + QUAL + EXTENSION
+DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
+DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
-DEFAULT_DESCRIPTION = "Footage of the " + YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " Event is courtesy the IndianaFIRST AV Crew." + """
+DEFAULT_DESCRIPTION = "Footage of the " + EVENT_NAME + " Event is courtesy the IndianaFIRST AV Crew." + """
 
 Blue Alliance (%d, %d, %d) - %d
 Red Alliance  (%d, %d, %d) - %d
@@ -62,27 +58,27 @@ def create_title(options):
         return options.title % options.mnum
     elif options.mcode == "qf":
         if options.mnum < 8:
-            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUARTER % options.mnum
+            title = YEAR + " " + EVENT_NAME + " - " + QUARTER % options.mnum
             return title
         elif options.mnum > 8:
             mnum = options.mnum - 8
-            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUARTERT % mnum
+            title = YEAR + " " + EVENT_NAME + " - " + QUARTERT % mnum
             return title
     elif options.mcode == "sf":
         if options.mnum < 4:
-            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + SEMI % options.mnum
+            title = YEAR + " " + EVENT_NAME + " - " + SEMI % options.mnum
             return title
         elif options.mnum > 4:
             mnum = options.mnum - 4
-            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + SEMIT % mnum
+            title = YEAR + " " + EVENT_NAME + " - " + SEMIT % mnum
             return title
     elif options.mcode == "f1m":
         if options.mnum < 2:
-            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALS % options.mnum
+            title = YEAR + " " + EVENT_NAME + " - " + FINALS % options.mnum
             return title
         elif options.mnum > 2:
             mnum = options.mnum - 2
-            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALST % mnum
+            title = YEAR + " " + EVENT_NAME + " - " + FINALST % mnum
             return title
 
 def create_filename(options):
@@ -90,27 +86,27 @@ def create_filename(options):
         return options.file % options.mnum
     elif options.mcode == "qf":
         if options.mnum < 8:
-            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUARTER + EXTENSION % options.mnum
+            filename = EVENT_NAME + " - " + QUARTER + EXTENSION % options.mnum
             return filename
         elif options.mnum > 8:
             mnum = options.mnum - 8
-            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUARTERT + EXTENSION % mnum
+            filename = EVENT_NAME + " - " + QUARTERT + EXTENSION % mnum
             return filename
     elif options.mcode == "sf":
         if options.mnum < 4:
-            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + SEMI + EXTENSION % options.mnum
+            filename = EVENT_NAME + " - " + SEMI + EXTENSION % options.mnum
             return filename
         elif options.mnum > 4:
             mnum = options.mnum - 4
-            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + SEMIT + EXTENSION % mnum
+            filename = EVENT_NAME + " - " + SEMIT + EXTENSION % mnum
             return filename
     elif options.mcode == "f1m":
         if options.mnum < 2:
-            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALS + EXTENSION % options.mnum
+            filename = EVENT_NAME + " - " + FINALS + EXTENSION % options.mnum
             return filename
         elif options.mnum > 2:
             mnum = options.mnum - 2
-            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALST + EXTENSION % mnum
+            filename = EVENT_NAME + " - " + FINALST + EXTENSION % mnum
             return filename
 
 def get_match_code(mcode, mnum):
@@ -151,15 +147,16 @@ def get_match_code(mcode, mnum):
 
 
 def tba_results(options):
-    match_data = get_match_results(get_match_code(options.mcode, options.mnum))
+    ecode, mcode = get_match_code(options.mcode, options.mnum)
+    match_data = get_match_results(ecode, mcode)
     blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = parse_data(
         match_data)
-    return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score
+    return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score, mcode
 
 
 def initialize_upload(youtube, options):
     tags = None
-    blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = tba_results(
+    blue1, blue2, blue3, blue_score, red1, red2, red3, red_score, mcode = tba_results(
         options) # Comment out if Blue Alliance is not responding
 
     if options.keywords:
@@ -203,7 +200,7 @@ def initialize_upload(youtube, options):
             create_filename(options), chunksize=-1, resumable=True)
     )
 
-    resumable_upload(insert_request, options.mnum, options.mcode, youtube)
+    resumable_upload(insert_request, options.mnum, mcode, youtube)
 
 # This method implements an exponential backoff strategy to resume a
 # failed upload.
@@ -224,6 +221,8 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
                 print "Video thumbnail added"
                 add_video_to_playlist(
                     youtube, response['id'], DEFAULT_PLAYLIST_ID)
+                request_body = {mcode:response['id']}
+                post_video(TBA_TOKEN, TBA_SECRET, request_body, EVENT_CODE)
 
             else:
                 exit("The upload failed with an unexpected response: %s" %
