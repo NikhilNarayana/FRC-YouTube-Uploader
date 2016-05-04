@@ -9,6 +9,7 @@ Current Feature Set:
 * Add Custom Thumbnails to a video or even a whole playlist
 * Add to Playlist(s)
 * Get video link for The Blue Alliance
+* Get match results from TBA (Have yet to test during an event)
 
 Things to do in the future:
 * Add videos to The Blue Alliance automatically
