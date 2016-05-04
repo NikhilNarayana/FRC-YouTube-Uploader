@@ -1,10 +1,13 @@
 import simplejson as json
 import numpy
 import requests
+import hashlib
+
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import LastModified
 
 app_id = {'X-TBA-App-Id': ""}
+trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
 
 s = requests.Session()
 s = CacheControl(s, heuristic=LastModified())
@@ -141,6 +144,7 @@ class Event:
 
         return opr_dict
 
+
 def match_sort_key(match):
     levels = {
         'qm': 0,
@@ -159,6 +163,28 @@ def set_api_key(name, description, version):
     global app_id
     app_id['X-TBA-App-Id'] = name + ':' + description + ':' + version
 
+def set_auth_id(token):
+    global trusted_auth
+    auth['X-TBA-Auth-Id'] = token
+
+def set_auth_sig(secret, event_key, request_body):
+    global trusted_auth
+    m = hashlib.md5()
+    request_path = "https://www.thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
+    m.update(secret + request_path + request_body)
+    md5 = m.hexdigest()
+    auth['X-TBA-Auth-Sig'] = md5
+    return request_path
+
+
+def post_request_video(url_str, match_videos):
+    global trusted_auth
+    if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
+        raise Exception("""An auth ID and/or auth secret required. 
+            Please use set_auth_id() and/or set_auth_secret() to set them""")
+
+    r. s.post(url_str, data=match_videos, headers=trusted_auth)
+    print r.content
 
 def tba_get(path):
     global app_id
@@ -167,7 +193,6 @@ def tba_get(path):
 
     url_str = 'https://www.thebluealliance.com/api/v2/' + path
     r = s.get(url_str, headers=app_id)
-    # print(r.url)
     tba_txt = r.text
     return json.loads(tba_txt)
 
