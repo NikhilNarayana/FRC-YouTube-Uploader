@@ -10,9 +10,9 @@ Current Feature Set:
 * Add to Playlist(s)
 * Get video link for The Blue Alliance
 * Get match results from TBA (Have yet to test during an event)
+* Add videos to The Blue Alliance automatically (Have yet to test during an event)
 
 Things to do in the future:
-* Add videos to The Blue Alliance automatically
 * GUI
 * Automate everything
 
