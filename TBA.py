@@ -8,6 +8,8 @@ def get_match_results(event_key, match_key):
 	tba.set_api_key("Nikki-Narayana","FRC-Match-Uploader","1.0")
 	event = tba.event_get(event_key)
 	match_data = event.get_match(match_key)
+	if match_data is None:
+		raise ValueError("""Match %s%s does not exist. Please use a match that exists""" % (event_key, match_key))
 	return match_data
 
 def parse_data(match_data):
@@ -26,7 +28,13 @@ def parse_data(match_data):
 	print blue_score, red_score
 	return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score
 
+
+def post_video(token, secret, request_path, request_body, event_key, match_videos):
+	set_auth_id(token)
+	set_auth_sig(secret, request_path, request_body)
+	post_request_video(event_key, match_videos)
+
 if __name__ == '__main__':
-	match_data = get_match_results("2016incmp","f1m1")
+	match_data = get_match_results("2016incmp","f1m3")
 	blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = parse_data(match_data)
 	print blue1, blue2, blue3, blue_score, red1, red2, red3, red_score

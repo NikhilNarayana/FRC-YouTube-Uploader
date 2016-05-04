@@ -21,7 +21,7 @@ NOW = datetime.datetime.now()
 
 # Default Variables - A lot needs to be changed based on event
 DEFAULT_VIDEO_CATEGORY = 28
-DEFAULT_THUMBNAIL = "thumbnail.png"
+DEFAULT_THUMBNAIL = "Thumbnails/thumbnail.png"
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
 DEFAULT_TAGS = EVENT_CODE + \
     ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
@@ -38,9 +38,9 @@ FINALS = "Finals Match %s"
 FINALST = "Finals Tiebreaker"
 EXTENSION = ".mp4"
 DEFAULT_TITLE = YEAR + " " + ORGANIZATION + " " + \
-    EVENT_NAME + " - " + QUAL  # CHANGE BASED ON EVENT
+    EVENT_NAME + " - " + QUAL
 DEFAULT_FILE = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + \
-    " - " + QUAL + EXTENSION  # CHANGE BASED ON EVENT
+    " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = "Footage of the " + YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " Event is courtesy the IndianaFIRST AV Crew." + """
 
@@ -247,6 +247,7 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
             sleep_seconds = random.random() * max_sleep
             print "Sleeping %f seconds and then retrying..." % sleep_seconds
             time.sleep(sleep_seconds)
+
 
 if __name__ == '__main__':
     argparser.add_argument("--mnum", help="""Match Number to add, if in elims
