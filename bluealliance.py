@@ -170,7 +170,7 @@ def set_auth_id(token):
 def set_auth_sig(secret, event_key, request_body):
     global trusted_auth
     m = hashlib.md5()
-    request_path = "https://www.thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
+    request_path = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
     m.update(secret + request_path + request_body)
     md5 = m.hexdigest()
     auth['X-TBA-Auth-Sig'] = md5

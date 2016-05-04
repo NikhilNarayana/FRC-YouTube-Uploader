@@ -21,9 +21,9 @@ from youtubeAuthenticate import get_authenticated_service
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "Thumbnails/thumbnail.png"
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
-TBA_TOKEN = "" # Contact TBA for a token unique to each event
-TBA_SECRET = "" # ^
-EVENT_CODE = "2016incmp"
+TBA_TOKEN = "8h9BbNm24dRkbCOo" # Contact TBA for a token unique to each event
+TBA_SECRET = "MaroS6T59BrQ90zZAdq2gyPK0S0QiUjjBaR8Sa8CRuBwqpX9Wn PlNIdlOQXr7FD3" # ^
+EVENT_CODE = "2016arc"
 DEFAULT_TAGS = EVENT_CODE + \
     ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
 EVENT_NAME = "2016 INFIRST Indiana State Championship"
