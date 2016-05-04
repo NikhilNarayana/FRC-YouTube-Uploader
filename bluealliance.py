@@ -191,7 +191,7 @@ def tba_get(path):
     if app_id['X-TBA-App-Id'] == "":
         raise Exception('An API key is required for TBA. Please use set_api_key() to set one.')
 
-    url_str = 'https://www.thebluealliance.com/api/v2/' + path
+    url_str = 'http://tba.lopreiato.me/api/v2/' + path
     r = s.get(url_str, headers=app_id)
     tba_txt = r.text
     return json.loads(tba_txt)
