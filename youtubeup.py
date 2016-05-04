@@ -57,6 +57,61 @@ Thanks for watching!"""
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
+def create_title(options):
+    if options.mcode == "qm":
+        return options.title % options.mnum
+    elif options.mcode == "qf":
+        if options.mnum < 8:
+            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUARTER % options.mnum
+            return title
+        elif options.mnum > 8:
+            mnum = options.mnum - 8
+            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUARTERT % mnum
+            return title
+    elif options.mcode == "sf":
+        if options.mnum < 4:
+            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + SEMI % options.mnum
+            return title
+        elif options.mnum > 4:
+            mnum = options.mnum - 4
+            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + SEMIT % mnum
+            return title
+    elif options.mcode == "f1m":
+        if options.mnum < 4:
+            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALS % options.mnum
+            return title
+        elif options.mnum > 4:
+            mnum = options.mnum - 2
+            title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALST % mnum
+            return title
+
+def create_filename(options):
+    if options.mcode == "qm":
+        return options.file % options.mnum
+    elif options.mcode == "qf":
+        if options.mnum < 8:
+            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUARTER + EXTENSION % options.mnum
+            return filename
+        elif options.mnum > 8:
+            mnum = options.mnum - 8
+            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + QUARTERT + EXTENSION % mnum
+            return filename
+    elif options.mcode == "sf":
+        if options.mnum < 4:
+            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + SEMI + EXTENSION % options.mnum
+            return filename
+        elif options.mnum > 4:
+            mnum = options.mnum - 4
+            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + SEMIT + EXTENSION % mnum
+            return filename
+    elif options.mcode == "f1m":
+        if options.mnum < 4:
+            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALS + EXTENSION % options.mnum
+            return filename
+        elif options.mnum > 4:
+            mnum = options.mnum - 2
+            filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALST + EXTENSION % mnum
+            return filename
 
 def get_match_code(mcode, mnum):
     if mcode == "qm":
@@ -123,11 +178,17 @@ def get_match_code(mcode, mnum):
         return EVENT_CODE, match_code
 
 
-def initialize_upload(youtube, options):
-    tags = None
+def tba_results(options):
     match_data = get_match_results(get_match_code(options.mcode, options.mnum))
     blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = parse_data(
         match_data)
+    return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score
+
+
+def initialize_upload(youtube, options):
+    tags = None
+    blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = tba_results(
+        options) # Comment out if Blue Alliance is not responding
 
     if options.keywords:
         tags = options.keywords.split(",")
@@ -140,7 +201,7 @@ def initialize_upload(youtube, options):
 
     body = dict(
         snippet=dict(
-            title=options.title % options.mnum,
+            title=create_title(options),
             description=options.description % (blue1, blue2, blue3, blue_score,
                                                red1, red2, red3, red_score),
             tags=tags,
@@ -167,7 +228,7 @@ def initialize_upload(youtube, options):
         # running on App Engine, you should set the chunksize to something like
         # 1024 * 1024 (1 megabyte).
         media_body=MediaFileUpload(
-            options.file % options.mnum, chunksize=-1, resumable=True)
+            create_filename(options), chunksize=-1, resumable=True)
     )
 
     resumable_upload(insert_request, options.mnum, options.mcode, youtube)
@@ -191,12 +252,6 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
                 print "Video thumbnail added"
                 add_video_to_playlist(
                     youtube, response['id'], DEFAULT_PLAYLIST_ID)
-                # os.system("python addtoplaylist.py --vID " + response['id'])
-                # #Use as backup to the previous line
-                pyperclip.copy(
-                    'https://www.youtube.com/watch?v=%s' % response['id'])
-                spam = pyperclip.paste()
-                print "YouTube link copied to clipboard for TheBlueAlliance"
 
             else:
                 exit("The upload failed with an unexpected response: %s" %
@@ -222,8 +277,8 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
             time.sleep(sleep_seconds)
 
 if __name__ == '__main__':
-    argparser.add_argument("--mnum", help="""Match Number to add, if in elims, 
-      keep incrementing by one unless for tiebreaker, in which case add 8 to the tiebreaker number""", required=True)
+    argparser.add_argument("--mnum", help="""Match Number to add, if in elims
+      keep incrementing by one unless for tiebreaker, in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""", required=True)
     argparser.add_argument(
         "--mcode", help="Match code (qm,qf,sf,f) starting at 0 ->3", default=0)
     argparser.add_argument(
