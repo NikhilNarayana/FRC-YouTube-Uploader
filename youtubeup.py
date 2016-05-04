@@ -77,10 +77,10 @@ def create_title(options):
             title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + SEMIT % mnum
             return title
     elif options.mcode == "f1m":
-        if options.mnum < 4:
+        if options.mnum < 2:
             title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALS % options.mnum
             return title
-        elif options.mnum > 4:
+        elif options.mnum > 2:
             mnum = options.mnum - 2
             title = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALST % mnum
             return title
@@ -105,10 +105,10 @@ def create_filename(options):
             filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + SEMIT + EXTENSION % mnum
             return filename
     elif options.mcode == "f1m":
-        if options.mnum < 4:
+        if options.mnum < 2:
             filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALS + EXTENSION % options.mnum
             return filename
-        elif options.mnum > 4:
+        elif options.mnum > 2:
             mnum = options.mnum - 2
             filename = YEAR + " " + ORGANIZATION + " " + EVENT_NAME + " - " + FINALST + EXTENSION % mnum
             return filename
@@ -118,60 +118,32 @@ def get_match_code(mcode, mnum):
         match_code = mcode + mnum
         return EVENT_CODE, match_code
     if mcode == "qf":
-        if mnum == 1:
-            match_code = mcode + "1" + "m" + "1"
+        match_set = mnum%4
+        if mnum =< 4:
+            match = 1
+            match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
-        if mnum == 2:
-            match_code = mcode + "2" + "m" + "1"
+        if mnum > 4 and mnum =< 8:
+            match = 2
+            match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
-        if mnum == 3:
-            match_code = mcode + "3" + "m" + "1"
-            return EVENT_CODE, match_code
-        if mnum == 4:
-            match_code = mcode + "4" + "m" + "1"
-            return EVENT_CODE, match_code
-        if mnum == 5:
-            match_code = mcode + "1" + "m" + "2"
-            return EVENT_CODE, match_code
-        if mnum == 6:
-            match_code = mcode + "2" + "m" + "2"
-            return EVENT_CODE, match_code
-        if mnum == 7:
-            match_code = mcode + "3" + "m" + "2"
-            return EVENT_CODE, match_code
-        if mnum == 8:
-            match_code = mcode + "4" + "m" + "2"
-            return EVENT_CODE, match_code
-        if mnum == 9:
-            match_code = mcode + "1" + "m" + "3"
-            return EVENT_CODE, match_code
-        if mnum == 10:
-            match_code = mcode + "2" + "m" + "3"
-            return EVENT_CODE, match_code
-        if mnum == 11:
-            match_code = mcode + "3" + "m" + "3"
-            return EVENT_CODE, match_code
-        if mnum == 12:
-            match_code = mcode + "4" + "m" + "3"
+        if mnum > 8 and mnum =< 12:
+            match = 3
+            match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
     if mcode == "sf":
-        if mnum == 1:
-            match_code = mcode + "1" + "m" + "1"
+        match_set = mnum%2
+        if mnum =< 2:
+            match = 1
+            match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
-        if mnum == 2:
-            match_code = mcode + "2" + "m" + "1"
+        if mnum > 2 and mnum =< 4:
+            match = 2
+            match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
-        if mnum == 3:
-            match_code = mcode + "2" + "m" + "2"
-            return EVENT_CODE, match_code
-        if mnum == 4:
-            match_code = mcode + "2" + "m" + "2"
-            return EVENT_CODE, match_code
-        if mnum == 5:
-            match_code = mcode + "2" + "m" + "3"
-            return EVENT_CODE, match_code
-        if mnum == 6:
-            match_code = mcode + "2" + "m" + "3"
+        if mnum > 4 and mnum =< 6:
+            match = 3
+            match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
     if mcode == "f1m":
         match_code = mcode + mnum
