@@ -8,21 +8,28 @@ The reasoning behind this project is that I don't want to copy over titles and d
 1. Install Python 2.7 for your OS
 2. Install the requirements for the script with `pip install -r /path/to/requirements.txt`
 3. Add the thumbnail to the Thumbnails folder as `thumbnail.png`
-4. Edit the code's default variables such as `TBA_TOKEN`, `TBA_SECRET`, `DEFAULT_PLAYLIST_ID`, `EVENT_CODE` (from TBA), `EVENT_NAME` and `DEFAULT_DESCRIPTION`
+4. Edit the code's default variables such as `DEFAULT_PLAYLIST_ID`, `EVENT_CODE` (from TBA), `EVENT_NAME` and `DEFAULT_DESCRIPTION`
 5. Get the `client_secrets.json` file from here: https://console.developers.google.com/ by clicking API -> Create Credentials -> OAuth Client ID -> Other. Fill in the dialog with anything. Once finished click the newly created ID and download the JSON file. Remember to name it as `client_secrets.json`.
-6. Run the script once to get YouTube Permissions.
-7. Enjoy not having to deal with YouTube's front end 🎉
+6. Get `X-TBA-Auth-Id` and `X-TBA-Auth-Sig` data by asking contact@thebluealliance.com for the event token and secret and set those values as `TBA_TOKEN` and `TBA_SECRET` respectively.
+7. Run the script once to get YouTube Permissions.
+8. Enjoy not having to deal with YouTube's front end 🎉
 
 ## Current Feature Set:
 * Upload Videos
 * Add Custom Thumbnails to a video or even a whole playlist
 * Add to Playlist(s)
 * Get match results from TBA and add them to description
-* Add videos to The Blue Alliance automatically (Have yet to test during an event)
+* Add videos to The Blue Alliance automatically
 
 Things to do in the future:
 * GUI
 * Automate everything so only a single human input is required
 
 ### Notes
-Most of the code was built specifically for the 2016 Indiana State Championship, but I attempted to make it clear what needed to be changed for this to be used at any event.
+Most of the code was built specifically for the 2016 Indiana State Championship, but I attempted to make it clear what needed to be changed for this to be used at any event. Ideally the future of this program will be a GUI that eliminates the need for any code changes and relies on the user to just feed it the info once per event.
+
+### Credits
+* Google - Authentication and Video Uploading
+* Phil Lopreiato - TBA Integration
+* Wes Jordan - TBA API Wrapper (http://wesj.org/documents/bluealliance.py)
+* Stack Exchange - Bug Fixes
