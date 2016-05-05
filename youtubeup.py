@@ -21,8 +21,8 @@ from youtubeAuthenticate import *
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
-TBA_TOKEN = "8h9BbNm24dRkbCOo" # Contact TBA for a token unique to each event
-TBA_SECRET = "MaroS6T59BrQ90zZAdq2gyPK0S0QiUjjBaR8Sa8CRuBwqpX9Wn PlNIdlOQXr7FD3" # ^
+TBA_TOKEN = "" # Contact TBA for a token unique to each event
+TBA_SECRET = "" # ^
 EVENT_CODE = "2016arc"
 DEFAULT_TAGS = EVENT_CODE + \
     ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
@@ -221,11 +221,11 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print "Video id '%s' was successfully uploaded." % response['id']
-                #print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-                #update_thumbnail(youtube, response['id'], "thumbnail.png")
-                #print "Video thumbnail added"
-                #add_video_to_playlist(
-                    #youtube, response['id'], DEFAULT_PLAYLIST_ID)
+                print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
+                update_thumbnail(youtube, response['id'], "thumbnail.png")
+                print "Video thumbnail added"
+                add_video_to_playlist(
+                    youtube, response['id'], DEFAULT_PLAYLIST_ID)
                 request_body = json.dumps({mcode:response['id']})
                 post_video(TBA_TOKEN, TBA_SECRET, request_body, EVENT_CODE)
 

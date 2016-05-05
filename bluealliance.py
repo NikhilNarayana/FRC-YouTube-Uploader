@@ -173,7 +173,7 @@ def set_auth_id(token):
 def set_auth_sig(secret, event_key, request_body):
     global trusted_auth
     m = hashlib.md5()
-    request_path = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
+    request_path = "/api/trusted/v1/event/%s/match_videos/add" % event_key
     concat = secret + request_path + str(request_body)
     print concat
     m.update(concat)
@@ -187,7 +187,7 @@ def post_video(token, secret, event_key, match_videos):
     set_auth_id(token)
     set_auth_sig(secret, event_key, match_videos)
     print str(trusted_auth)
-    url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
+    url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         raise Exception("""An auth ID and/or auth secret required. 
             Please use set_auth_id() and/or set_auth_secret() to set them""")
@@ -202,7 +202,7 @@ def tba_get(path):
     if app_id['X-TBA-App-Id'] == "":
         raise Exception("""An API key is required for TBA. Please use set_api_key() to set one.""")
 
-    url_str = 'http://tba.lopreiato.me/api/v2/' + path
+    url_str = 'http://thebluealliance.com/api/v2/' + path
     r = s.get(url_str, headers=app_id)
     tba_txt = r.text
     return json.loads(tba_txt)
