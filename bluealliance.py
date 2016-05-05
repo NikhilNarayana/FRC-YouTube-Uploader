@@ -165,25 +165,30 @@ def set_api_key(name, description, version):
 
 def set_auth_id(token):
     global trusted_auth
-    auth['X-TBA-Auth-Id'] = token
+    trusted_auth['X-TBA-Auth-Id'] = token
 
 def set_auth_sig(secret, event_key, request_body):
     global trusted_auth
     m = hashlib.md5()
     request_path = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
-    m.update(secret + request_path + request_body)
+    concat = secret + request_path + str(request_body)
+    print concat
+    m.update(concat)
     md5 = m.hexdigest()
-    auth['X-TBA-Auth-Sig'] = md5
+    print md5
+    trusted_auth['X-TBA-Auth-Sig'] = md5
     return request_path
 
 
-def post_request_video(url_str, match_videos):
+def post_request_video(event_key, match_videos):
     global trusted_auth
+    url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         raise Exception("""An auth ID and/or auth secret required. 
             Please use set_auth_id() and/or set_auth_secret() to set them""")
 
-    r. s.post(url_str, data=match_videos, headers=trusted_auth)
+    print match_videos
+    r = s.post(url_str, data=match_videos, headers=trusted_auth)
     print r.content
 
 def tba_get(path):

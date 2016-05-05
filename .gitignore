@@ -2,3 +2,4 @@ client_secrets.json
 *py-oauth2.json
 *.pyc
 *.mp4
+thumbnail.png
