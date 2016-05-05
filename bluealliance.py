@@ -182,6 +182,7 @@ def set_auth_sig(secret, event_key, request_body):
 
 def post_request_video(event_key, match_videos):
     global trusted_auth
+    print str(trusted_auth)
     url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         raise Exception("""An auth ID and/or auth secret required. 
