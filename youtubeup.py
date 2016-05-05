@@ -21,8 +21,8 @@ from youtubeAuthenticate import *
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
-TBA_TOKEN = "" # Contact TBA for a token unique to each event
-TBA_SECRET = "" # ^
+TBA_TOKEN = "8h9BbNm24dRkbCOo" # Contact TBA for a token unique to each event
+TBA_SECRET = "MaroS6T59BrQ90zZAdq2gyPK0S0QiUjjBaR8Sa8CRuBwqpX9WnPlNIdlOQXr7FD3" # ^
 EVENT_CODE = "2016arc"
 DEFAULT_TAGS = EVENT_CODE + \
     ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
@@ -59,27 +59,27 @@ def create_title(options):
         return options.title % options.mnum
     elif mcode == "qf":
         if options.mnum < 8:
-            title = YEAR + " " + EVENT_NAME + " - " + QUARTER % options.mnum
+            title = EVENT_NAME + " - " + QUARTER % options.mnum
             return title
         elif options.mnum > 8:
-            mnum = options.mnum - 8
-            title = YEAR + " " + EVENT_NAME + " - " + QUARTERT % mnum
+            mnum = int(options.mnum) - 8
+            title = EVENT_NAME + " - " + QUARTERT % str(mnum)
             return title
     elif mcode == "sf":
         if options.mnum < 4:
-            title = YEAR + " " + EVENT_NAME + " - " + SEMI % options.mnum
+            title = EVENT_NAME + " - " + SEMI % options.mnum
             return title
         elif options.mnum > 4:
-            mnum = options.mnum - 4
-            title = YEAR + " " + EVENT_NAME + " - " + SEMIT % mnum
+            mnum = int(options.mnum) - 4
+            title = EVENT_NAME + " - " + SEMIT % str(mnum)
             return title
     elif mcode == "f1m":
         if options.mnum < 2:
-            title = YEAR + " " + EVENT_NAME + " - " + FINALS % options.mnum
+            title = EVENT_NAME + " - " + FINALS % options.mnum
             return title
         elif options.mnum > 2:
-            mnum = options.mnum - 2
-            title = YEAR + " " + EVENT_NAME + " - " + FINALST % mnum
+            mnum = int(options.mnum) - 2
+            title = EVENT_NAME + " - " + FINALST % str(mnum)
             return title
 
 def create_filename(options):
@@ -88,27 +88,27 @@ def create_filename(options):
         return options.file % options.mnum
     elif mcode == "qf":
         if options.mnum < 8:
-            filename = EVENT_NAME + " - " + QUARTER + EXTENSION % options.mnum
+            filename = EVENT_NAME + " - " + QUARTER % options.mnum + EXTENSION
             return str(filename)
         elif options.mnum > 8:
-            mnum = options.mnum - 8
-            filename = EVENT_NAME + " - " + QUARTERT + EXTENSION % mnum
+            mnum = int(options.mnum) - 8
+            filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
             return str(filename)
     elif mcode == "sf":
         if options.mnum < 4:
-            filename = EVENT_NAME + " - " + SEMI + EXTENSION % options.mnum
+            filename = EVENT_NAME + " - " + SEMI % options.mnum + EXTENSION
             return str(filename)
         elif options.mnum > 4:
-            mnum = options.mnum - 4
-            filename = EVENT_NAME + " - " + SEMIT + EXTENSION % mnum
+            mnum = int(options.mnum) - 4
+            filename = EVENT_NAME + " - " + SEMIT % str(mnum) + EXTENSION
             return str(filename)
     elif mcode == "f1m":
         if options.mnum < 2:
-            filename = EVENT_NAME + " - " + FINALS + EXTENSION % options.mnum
+            filename = EVENT_NAME + " - " + FINALS % options.mnum + EXTENSION
             return str(filename)
         elif options.mnum > 2:
-            mnum = options.mnum - 2
-            filename = EVENT_NAME + " - " + FINALST + EXTENSION % mnum
+            mnum = int(options.mnum) - 2
+            filename = EVENT_NAME + " - " + FINALST % str(mnum) + EXTENSION
             return str(filename)
 
 def get_match_code(mcode, mnum):
@@ -117,6 +117,8 @@ def get_match_code(mcode, mnum):
         return EVENT_CODE, match_code
     if mcode == "qf":
         match_set = mnum%4
+        if match_set == 0:
+            match_set = 4
         if mnum <= 4:
             match = 1
             match_code = mcode + str(match_set) + "m" + str(match)
@@ -131,6 +133,8 @@ def get_match_code(mcode, mnum):
             return EVENT_CODE, match_code
     if mcode == "sf":
         match_set = mnum%2
+        if match_set == 0:
+            match_set = 2
         if mnum <= 2:
             match = 1
             match_code = mcode + str(match_set) + "m" + str(match)
@@ -150,9 +154,7 @@ def get_match_code(mcode, mnum):
 
 def tba_results(options):
     ecode, mcode = get_match_code(MATCH_TYPE[int(options.mcode)], int(options.mnum))
-    match_data = get_match_results(ecode, mcode)
-    blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = parse_data(
-        match_data)
+    blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = get_match_results(ecode, mcode)
     return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score, mcode
 
 

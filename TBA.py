@@ -10,7 +10,8 @@ def get_match_results(event_key, match_key):
 	match_data = event.get_match(match_key)
 	if match_data is None:
 		raise ValueError("""Match %s%s does not exist. Please use a match that exists""" % (event_key, match_key))
-	return match_data
+	blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = parse_data(match_data)
+	return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score
 
 def parse_data(match_data):
 	blue = match_data['alliances']['blue']['teams']
@@ -29,8 +30,3 @@ def parse_data(match_data):
 def post_video(token, secret, request_body, event_key):
 	tba.post_video(token, secret, event_key, request_body)
 	print "Successfully added to TBA"
-
-if __name__ == '__main__':
-	match_data = get_match_results("2016inpmh","f1m3")
-	blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = parse_data(match_data)
-	print blue1, blue2, blue3, blue_score, "Points", red1, red2, red3, red_score, "Points"
