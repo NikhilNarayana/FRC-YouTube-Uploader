@@ -13,6 +13,9 @@ s = requests.Session()
 s = CacheControl(s, heuristic=LastModified())
 s.headers.update(app_id)
 
+v = requests.Session()
+v = CacheControl(s, heuristic=LastModified())
+
 
 class Event:
     def __init__(self, info, teams, matches, awards, rankings):
@@ -176,12 +179,13 @@ def set_auth_sig(secret, event_key, request_body):
     m.update(concat)
     md5 = m.hexdigest()
     print md5
-    trusted_auth['X-TBA-Auth-Sig'] = md5
+    trusted_auth['X-TBA-Auth-Sig'] = str(md5)
     return request_path
 
-
-def post_request_video(event_key, match_videos):
+def post_video(token, secret, event_key, match_videos):
     global trusted_auth
+    set_auth_id(token)
+    set_auth_sig(secret, event_key, match_videos)
     print str(trusted_auth)
     url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
@@ -189,13 +193,14 @@ def post_request_video(event_key, match_videos):
             Please use set_auth_id() and/or set_auth_secret() to set them""")
 
     print match_videos
-    r = s.post(url_str, data=match_videos, headers=trusted_auth)
-    print r.content
+    r = v.post(url_str, data=match_videos, headers=trusted_auth)
+    if "Error" in r.content:
+        raise Exception(r.content) 
 
 def tba_get(path):
     global app_id
     if app_id['X-TBA-App-Id'] == "":
-        raise Exception('An API key is required for TBA. Please use set_api_key() to set one.')
+        raise Exception("""An API key is required for TBA. Please use set_api_key() to set one.""")
 
     url_str = 'http://tba.lopreiato.me/api/v2/' + path
     r = s.get(url_str, headers=app_id)

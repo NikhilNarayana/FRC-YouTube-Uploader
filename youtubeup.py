@@ -221,11 +221,11 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print "Video id '%s' was successfully uploaded." % response['id']
-                print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-                update_thumbnail(youtube, response['id'], "thumbnail.png")
-                print "Video thumbnail added"
-                add_video_to_playlist(
-                    youtube, response['id'], DEFAULT_PLAYLIST_ID)
+                #print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
+                #update_thumbnail(youtube, response['id'], "thumbnail.png")
+                #print "Video thumbnail added"
+                #add_video_to_playlist(
+                    #youtube, response['id'], DEFAULT_PLAYLIST_ID)
                 request_body = json.dumps({mcode:response['id']})
                 post_video(TBA_TOKEN, TBA_SECRET, request_body, EVENT_CODE)
 
