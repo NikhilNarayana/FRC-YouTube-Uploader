@@ -15,15 +15,15 @@ from oauth2client.tools import argparser
 from TBA import *
 from addtoplaylist import add_video_to_playlist
 from updateThumbnail import update_thumbnail
-from youtubeAuthenticate import get_authenticated_service
+from youtubeAuthenticate import *
 
 # Default Variables - A lot needs to be changed based on event
 DEFAULT_VIDEO_CATEGORY = 28
-DEFAULT_THUMBNAIL = "Thumbnails/thumbnail.png"
+DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
 TBA_TOKEN = "" # Contact TBA for a token unique to each event
 TBA_SECRET = "" # ^
-EVENT_CODE = "2016incmp"
+EVENT_CODE = "2016arc"
 DEFAULT_TAGS = EVENT_CODE + \
     ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
 EVENT_NAME = "2016 INFIRST Indiana State Championship"
@@ -40,8 +40,8 @@ DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = "Footage of the " + EVENT_NAME + " Event is courtesy the IndianaFIRST AV Crew." + """
 
-Blue Alliance (%d, %d, %d) - %d
-Red Alliance  (%d, %d, %d) - %d
+Blue Alliance (%s, %s, %s) - %s
+Red Alliance  (%s, %s, %s) - %s
 
 To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016""" + EVENT_CODE + """
 
@@ -54,9 +54,10 @@ Thanks for watching!"""
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 def create_title(options):
-    if options.mcode == "qm":
+    mcode = MATCH_TYPE[options.mcode]
+    if mcode == "qm":
         return options.title % options.mnum
-    elif options.mcode == "qf":
+    elif mcode == "qf":
         if options.mnum < 8:
             title = YEAR + " " + EVENT_NAME + " - " + QUARTER % options.mnum
             return title
@@ -64,7 +65,7 @@ def create_title(options):
             mnum = options.mnum - 8
             title = YEAR + " " + EVENT_NAME + " - " + QUARTERT % mnum
             return title
-    elif options.mcode == "sf":
+    elif mcode == "sf":
         if options.mnum < 4:
             title = YEAR + " " + EVENT_NAME + " - " + SEMI % options.mnum
             return title
@@ -72,7 +73,7 @@ def create_title(options):
             mnum = options.mnum - 4
             title = YEAR + " " + EVENT_NAME + " - " + SEMIT % mnum
             return title
-    elif options.mcode == "f1m":
+    elif mcode == "f1m":
         if options.mnum < 2:
             title = YEAR + " " + EVENT_NAME + " - " + FINALS % options.mnum
             return title
@@ -82,32 +83,33 @@ def create_title(options):
             return title
 
 def create_filename(options):
-    if options.mcode == "qm":
+    mcode = MATCH_TYPE[options.mcode]
+    if mcode == "qm":
         return options.file % options.mnum
-    elif options.mcode == "qf":
+    elif mcode == "qf":
         if options.mnum < 8:
             filename = EVENT_NAME + " - " + QUARTER + EXTENSION % options.mnum
-            return filename
+            return str(filename)
         elif options.mnum > 8:
             mnum = options.mnum - 8
             filename = EVENT_NAME + " - " + QUARTERT + EXTENSION % mnum
-            return filename
-    elif options.mcode == "sf":
+            return str(filename)
+    elif mcode == "sf":
         if options.mnum < 4:
             filename = EVENT_NAME + " - " + SEMI + EXTENSION % options.mnum
-            return filename
+            return str(filename)
         elif options.mnum > 4:
             mnum = options.mnum - 4
             filename = EVENT_NAME + " - " + SEMIT + EXTENSION % mnum
-            return filename
-    elif options.mcode == "f1m":
+            return str(filename)
+    elif mcode == "f1m":
         if options.mnum < 2:
             filename = EVENT_NAME + " - " + FINALS + EXTENSION % options.mnum
-            return filename
+            return str(filename)
         elif options.mnum > 2:
             mnum = options.mnum - 2
             filename = EVENT_NAME + " - " + FINALST + EXTENSION % mnum
-            return filename
+            return str(filename)
 
 def get_match_code(mcode, mnum):
     if mcode == "qm":
@@ -115,39 +117,39 @@ def get_match_code(mcode, mnum):
         return EVENT_CODE, match_code
     if mcode == "qf":
         match_set = mnum%4
-        if mnum =< 4:
+        if mnum <= 4:
             match = 1
             match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
-        if mnum > 4 and mnum =< 8:
+        if mnum > 4 and mnum <= 8:
             match = 2
             match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
-        if mnum > 8 and mnum =< 12:
+        if mnum > 8 and mnum <= 12:
             match = 3
             match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
     if mcode == "sf":
         match_set = mnum%2
-        if mnum =< 2:
+        if mnum <= 2:
             match = 1
             match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
-        if mnum > 2 and mnum =< 4:
+        if mnum > 2 and mnum <= 4:
             match = 2
             match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
-        if mnum > 4 and mnum =< 6:
+        if mnum > 4 and mnum <= 6:
             match = 3
             match_code = mcode + str(match_set) + "m" + str(match)
             return EVENT_CODE, match_code
     if mcode == "f1m":
-        match_code = mcode + mnum
+        match_code = MATCH_TYPE[mcode] + mnum
         return EVENT_CODE, match_code
 
 
 def tba_results(options):
-    ecode, mcode = get_match_code(options.mcode, options.mnum)
+    ecode, mcode = get_match_code(MATCH_TYPE[options.mcode], options.mnum)
     match_data = get_match_results(ecode, mcode)
     blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = parse_data(
         match_data)
@@ -161,12 +163,12 @@ def initialize_upload(youtube, options):
 
     if options.keywords:
         tags = options.keywords.split(",")
-        tags.apppend("frc"+str(blue1))
-        tags.apppend("frc"+str(blue2))
-        tags.apppend("frc"+str(blue3))
-        tags.apppend("frc"+str(red1))
-        tags.apppend("frc"+str(red2))
-        tags.apppend("frc"+str(red3))
+        tags.append("frc"+str(blue1))
+        tags.append("frc"+str(blue2))
+        tags.append("frc"+str(blue3))
+        tags.append("frc"+str(red1))
+        tags.append("frc"+str(red2))
+        tags.append("frc"+str(red3))
 
     body = dict(
         snippet=dict(
@@ -210,6 +212,9 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
     response = None
     error = None
     retry = 0
+    retry_status_codes = get_retry_status_codes()
+    retry_exceptions = get_retry_exceptions()
+    max_retries = get_max_retries()
     while response is None:
         try:
             print "Uploading file..."
@@ -221,25 +226,25 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
                 print "Video thumbnail added"
                 add_video_to_playlist(
                     youtube, response['id'], DEFAULT_PLAYLIST_ID)
-                request_body = {mcode:response['id']}
+                request_body = json.dumps({mcode:response['id']})
                 post_video(TBA_TOKEN, TBA_SECRET, request_body, EVENT_CODE)
 
             else:
                 exit("The upload failed with an unexpected response: %s" %
                      response)
         except HttpError, e:
-            if e.resp.status in RETRIABLE_STATUS_CODES:
+            if e.resp.status in retry_status_codes:
                 error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
                                                                      e.content)
             else:
                 raise
-        except RETRIABLE_EXCEPTIONS, e:
+        except retry_exceptions, e:
             error = "A retriable error occurred: %s" % e
 
         if error is not None:
             print error
             retry += 1
-            if retry > MAX_RETRIES:
+            if retry > max_retries:
                 exit("No longer attempting to retry.")
 
             max_sleep = 2 ** retry

@@ -13,8 +13,6 @@ from oauth2client.tools import argparser, run_flow
 
 httplib2.RETRIES = 1
 
-MAX_RETRIES = 10
-
 RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
   httplib.IncompleteRead, httplib.ImproperConnectionState,
   httplib.CannotSendRequest, httplib.CannotSendHeader,
@@ -60,3 +58,12 @@ def get_authenticated_service(args):
 
   return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
     http=credentials.authorize(httplib2.Http()))
+
+def get_retry_status_codes():
+  return RETRIABLE_STATUS_CODES
+
+def get_retry_exceptions():
+  return RETRIABLE_EXCEPTIONS
+
+def get_max_retries():
+  return 10

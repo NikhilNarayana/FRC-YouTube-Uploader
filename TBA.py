@@ -27,9 +27,7 @@ def parse_data(match_data):
 
 
 def post_video(token, secret, request_body, event_key):
-	set_auth_id(token)
-	set_auth_sig(secret, event_key, request_body)
-	post_request_video(event_key, request_body)
+	tba.post_video(token, secret, event_key, request_body)
 	print "Successfully added to TBA"
 
 if __name__ == '__main__':
