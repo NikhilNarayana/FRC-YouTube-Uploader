@@ -226,7 +226,7 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
                 print "Video thumbnail added"
                 add_video_to_playlist(
                     youtube, response['id'], DEFAULT_PLAYLIST_ID)
-                request_body = {mcode:response['id']}
+                request_body = json.dumps({mcode:response['id']})
                 post_video(TBA_TOKEN, TBA_SECRET, request_body, EVENT_CODE)
 
             else:
