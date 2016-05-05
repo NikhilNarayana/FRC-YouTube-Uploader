@@ -175,10 +175,8 @@ def set_auth_sig(secret, event_key, request_body):
     m = hashlib.md5()
     request_path = "/api/trusted/v1/event/%s/match_videos/add" % event_key
     concat = secret + request_path + str(request_body)
-    print concat
     m.update(concat)
     md5 = m.hexdigest()
-    print md5
     trusted_auth['X-TBA-Auth-Sig'] = str(md5)
     return request_path
 
@@ -186,13 +184,11 @@ def post_video(token, secret, event_key, match_videos):
     global trusted_auth
     set_auth_id(token)
     set_auth_sig(secret, event_key, match_videos)
-    print str(trusted_auth)
     url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         raise Exception("""An auth ID and/or auth secret required. 
             Please use set_auth_id() and/or set_auth_secret() to set them""")
 
-    print match_videos
     r = v.post(url_str, data=match_videos, headers=trusted_auth)
     if "Error" in r.content:
         raise Exception(r.content) 

@@ -54,7 +54,7 @@ Thanks for watching!"""
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 def create_title(options):
-    mcode = MATCH_TYPE[options.mcode]
+    mcode = MATCH_TYPE[int(options.mcode)]
     if mcode == "qm":
         return options.title % options.mnum
     elif mcode == "qf":
@@ -83,7 +83,7 @@ def create_title(options):
             return title
 
 def create_filename(options):
-    mcode = MATCH_TYPE[options.mcode]
+    mcode = MATCH_TYPE[int(options.mcode)]
     if mcode == "qm":
         return options.file % options.mnum
     elif mcode == "qf":
@@ -149,7 +149,7 @@ def get_match_code(mcode, mnum):
 
 
 def tba_results(options):
-    ecode, mcode = get_match_code(MATCH_TYPE[options.mcode], options.mnum)
+    ecode, mcode = get_match_code(MATCH_TYPE[int(options.mcode)], int(options.mnum))
     match_data = get_match_results(ecode, mcode)
     blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = parse_data(
         match_data)
@@ -228,6 +228,7 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
                     youtube, response['id'], DEFAULT_PLAYLIST_ID)
                 request_body = json.dumps({mcode:response['id']})
                 post_video(TBA_TOKEN, TBA_SECRET, request_body, EVENT_CODE)
+                # Comment out the above line if you are not adding videos to TBA
 
             else:
                 exit("The upload failed with an unexpected response: %s" %
