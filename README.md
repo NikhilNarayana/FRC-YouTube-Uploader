@@ -14,6 +14,18 @@ Main Script | Called Script(s) |  |  |  |  |
 | addtoplaylist.py | youtubeAuthenticate.py |
 | updatethumbnail.py | youtubeAuthenticate.py |
 
+## Current Feature Set:
+* Upload Videos (single or batch uploads possible)
+* Add Custom Thumbnails to a video or even a whole playlist
+* Add to Playlist(s)
+* Get match results from TBA and add them to description
+* Add videos to The Blue Alliance automatically
+
+Things to do in the future:
+* GUI
+* Automate everything so only a single button press is required
+
+
 ## How to Setup
 1. Install Python 2.7 for your OS
 2. Install the requirements for the script with `pip install -r /path/to/requirements.txt`
@@ -27,6 +39,7 @@ Main Script | Called Script(s) |  |  |  |  |
 
 ### Examples Usage(expects variables from 4 and 6 to be added in)
 * Qualification Match 54: `python youtubeup.py --mnum 54`
+* Qualification Matches 4 - 20: `python youtubeup.py --mnum 4 --end 20`
 * Quarterfinal Match 3: `python youtubeup.py --mcode 1 --mnum 3`
 * Quarterfinal Tiebreaker 3: `python youtubeup.py --mcode 1 --mnum 11`
 * Semifinal Match 4: `python youtubeup.py --mcode 2 --mnum 4`
@@ -36,16 +49,7 @@ Main Script | Called Script(s) |  |  |  |  |
 
 If you are still in need of assistance, feel free to contact me.
 
-## Current Feature Set:
-* Upload Videos
-* Add Custom Thumbnails to a video or even a whole playlist
-* Add to Playlist(s)
-* Get match results from TBA and add them to description
-* Add videos to The Blue Alliance automatically
 
-Things to do in the future:
-* GUI
-* Automate everything so only a single human input is required
 
 ### Notes
 Most of the code was built specifically for the 2016 Indiana State Championship, but I attempted to make it clear what needed to be changed for this to be used at any event. Ideally the future of this program will be a GUI that eliminates the need for any code changes and relies on the user to just feed it the info once per event.
