@@ -24,9 +24,9 @@ DEFAULT_PLAYLIST_ID = "" # Get from playlist URL - Starts with PL
 TBA_TOKEN = "" # Contact TBA for a token unique to each event
 TBA_SECRET = "" # ^
 EVENT_CODE = "" # Get from TBA format is YEAR[code]
+EVENT_NAME = "" # Set it however you want. Usually just get it from TBA
 DEFAULT_TAGS = EVENT_CODE + \
     ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
-EVENT_NAME = "" # Set it however you want. Usually just get it from TBA
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
 QUARTERT = "Quarterfinal Tiebreaker %s" 
@@ -53,6 +53,18 @@ For more information and future event schedules, visit our website: www.indianaf
 Thanks for watching!"""
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
+
+def multiple_videos(youtube, options):
+    while int(options.mnum) <= int(options.end):
+        try:
+            initialize_upload(youtube, args)
+        except HttpError, e:
+            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+        print ""
+        mnum = int(options.mnum)
+        mnum += 1
+        options.mnum = str(mnum)
+    print "All matches uploaded to YouTube and added to TBA"
 
 def create_title(options):
     mcode = MATCH_TYPE[int(options.mcode)]
@@ -114,7 +126,7 @@ def create_filename(options):
 
 def get_match_code(mcode, mnum):
     if mcode == "qm":
-        match_code = mcode + mnum
+        match_code = str(mcode) + str(mnum)
         return EVENT_CODE, match_code
     if mcode == "qf":
         match_set = mnum%4
@@ -160,6 +172,7 @@ def tba_results(options):
 
 
 def initialize_upload(youtube, options):
+    print "Initializing upload for match %s" % (options.mnum)
     tags = None
     blue1, blue2, blue3, blue_score, red1, red2, red3, red_score, mcode = tba_results(
         options) # Comment out if Blue Alliance is not responding
@@ -227,8 +240,8 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
                 print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
                 update_thumbnail(youtube, response['id'], "thumbnail.png")
                 print "Video thumbnail added"
-                add_video_to_playlist(
-                    youtube, response['id'], DEFAULT_PLAYLIST_ID)
+                #add_video_to_playlist(
+                    #youtube, response['id'], DEFAULT_PLAYLIST_ID)
                 request_body = json.dumps({mcode:response['id']})
                 post_video(TBA_TOKEN, TBA_SECRET, request_body, EVENT_CODE)
                 # Comment out the above line if you are not adding videos to TBA
@@ -273,12 +286,17 @@ if __name__ == '__main__':
     argparser.add_argument(
         "--keywords", help="Video keywords, comma separated", default=DEFAULT_TAGS)
     argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
-                           default=VALID_PRIVACY_STATUSES[2], help="Video privacy status.")
+                           default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
+    argparser.add_argument("--end", help="The last match you would like to upload, must be continous. Only necessary if you want to batch upload", default=None)
     args = argparser.parse_args()
 
     youtube = get_authenticated_service(args)
 
-    try:
-        initialize_upload(youtube, args)
-    except HttpError, e:
-        print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+    if args.end is not None:
+        multiple_videos(youtube, args)
+
+    else:
+        try:
+            initialize_upload(youtube, args)
+        except HttpError, e:
+            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
