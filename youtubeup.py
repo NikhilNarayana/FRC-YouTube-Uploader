@@ -240,8 +240,8 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
                 print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
                 update_thumbnail(youtube, response['id'], "thumbnail.png")
                 print "Video thumbnail added"
-                #add_video_to_playlist(
-                    #youtube, response['id'], DEFAULT_PLAYLIST_ID)
+                add_video_to_playlist(
+                    youtube, response['id'], DEFAULT_PLAYLIST_ID)
                 request_body = json.dumps({mcode:response['id']})
                 post_video(TBA_TOKEN, TBA_SECRET, request_body, EVENT_CODE)
                 # Comment out the above line if you are not adding videos to TBA
