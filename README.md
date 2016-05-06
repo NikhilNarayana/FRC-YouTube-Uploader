@@ -11,8 +11,20 @@ The reasoning behind this project is that I don't want to copy over titles and d
 4. Edit the code's default variables such as `DEFAULT_PLAYLIST_ID`, `EVENT_CODE` (from TBA), `EVENT_NAME` and `DEFAULT_DESCRIPTION`
 5. Get the `client_secrets.json` file from here: https://console.developers.google.com/ by clicking API -> Create Credentials -> OAuth Client ID -> Other. Fill in the dialog with anything. Once finished click the newly created ID and download the JSON file. Remember to name it as `client_secrets.json`.
 6. Get `X-TBA-Auth-Id` and `X-TBA-Auth-Sig` data by asking contact@thebluealliance.com for the event token and secret and set those values as `TBA_TOKEN` and `TBA_SECRET` respectively.
-7. Run the script once to get YouTube Permissions.
+7. Run the `python youtubeup.py` script once to get YouTube Permissions authorized. Make sure you do it for the channel that you want to upload to.
+8. Run `python youtubeup.py` and include the following parameters : `--mnum` (match number) and `mcode`. `mcode` is a number that represents one of four values in a list ["qm", "qf", "sf", f"]. The list starts at 0 and goes to 3. 0 is the default value.
 8. Enjoy not having to deal with YouTube's front end 🎉
+
+### Examples Usage(expects variables from 4 and 6 to be added in)
+* Qualification Match 54: `python youtubeup.py --mnum 54`
+* Quarterfinal Match 3: `python youtubeup.py --mcode 1 --mnum 3`
+* Quarterfinal Tiebreaker 3: `python youtubeup.py --mcode 1 --mnum 11`
+* Semifinal Match 4: `python youtubeup.py --mcode 2 --mnum 4`
+* Semifinal Tiebreaker 1: `python youtubeup.py --mcode 2 --mnum 5`
+* Finals Match 1: `python youtubeup.py --mcode 3 --mnum 1`
+* Finals Tiebreaker: `python youtubeup.py --mcode 3 -- mnum 3`
+
+If you are still in need of assistance, feel free to contact me.
 
 ## Current Feature Set:
 * Upload Videos
@@ -33,3 +45,9 @@ Most of the code was built specifically for the 2016 Indiana State Championship,
 * Phil Lopreiato - TBA Integration
 * Wes Jordan - TBA API Wrapper (http://wesj.org/documents/bluealliance.py)
 * Stack Exchange - Bug Fixes
+
+## Extra Script
+### updatePlaylistThumbnails.py
+This script expects two inputs, a playlist ID and a thumbnail file name. It will then update every the thumbnails of every video in that playlist to the one you provide. This makes it simple to update older playlists with a new thumbnail so you can keep your look consistent.
+
+This script is not used within the main youtubeup.py
