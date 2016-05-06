@@ -20,26 +20,27 @@ from youtubeAuthenticate import *
 # Default Variables - A lot needs to be changed based on event
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
-DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
+DEFAULT_PLAYLIST_ID = "" # Get from playlist URL - Starts with PL
 TBA_TOKEN = "" # Contact TBA for a token unique to each event
 TBA_SECRET = "" # ^
-EVENT_CODE = "2016arc"
+EVENT_CODE = "" # Get from TBA format is YEAR[code]
 DEFAULT_TAGS = EVENT_CODE + \
     ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
-EVENT_NAME = "2016 INFIRST Indiana State Championship"
+EVENT_NAME = "" # Set it however you want. Usually just get it from TBA
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
-QUARTERT = "Quarterfinal Tiebreaker %s"  # Dear FIRST, what the hell?
+QUARTERT = "Quarterfinal Tiebreaker %s" 
 SEMI = "Semifinal Match %s"
 SEMIT = "Semifinal Tiebreaker %s"
 FINALS = "Finals Match %s"
 FINALST = "Finals Tiebreaker"
-EXTENSION = ".mp4"
+EXTENSION = ".mp4" # CHANGE IF YOU AREN'T USING MP4S
 DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
 DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = "Footage of the " + EVENT_NAME + " Event is courtesy the IndianaFIRST AV Crew." + """
 
+Alliance (Team1, Team2, Team3) - Score
 Blue Alliance (%s, %s, %s) - %s
 Red Alliance  (%s, %s, %s) - %s
 
@@ -258,7 +259,7 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
 
 if __name__ == '__main__':
     argparser.add_argument("--mnum", help="""Match Number to add, if in elims
-      keep incrementing by one unless for tiebreaker, in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""", required=True)
+        keep incrementing by one unless for tiebreaker, in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""", required=True)
     argparser.add_argument(
         "--mcode", help="Match code (qm,qf,sf,f) starting at 0 ->3", default=0)
     argparser.add_argument(
