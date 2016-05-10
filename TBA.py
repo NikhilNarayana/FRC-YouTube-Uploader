@@ -10,7 +10,7 @@ def get_match_results(event_key, match_key):
 	match_data = event.get_match(match_key)
 	if match_data is None:
 		raise ValueError("""Match %s%s does not exist. Please use a match that exists""" % (event_key, match_key))
-	blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = parse_data(match_data)
+	blue_data, red_data = parse_data(match_data)
 	return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score
 
 def parse_data(match_data):
@@ -24,7 +24,9 @@ def parse_data(match_data):
 	red3 = red[2][3:]
 	blue_score = match_data['alliances']['blue']['score']
 	red_score = match_data['alliances']['red']['score']
-	return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score
+	blue_data = [blue_score, blue1, blue2, blue3]
+	red_data = [red_score, red1, red2, red3]
+	return blue_data, red_data
 
 
 def post_video(token, secret, request_body, event_key):

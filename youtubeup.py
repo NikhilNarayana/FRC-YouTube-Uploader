@@ -20,21 +20,21 @@ from youtubeAuthenticate import *
 # Default Variables - A lot needs to be changed based on event
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
-DEFAULT_PLAYLIST_ID = "" # Get from playlist URL - Starts with PL
-TBA_TOKEN = "" # Contact TBA for a token unique to each event
-TBA_SECRET = "" # ^
-EVENT_CODE = "" # Get from TBA format is YEAR[code]
-EVENT_NAME = "" # Set it however you want. Usually just get it from TBA
+DEFAULT_PLAYLIST_ID = ""  # Get from playlist URL - Starts with PL
+TBA_TOKEN = ""  # Contact TBA for a token unique to each event
+TBA_SECRET = ""  # ^
+EVENT_CODE = ""  # Get from TBA format is YEAR[code]
+EVENT_NAME = ""  # Set it however you want. Usually just get it from TBA
 DEFAULT_TAGS = EVENT_CODE + \
     ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
-QUARTERT = "Quarterfinal Tiebreaker %s" 
+QUARTERT = "Quarterfinal Tiebreaker %s"
 SEMI = "Semifinal Match %s"
 SEMIT = "Semifinal Tiebreaker %s"
 FINALS = "Finals Match %s"
 FINALST = "Finals Tiebreaker"
-EXTENSION = ".mp4" # CHANGE IF YOU AREN'T USING MP4S
+EXTENSION = ".mp4"  # CHANGE IF YOU AREN'T USING MP4S
 DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
 DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
@@ -54,6 +54,7 @@ Thanks for watching!"""
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
+
 def multiple_videos(youtube, options):
     while int(options.mnum) <= int(options.end):
         try:
@@ -66,28 +67,31 @@ def multiple_videos(youtube, options):
         options.mnum = str(mnum)
     print "All matches uploaded to YouTube and added to TBA"
 
-def create_title(options):
-    mcode = MATCH_TYPE[int(options.mcode)]
-    if mcode == "qm":
-        return options.title % options.mnum
-    elif mcode == "qf":
-        if options.mnum < 8:
+
+def quals_yt_title(options):
+    return options.title % options.mnum
+
+
+def quarters_yt_title(options):
+    if options.mnum < 8:
             title = EVENT_NAME + " - " + QUARTER % options.mnum
             return title
         elif options.mnum > 8:
             mnum = int(options.mnum) - 8
             title = EVENT_NAME + " - " + QUARTERT % str(mnum)
             return title
-    elif mcode == "sf":
-        if options.mnum < 4:
+
+def semis_yt_title(options):
+    if options.mnum < 4:
             title = EVENT_NAME + " - " + SEMI % options.mnum
             return title
         elif options.mnum > 4:
             mnum = int(options.mnum) - 4
             title = EVENT_NAME + " - " + SEMIT % str(mnum)
             return title
-    elif mcode == "f1m":
-        if options.mnum < 2:
+
+def finals_yt_title(options):
+    if options.mnum < 2:
             title = EVENT_NAME + " - " + FINALS % options.mnum
             return title
         elif options.mnum > 2:
@@ -95,28 +99,39 @@ def create_title(options):
             title = EVENT_NAME + " - " + FINALST % str(mnum)
             return title
 
-def create_filename(options):
+def create_title(options):
     mcode = MATCH_TYPE[int(options.mcode)]
-    if mcode == "qm":
-        return options.file % options.mnum
-    elif mcode == "qf":
-        if options.mnum < 8:
+    switcher = {
+        "qm": quals_yt_title,
+        "qf": quarters_yt_title,
+        "sf": semis_yt_title,
+        "f1m": finals_yt_title,
+    }
+    switcher[mcode](options)
+
+def quals_filename(options):
+    return options.file % options.mnum
+
+def quarters_filename(options):
+    if options.mnum < 8:
             filename = EVENT_NAME + " - " + QUARTER % options.mnum + EXTENSION
             return str(filename)
         elif options.mnum > 8:
             mnum = int(options.mnum) - 8
             filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
             return str(filename)
-    elif mcode == "sf":
-        if options.mnum < 4:
+
+def semis_filename(options):
+    if options.mnum < 4:
             filename = EVENT_NAME + " - " + SEMI % options.mnum + EXTENSION
             return str(filename)
         elif options.mnum > 4:
             mnum = int(options.mnum) - 4
             filename = EVENT_NAME + " - " + SEMIT % str(mnum) + EXTENSION
             return str(filename)
-    elif mcode == "f1m":
-        if options.mnum < 2:
+
+def finals_filename(options):
+    if options.mnum < 2:
             filename = EVENT_NAME + " - " + FINALS % options.mnum + EXTENSION
             return str(filename)
         elif options.mnum > 2:
@@ -124,73 +139,92 @@ def create_filename(options):
             filename = EVENT_NAME + " - " + FINALST % str(mnum) + EXTENSION
             return str(filename)
 
+def create_filename(options):
+    mcode = MATCH_TYPE[int(options.mcode)]
+    switcher = {
+        "qm": quals_filename,
+        "qf": quarters_filename,
+        "sf": semis_filename,
+        "f1m": finals_filename,
+    }
+    return switcher[mcode](options)
+     
+def quals_match_code(mcode, mnum):
+    match_code = str(mcode) + str(mnum)
+    return EVENT_CODE, match_code
+
+def quarters_match_code(mcode, mnum):
+    match_set = mnum%4
+    if match_set == 0:
+        match_set = 4
+    if mnum <= 4:
+        match = 1
+        match_code = mcode + str(match_set) + "m" + str(match)
+        return EVENT_CODE, match_code
+    if mnum > 4 and mnum <= 8:
+        match = 2
+        match_code = mcode + str(match_set) + "m" + str(match)
+        return EVENT_CODE, match_code
+    if mnum > 8 and mnum <= 12:
+        match = 3
+        match_code = mcode + str(match_set) + "m" + str(match)
+        return EVENT_CODE, match_code
+
+def semis_match_code(mcode, mnum):
+    match_set = mnum%2
+    if match_set == 0:
+        match_set = 2
+    if mnum <= 2:
+        match = 1
+        match_code = mcode + str(match_set) + "m" + str(match)
+        return EVENT_CODE, match_code
+    if mnum > 2 and mnum <= 4:
+        match = 2
+        match_code = mcode + str(match_set) + "m" + str(match)
+        return EVENT_CODE, match_code
+    if mnum > 4 and mnum <= 6:
+        match = 3
+        match_code = mcode + str(match_set) + "m" + str(match)
+        return EVENT_CODE, match_code
+
+def finals_match_code(mcode, mnum):
+    match_code = MATCH_TYPE[mcode] + mnum
+    return EVENT_CODE, match_code
+
 def get_match_code(mcode, mnum):
-    if mcode == "qm":
-        match_code = str(mcode) + str(mnum)
-        return EVENT_CODE, match_code
-    if mcode == "qf":
-        match_set = mnum%4
-        if match_set == 0:
-            match_set = 4
-        if mnum <= 4:
-            match = 1
-            match_code = mcode + str(match_set) + "m" + str(match)
-            return EVENT_CODE, match_code
-        if mnum > 4 and mnum <= 8:
-            match = 2
-            match_code = mcode + str(match_set) + "m" + str(match)
-            return EVENT_CODE, match_code
-        if mnum > 8 and mnum <= 12:
-            match = 3
-            match_code = mcode + str(match_set) + "m" + str(match)
-            return EVENT_CODE, match_code
-    if mcode == "sf":
-        match_set = mnum%2
-        if match_set == 0:
-            match_set = 2
-        if mnum <= 2:
-            match = 1
-            match_code = mcode + str(match_set) + "m" + str(match)
-            return EVENT_CODE, match_code
-        if mnum > 2 and mnum <= 4:
-            match = 2
-            match_code = mcode + str(match_set) + "m" + str(match)
-            return EVENT_CODE, match_code
-        if mnum > 4 and mnum <= 6:
-            match = 3
-            match_code = mcode + str(match_set) + "m" + str(match)
-            return EVENT_CODE, match_code
-    if mcode == "f1m":
-        match_code = MATCH_TYPE[mcode] + mnum
-        return EVENT_CODE, match_code
-
-
+    switcher = {
+        "qm": quals_match_code,
+        "qf": quarters_match_code,
+        "sf": semis_match_code,
+        "f1m": finals_match_code,
+    }
+    return switcher[mcode](mcode, mnum)
+        
 def tba_results(options):
     ecode, mcode = get_match_code(MATCH_TYPE[int(options.mcode)], int(options.mnum))
-    blue1, blue2, blue3, blue_score, red1, red2, red3, red_score = get_match_results(ecode, mcode)
-    return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score, mcode
+    blue_data, red_data = get_match_results(ecode, mcode)
+    return blue_data, red_data, mcode
 
 
 def initialize_upload(youtube, options):
-    print "Initializing upload for match %s" % (options.mnum)
+    print "Initializing upload for match %s%s" % (options.mcode, options.mnum)
     tags = None
-    blue1, blue2, blue3, blue_score, red1, red2, red3, red_score, mcode = tba_results(
-        options) # Comment out if Blue Alliance is not responding
+    blue_data, red_data, mcode = tba_results(options)
 
     if options.keywords:
         tags = options.keywords.split(",")
-        tags.append("frc"+str(blue1))
-        tags.append("frc"+str(blue2))
-        tags.append("frc"+str(blue3))
-        tags.append("frc"+str(red1))
-        tags.append("frc"+str(red2))
-        tags.append("frc"+str(red3))
+        tags.append("frc"+str(blue_data[1]))
+        tags.append("frc"+str(blue_data[2]))
+        tags.append("frc"+str(blue_data[3]))
+        tags.append("frc"+str(red_data[1]))
+        tags.append("frc"+str(red_data[2]))
+        tags.append("frc"+str(red_data[3]))
 
     body = dict(
         snippet=dict(
             title=create_title(options),
-            description=options.description % (blue1, blue2, blue3, blue_score,
-                                               red1, red2, red3, red_score),
+            description=options.description % (blue_data[1], blue_data[2], blue_data[3], blue_data[0],
+                                               red_data[1], red_data[2], red_data[3], red_data[0]),
             tags=tags,
             categoryId=options.category
         ),

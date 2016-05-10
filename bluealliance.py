@@ -264,8 +264,3 @@ def district_rankings(year, district_code, team=None):
 
 def district_teams(year, district_code):
     return tba_get('district/' + district_code + '/' + str(year) + '/teams')
-
-##set_api_key("wesj", "pybluealliance", "0")
-##x = (team_matches(2363, 2016))
-##for match in x:
-##    print(match['alliance'], match['score'], match['opp_score'])
