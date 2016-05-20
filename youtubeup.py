@@ -74,30 +74,30 @@ def quals_yt_title(options):
 
 def quarters_yt_title(options):
     if options.mnum < 8:
-            title = EVENT_NAME + " - " + QUARTER % options.mnum
-            return title
-        elif options.mnum > 8:
-            mnum = int(options.mnum) - 8
-            title = EVENT_NAME + " - " + QUARTERT % str(mnum)
-            return title
+        title = EVENT_NAME + " - " + QUARTER % options.mnum
+        return title
+    elif options.mnum > 8:
+        mnum = int(options.mnum) - 8
+        title = EVENT_NAME + " - " + QUARTERT % str(mnum)
+        return title
 
 def semis_yt_title(options):
     if options.mnum < 4:
-            title = EVENT_NAME + " - " + SEMI % options.mnum
-            return title
-        elif options.mnum > 4:
-            mnum = int(options.mnum) - 4
-            title = EVENT_NAME + " - " + SEMIT % str(mnum)
-            return title
+        title = EVENT_NAME + " - " + SEMI % options.mnum
+        return title
+    elif options.mnum > 4:
+        mnum = int(options.mnum) - 4
+        title = EVENT_NAME + " - " + SEMIT % str(mnum)
+        return title
 
 def finals_yt_title(options):
     if options.mnum < 2:
-            title = EVENT_NAME + " - " + FINALS % options.mnum
-            return title
-        elif options.mnum > 2:
-            mnum = int(options.mnum) - 2
-            title = EVENT_NAME + " - " + FINALST % str(mnum)
-            return title
+        title = EVENT_NAME + " - " + FINALS % options.mnum
+        return title
+    elif options.mnum > 2:
+        mnum = int(options.mnum) - 2
+        title = EVENT_NAME + " - " + FINALST % str(mnum)
+        return title
 
 def create_title(options):
     mcode = MATCH_TYPE[int(options.mcode)]
@@ -114,30 +114,30 @@ def quals_filename(options):
 
 def quarters_filename(options):
     if options.mnum < 8:
-            filename = EVENT_NAME + " - " + QUARTER % options.mnum + EXTENSION
-            return str(filename)
-        elif options.mnum > 8:
-            mnum = int(options.mnum) - 8
-            filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
-            return str(filename)
+        filename = EVENT_NAME + " - " + QUARTER % options.mnum + EXTENSION
+        return str(filename)
+    elif options.mnum > 8:
+        mnum = int(options.mnum) - 8
+        filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
+        return str(filename)
 
 def semis_filename(options):
     if options.mnum < 4:
-            filename = EVENT_NAME + " - " + SEMI % options.mnum + EXTENSION
-            return str(filename)
-        elif options.mnum > 4:
-            mnum = int(options.mnum) - 4
-            filename = EVENT_NAME + " - " + SEMIT % str(mnum) + EXTENSION
-            return str(filename)
+        filename = EVENT_NAME + " - " + SEMI % options.mnum + EXTENSION
+        return str(filename)
+    elif options.mnum > 4:
+        mnum = int(options.mnum) - 4
+        filename = EVENT_NAME + " - " + SEMIT % str(mnum) + EXTENSION
+        return str(filename)
 
 def finals_filename(options):
     if options.mnum < 2:
-            filename = EVENT_NAME + " - " + FINALS % options.mnum + EXTENSION
-            return str(filename)
-        elif options.mnum > 2:
-            mnum = int(options.mnum) - 2
-            filename = EVENT_NAME + " - " + FINALST % str(mnum) + EXTENSION
-            return str(filename)
+        filename = EVENT_NAME + " - " + FINALS % options.mnum + EXTENSION
+        return str(filename)
+    elif options.mnum > 2:
+        mnum = int(options.mnum) - 2
+        filename = EVENT_NAME + " - " + FINALST % str(mnum) + EXTENSION
+        return str(filename)
 
 def create_filename(options):
     mcode = MATCH_TYPE[int(options.mcode)]
