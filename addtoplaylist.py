@@ -16,6 +16,9 @@ PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
 # The playlist id will be listed in the URL https://www.youtube.com/playlist?list=PLXXXXXXXXXXXXXXXXXXXXXXX
 
 def add_video_to_playlist(youtube,videoID,playlistID):
+    if type(videoID) is list: # Recursively add videos if videoID is list
+        for vid in videoID:
+            add_video_to_playlist(youtube,vid,playlistID)
     add_video_request=youtube.playlistItems().insert(
     part="snippet",
     body={
