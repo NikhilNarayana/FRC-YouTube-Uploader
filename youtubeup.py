@@ -7,6 +7,7 @@ import random
 import sys
 import time
 import datetime
+import re
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
@@ -19,13 +20,16 @@ from youtubeAuthenticate import *
 # Default Variables - A lot needs to be changed based on event
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
-DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"  # Get from playlist URL - Starts with PL
+# Get from playlist URL - Starts with PL
+DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
 TBA_ID = "8h9BbNm24dRkbCOo"  # Contact TBA for a token unique to each event
-TBA_SECRET = "MaroS6T59BrQ90zZAdq2gyPK0S0QiUjjBaR8Sa8CRuBwqpX9WnPlNIdlOQXr7FD3"  # ^
+# ^
+TBA_SECRET = "MaroS6T59BrQ90zZAdq2gyPK0S0QiUjjBaR8Sa8CRuBwqpX9WnPlNIdlOQXr7FD3"
 EVENT_CODE = "2016arc"  # Get from TBA format is YEAR[code]
-EVENT_NAME = "2016 INFIRST Indiana State Championship"  # Set it however you want. Usually just get it from TBA
+# Set it however you want. Usually just get it from TBA
+EVENT_NAME = "2016 INFIRST Indiana State Championship"
 DEFAULT_TAGS = EVENT_CODE + \
-    ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
+    ", FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship, Indiana State Championship"
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
 QUARTERT = "Quarterfinal Tiebreaker %s"
@@ -80,6 +84,7 @@ def quarters_yt_title(options):
         title = EVENT_NAME + " - " + QUARTERT % str(mnum)
         return title
 
+
 def semis_yt_title(options):
     if options.mnum < 4:
         title = EVENT_NAME + " - " + SEMI % options.mnum
@@ -89,6 +94,7 @@ def semis_yt_title(options):
         title = EVENT_NAME + " - " + SEMIT % str(mnum)
         return title
 
+
 def finals_yt_title(options):
     if options.mnum < 2:
         title = EVENT_NAME + " - " + FINALS % options.mnum
@@ -97,6 +103,7 @@ def finals_yt_title(options):
         mnum = int(options.mnum) - 2
         title = EVENT_NAME + " - " + FINALST % str(mnum)
         return title
+
 
 def create_title(options):
     mcode = MATCH_TYPE[int(options.mcode)]
@@ -108,8 +115,10 @@ def create_title(options):
     }
     switcher[mcode](options)
 
+
 def quals_filename(options):
     return options.file % options.mnum
+
 
 def quarters_filename(options):
     if int(options.mnum) < 8:
@@ -121,6 +130,7 @@ def quarters_filename(options):
         filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
         return str(filename)
 
+
 def semis_filename(options):
     if int(options.mnum) < 4:
         filename = EVENT_NAME + " - " + SEMI % options.mnum + EXTENSION
@@ -129,6 +139,7 @@ def semis_filename(options):
         mnum = int(options.mnum) - 4
         filename = EVENT_NAME + " - " + SEMIT % str(mnum) + EXTENSION
         return str(filename)
+
 
 def finals_filename(options):
     if int(options.mnum) < 2:
@@ -139,6 +150,7 @@ def finals_filename(options):
         filename = EVENT_NAME + " - " + FINALST % str(mnum) + EXTENSION
         return str(filename)
 
+
 def create_filename(options):
     mcode = MATCH_TYPE[int(options.mcode)]
     switcher = {
@@ -148,13 +160,15 @@ def create_filename(options):
         "f1m": finals_filename,
     }
     return switcher[mcode](options)
-     
+
+
 def quals_match_code(mcode, mnum):
     match_code = str(mcode) + str(mnum)
     return EVENT_CODE, match_code
 
+
 def quarters_match_code(mcode, mnum):
-    match_set = mnum%4
+    match_set = mnum % 4
     if match_set == 0:
         match_set = 4
     if mnum <= 4:
@@ -170,8 +184,9 @@ def quarters_match_code(mcode, mnum):
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
 
+
 def semis_match_code(mcode, mnum):
-    match_set = mnum%2
+    match_set = mnum % 2
     if match_set == 0:
         match_set = 2
     if mnum <= 2:
@@ -187,9 +202,11 @@ def semis_match_code(mcode, mnum):
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
 
+
 def finals_match_code(mcode, mnum):
     match_code = MATCH_TYPE[mcode] + mnum
     return EVENT_CODE, match_code
+
 
 def get_match_code(mcode, mnum):
     switcher = {
@@ -199,10 +216,12 @@ def get_match_code(mcode, mnum):
         "f1m": finals_match_code,
     }
     return switcher[mcode](mcode, mnum)
-        
+
+
 def tba_results(options):
-    ecode, mcode = get_match_code(MATCH_TYPE[int(options.mcode)], int(options.mnum))
-    print mcode ####
+    ecode, mcode = get_match_code(
+        MATCH_TYPE[int(options.mcode)], int(options.mnum))
+    print mcode
     blue_data, red_data = get_match_results(ecode, mcode)
     return blue_data, red_data, mcode
 
@@ -220,6 +239,7 @@ def initialize_upload(youtube, options):
         tags.append("frc"+str(red_data[1]))
         tags.append("frc"+str(red_data[2]))
         tags.append("frc"+str(red_data[3]))
+        tags.append(re.search('\D+', EVENT_CODE).group())
 
     body = dict(
         snippet=dict(
@@ -277,9 +297,10 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
                 print "Video thumbnail added"
                 add_video_to_playlist(
                     youtube, response['id'], DEFAULT_PLAYLIST_ID)
-                request_body = json.dumps({mcode:response['id']})
+                request_body = json.dumps({mcode: response['id']})
                 post_video(TBA_ID, TBA_SECRET, request_body, EVENT_CODE)
-                # Comment out the above line if you are not adding videos to TBA
+                # Comment out the above line if you are not adding videos to
+                # TBA
 
             else:
                 exit("The upload failed with an unexpected response: %s" %
@@ -322,7 +343,8 @@ if __name__ == '__main__':
         "--keywords", help="Video keywords, comma separated", default=DEFAULT_TAGS)
     argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
                            default=VALID_PRIVACY_STATUSES[2], help="Video privacy status.")
-    argparser.add_argument("--end", help="The last match you would like to upload, must be continous. Only necessary if you want to batch upload", default=None)
+    argparser.add_argument(
+        "--end", help="The last match you would like to upload, must be continous. Only necessary if you want to batch upload", default=None)
     args = argparser.parse_args()
 
     youtube = get_authenticated_service(args)
