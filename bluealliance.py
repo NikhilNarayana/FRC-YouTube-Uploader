@@ -163,37 +163,6 @@ def set_api_key(name, description, version):
     global app_id
     app_id['X-TBA-App-Id'] = name + ':' + description + ':' + version
 
-### THE FOLLOWING API CODE IS FOR PUBLISHING VIDEOS TO TBA. WRITTEN BY Nikki Narayana ###
-def set_auth_id(token):
-    global trusted_auth
-    trusted_auth['X-TBA-Auth-Id'] = token
-
-def set_auth_sig(secret, event_key, request_body):
-    global trusted_auth
-    m = hashlib.md5()
-    request_path = "/api/trusted/v1/event/%s/match_videos/add" % event_key
-    concat = secret + request_path + str(request_body)
-    m.update(concat)
-    md5 = m.hexdigest()
-    trusted_auth['X-TBA-Auth-Sig'] = str(md5)
-    return request_path
-
-def post_video(token, secret, event_key, match_video):
-    global trusted_auth
-    set_auth_id(token)
-    set_auth_sig(secret, event_key, match_video)
-    #url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
-    url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
-    # ^ For testing purposes only, the line above is the real code.
-    if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
-        raise Exception("""An auth ID and/or auth secret required.
-            Please use set_auth_id() and/or set_auth_secret() to set them""")
-
-    r = s.post(url_str, data=match_video, headers=trusted_auth)
-    if "Error" in r.content:
-        raise Exception(r.content)
-### END ###
-
 def tba_get(path):
     global app_id
     if app_id['X-TBA-App-Id'] == "":
@@ -242,14 +211,11 @@ def team_matches(team, year):
             print(event['key'])
     return matches
 
-
 def district_list(year):
     return tba_get('districts/' + str(year))
 
-
 def district_events(year, district_code):
     return tba_get('district/' + district_code + '/' + str(year) + '/events')
-
 
 def district_rankings(year, district_code, team=None):
     if isinstance(team, int): team = 'frc' + str(team)
@@ -262,6 +228,39 @@ def district_rankings(year, district_code, team=None):
             ranks_list.append(row)
     return ranks_list
 
-
 def district_teams(year, district_code):
     return tba_get('district/' + district_code + '/' + str(year) + '/teams')
+
+### THE FOLLOWING API CODE IS FOR PUBLISHING VIDEOS TO TBA. WRITTEN BY Nikki Narayana ###
+def set_auth_id(token):
+    global trusted_auth
+    trusted_auth['X-TBA-Auth-Id'] = token
+
+def set_auth_sig(secret, event_key, request_body):
+    global trusted_auth
+    m = hashlib.md5()
+    request_path = "/api/trusted/v1/event/%s/match_videos/add" % event_key
+    concat = secret + request_path + str(request_body)
+    m.update(concat)
+    md5 = m.hexdigest()
+    trusted_auth['X-TBA-Auth-Sig'] = str(md5)
+    return request_path
+
+def post_video(token, secret, event_key, match_video):
+    global trusted_auth
+    set_auth_id(token)
+    set_auth_sig(secret, event_key, match_video)
+    #url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
+    url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
+    # ^ For testing purposes only, the line above is the real code.
+    if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
+        raise Exception("""An auth ID and/or auth secret required.
+            Please use set_auth_id() and/or set_auth_secret() to set them""")
+
+    r = s.post(url_str, data=match_video, headers=trusted_auth)
+    if "Error" in r.content:
+        raise Exception(r.content)
+
+def get_hashtag(event_key):
+    return re.search('\D+', event_key).group()
+### END ###

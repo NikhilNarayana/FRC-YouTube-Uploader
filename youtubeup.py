@@ -37,7 +37,7 @@ SEMI = "Semifinal Match %s"
 SEMIT = "Semifinal Tiebreaker %s"
 FINALS = "Finals Match %s"
 FINALST = "Finals Tiebreaker"
-EXTENSION = ".mp4"  # CHANGE IF YOU AREN'T USING MP4S
+EXTENSION = ".mp4"  # CHANGE IF YOU AREN'T USING MP4s
 DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
 DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
@@ -58,22 +58,18 @@ Thanks for watching!"""
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
-def multiple_videos(youtube, options):
+def upload_multiple_videos(youtube, options):
     while int(options.mnum) <= int(options.end):
         try:
             initialize_upload(youtube, args)
         except HttpError, e:
             print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
         print ""
-        mnum = int(options.mnum)
-        mnum += 1
-        options.mnum = str(mnum)
+        options.mnum = str(int(options.mnum) + 1)
     print "All matches uploaded to YouTube and added to TBA"
-
 
 def quals_yt_title(options):
     return options.title % options.mnum
-
 
 def quarters_yt_title(options):
     if options.mnum < 8:
@@ -84,7 +80,6 @@ def quarters_yt_title(options):
         title = EVENT_NAME + " - " + QUARTERT % str(mnum)
         return title
 
-
 def semis_yt_title(options):
     if options.mnum < 4:
         title = EVENT_NAME + " - " + SEMI % options.mnum
@@ -94,7 +89,6 @@ def semis_yt_title(options):
         title = EVENT_NAME + " - " + SEMIT % str(mnum)
         return title
 
-
 def finals_yt_title(options):
     if options.mnum < 2:
         title = EVENT_NAME + " - " + FINALS % options.mnum
@@ -103,7 +97,6 @@ def finals_yt_title(options):
         mnum = int(options.mnum) - 2
         title = EVENT_NAME + " - " + FINALST % str(mnum)
         return title
-
 
 def create_title(options):
     mcode = MATCH_TYPE[int(options.mcode)]
@@ -115,10 +108,8 @@ def create_title(options):
     }
     switcher[mcode](options)
 
-
 def quals_filename(options):
     return options.file % options.mnum
-
 
 def quarters_filename(options):
     if int(options.mnum) < 8:
@@ -130,7 +121,6 @@ def quarters_filename(options):
         filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
         return str(filename)
 
-
 def semis_filename(options):
     if int(options.mnum) < 4:
         filename = EVENT_NAME + " - " + SEMI % options.mnum + EXTENSION
@@ -140,7 +130,6 @@ def semis_filename(options):
         filename = EVENT_NAME + " - " + SEMIT % str(mnum) + EXTENSION
         return str(filename)
 
-
 def finals_filename(options):
     if int(options.mnum) < 2:
         filename = EVENT_NAME + " - " + FINALS % options.mnum + EXTENSION
@@ -149,7 +138,6 @@ def finals_filename(options):
         mnum = int(options.mnum) - 2
         filename = EVENT_NAME + " - " + FINALST % str(mnum) + EXTENSION
         return str(filename)
-
 
 def create_filename(options):
     mcode = MATCH_TYPE[int(options.mcode)]
@@ -161,11 +149,9 @@ def create_filename(options):
     }
     return switcher[mcode](options)
 
-
 def quals_match_code(mcode, mnum):
     match_code = str(mcode) + str(mnum)
     return EVENT_CODE, match_code
-
 
 def quarters_match_code(mcode, mnum):
     match_set = mnum % 4
@@ -184,7 +170,6 @@ def quarters_match_code(mcode, mnum):
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
 
-
 def semis_match_code(mcode, mnum):
     match_set = mnum % 2
     if match_set == 0:
@@ -202,11 +187,9 @@ def semis_match_code(mcode, mnum):
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
 
-
 def finals_match_code(mcode, mnum):
     match_code = MATCH_TYPE[mcode] + mnum
     return EVENT_CODE, match_code
-
 
 def get_match_code(mcode, mnum):
     switcher = {
@@ -217,14 +200,12 @@ def get_match_code(mcode, mnum):
     }
     return switcher[mcode](mcode, mnum)
 
-
 def tba_results(options):
     ecode, mcode = get_match_code(
         MATCH_TYPE[int(options.mcode)], int(options.mnum))
     print mcode
     blue_data, red_data = get_match_results(ecode, mcode)
     return blue_data, red_data, mcode
-
 
 def initialize_upload(youtube, options):
     print "Initializing upload for %s match %s" % (MATCH_TYPE[(int(options.mcode))], options.mnum)
@@ -239,7 +220,7 @@ def initialize_upload(youtube, options):
         tags.append("frc"+str(red_data[1]))
         tags.append("frc"+str(red_data[2]))
         tags.append("frc"+str(red_data[3]))
-        tags.append(re.search('\D+', EVENT_CODE).group())
+        tags.append(get_hashtag(EVENT_CODE))
 
     body = dict(
         snippet=dict(
@@ -277,7 +258,6 @@ def initialize_upload(youtube, options):
 
 # This method implements an exponential backoff strategy to resume a
 # failed upload.
-
 
 def resumable_upload(insert_request, mnum, mcode, youtube):
     response = None
@@ -324,7 +304,6 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
             sleep_seconds = random.random() * max_sleep
             print "Sleeping %f seconds and then retrying..." % sleep_seconds
             time.sleep(sleep_seconds)
-
 
 if __name__ == '__main__':
     argparser.add_argument("--mnum", help="""Match Number to add, if in elims
