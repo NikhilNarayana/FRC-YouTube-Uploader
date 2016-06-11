@@ -307,7 +307,7 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
 
 if __name__ == '__main__':
     argparser.add_argument("--mnum", help="""Match Number to add, if in elims
-        keep incrementing by one unless for tiebreaker, in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""", required=True)
+        keep incrementing by one unless for tiebreaker, in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""")
     argparser.add_argument(
         "--mcode", help="Match code (qm,qf,sf,f) starting at 0 ->3", default=0)
     argparser.add_argument(
@@ -324,7 +324,30 @@ if __name__ == '__main__':
                            default=VALID_PRIVACY_STATUSES[2], help="Video privacy status.")
     argparser.add_argument(
         "--end", help="The last match you would like to upload, must be continous. Only necessary if you want to batch upload", default=None)
+    argparser.add_argument("--gui", help="Switches the program to use the GUI data", default=False)
     args = argparser.parse_args()
+    if args.gui is True:
+        with open("gui.txt") as f:
+            content = f.readlines()
+        content = [x.strip('\n') for x in content]
+        if content[0] != "keep":
+            args.mnum = content[0]
+        if content[1] != "keep":
+            args.mcode = content[1]
+        if content[2] != "keep":
+            args.file = content[2]
+        if content[3] != "keep":
+            args.title = content[3]
+        if content[4] != "keep":
+            args.description = content[4]
+        if content[5] != "keep":
+            args.category = content[5]
+        if content[6] != "keep":
+            args.keywords = content[6]
+        if content[7] != "keep":
+            args.privacyStatus = content[7]
+        if content[8] != "keep":
+            args.end = content[8]
 
     youtube = get_authenticated_service(args)
 
