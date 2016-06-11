@@ -11,7 +11,7 @@ def get_match_results(event_key, match_key):
 	if match_data is None:
 		raise ValueError("""Match %s%s does not exist. Please use a match that exists""" % (event_key, match_key))
 	blue_data, red_data = parse_data(match_data)
-	return blue1, blue2, blue3, blue_score, red1, red2, red3, red_score
+	return blue_data, red_data
 
 def parse_data(match_data):
 	blue = match_data['alliances']['blue']['teams']

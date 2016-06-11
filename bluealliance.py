@@ -13,9 +13,6 @@ s = requests.Session()
 s = CacheControl(s, heuristic=LastModified())
 s.headers.update(app_id)
 
-v = requests.Session()
-v = CacheControl(s, heuristic=LastModified())
-
 
 class Event:
     def __init__(self, info, teams, matches, awards, rankings):
@@ -166,6 +163,7 @@ def set_api_key(name, description, version):
     global app_id
     app_id['X-TBA-App-Id'] = name + ':' + description + ':' + version
 
+### THE FOLLOWING API CODE IS FOR PUBLISHING VIDEOS TO TBA. WRITTEN BY Nikki Narayana ###
 def set_auth_id(token):
     global trusted_auth
     trusted_auth['X-TBA-Auth-Id'] = token
@@ -180,23 +178,26 @@ def set_auth_sig(secret, event_key, request_body):
     trusted_auth['X-TBA-Auth-Sig'] = str(md5)
     return request_path
 
-def post_video(token, secret, event_key, match_videos):
+def post_video(token, secret, event_key, match_video):
     global trusted_auth
     set_auth_id(token)
-    set_auth_sig(secret, event_key, match_videos)
-    url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
+    set_auth_sig(secret, event_key, match_video)
+    #url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
+    url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
+    # ^ For testing purposes only, the line above is the real code.
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
-        raise Exception("""An auth ID and/or auth secret required. 
+        raise Exception("""An auth ID and/or auth secret required.
             Please use set_auth_id() and/or set_auth_secret() to set them""")
 
-    r = v.post(url_str, data=match_videos, headers=trusted_auth)
+    r = s.post(url_str, data=match_video, headers=trusted_auth)
     if "Error" in r.content:
-        raise Exception(r.content) 
+        raise Exception(r.content)
+### END ###
 
 def tba_get(path):
     global app_id
     if app_id['X-TBA-App-Id'] == "":
-        raise Exception("""An API key is required for TBA. Please use set_api_key() to set one.""")
+        raise Exception("An API key is required for TBA. Please use set_api_key() to set one.")
 
     url_str = 'http://thebluealliance.com/api/v2/' + path
     r = s.get(url_str, headers=app_id)

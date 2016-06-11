@@ -6,7 +6,6 @@ import os
 import random
 import sys
 import time
-import pyperclip
 import datetime
 
 from apiclient.errors import HttpError
@@ -20,11 +19,11 @@ from youtubeAuthenticate import *
 # Default Variables - A lot needs to be changed based on event
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
-DEFAULT_PLAYLIST_ID = ""  # Get from playlist URL - Starts with PL
-TBA_TOKEN = ""  # Contact TBA for a token unique to each event
-TBA_SECRET = ""  # ^
-EVENT_CODE = ""  # Get from TBA format is YEAR[code]
-EVENT_NAME = ""  # Set it however you want. Usually just get it from TBA
+DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"  # Get from playlist URL - Starts with PL
+TBA_ID = "8h9BbNm24dRkbCOo"  # Contact TBA for a token unique to each event
+TBA_SECRET = "MaroS6T59BrQ90zZAdq2gyPK0S0QiUjjBaR8Sa8CRuBwqpX9WnPlNIdlOQXr7FD3"  # ^
+EVENT_CODE = "2016arc"  # Get from TBA format is YEAR[code]
+EVENT_NAME = "2016 INFIRST Indiana State Championship"  # Set it however you want. Usually just get it from TBA
 DEFAULT_TAGS = EVENT_CODE + \
     ", FIRST, omgrobots, FRC, FIRST Robotics Competition, automation, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship"
 QUAL = "Qualification Match %s"
@@ -113,28 +112,29 @@ def quals_filename(options):
     return options.file % options.mnum
 
 def quarters_filename(options):
-    if options.mnum < 8:
+    if int(options.mnum) < 8:
         filename = EVENT_NAME + " - " + QUARTER % options.mnum + EXTENSION
         return str(filename)
-    elif options.mnum > 8:
+    elif int(options.mnum) > 8:
+        print "why am i here?"
         mnum = int(options.mnum) - 8
         filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
         return str(filename)
 
 def semis_filename(options):
-    if options.mnum < 4:
+    if int(options.mnum) < 4:
         filename = EVENT_NAME + " - " + SEMI % options.mnum + EXTENSION
         return str(filename)
-    elif options.mnum > 4:
+    elif int(options.mnum) > 4:
         mnum = int(options.mnum) - 4
         filename = EVENT_NAME + " - " + SEMIT % str(mnum) + EXTENSION
         return str(filename)
 
 def finals_filename(options):
-    if options.mnum < 2:
+    if int(options.mnum) < 2:
         filename = EVENT_NAME + " - " + FINALS % options.mnum + EXTENSION
         return str(filename)
-    elif options.mnum > 2:
+    elif int(options.mnum) > 2:
         mnum = int(options.mnum) - 2
         filename = EVENT_NAME + " - " + FINALST % str(mnum) + EXTENSION
         return str(filename)
@@ -202,12 +202,13 @@ def get_match_code(mcode, mnum):
         
 def tba_results(options):
     ecode, mcode = get_match_code(MATCH_TYPE[int(options.mcode)], int(options.mnum))
+    print mcode ####
     blue_data, red_data = get_match_results(ecode, mcode)
     return blue_data, red_data, mcode
 
 
 def initialize_upload(youtube, options):
-    print "Initializing upload for match %s%s" % (options.mcode, options.mnum)
+    print "Initializing upload for %s match %s" % (MATCH_TYPE[(int(options.mcode))], options.mnum)
     tags = None
     blue_data, red_data, mcode = tba_results(options)
 
@@ -277,7 +278,7 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
                 add_video_to_playlist(
                     youtube, response['id'], DEFAULT_PLAYLIST_ID)
                 request_body = json.dumps({mcode:response['id']})
-                post_video(TBA_TOKEN, TBA_SECRET, request_body, EVENT_CODE)
+                post_video(TBA_ID, TBA_SECRET, request_body, EVENT_CODE)
                 # Comment out the above line if you are not adding videos to TBA
 
             else:
@@ -320,7 +321,7 @@ if __name__ == '__main__':
     argparser.add_argument(
         "--keywords", help="Video keywords, comma separated", default=DEFAULT_TAGS)
     argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
-                           default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
+                           default=VALID_PRIVACY_STATUSES[2], help="Video privacy status.")
     argparser.add_argument("--end", help="The last match you would like to upload, must be continous. Only necessary if you want to batch upload", default=None)
     args = argparser.parse_args()
 
