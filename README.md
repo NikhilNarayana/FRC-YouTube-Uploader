@@ -10,7 +10,7 @@ The main script is `youtubeup.py` which works by calling functions from the othe
 Main Script | Called Script(s) |  |  |  |  | 
 --- | --- | --- | --- | --- | --- | ---
 | youtubeup.py | youtubeAuthenticate.py | addtoplaylist.py | updateThumbnail.py | TBA.py | bluealliance.py |
-| updatePlaylistThumbnails.py | updatethumbnail.py | youtubeAuthenticate.py |
+| updatePlaylistThumbnails.py | youtubeAuthenticate.py | updatethumbnail.py |
 | addtoplaylist.py | youtubeAuthenticate.py |
 | updatethumbnail.py | youtubeAuthenticate.py |
 
