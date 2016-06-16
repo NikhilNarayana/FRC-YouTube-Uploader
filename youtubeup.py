@@ -21,17 +21,16 @@ from youtubeAuthenticate import *
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 # Get from playlist URL - Starts with PL
-DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
-TBA_ID = "8h9BbNm24dRkbCOo"  # Contact TBA for a token unique to each event
+DEFAULT_PLAYLIST_ID = ""
+TBA_ID = ""  # Contact TBA for a token unique to each event
 # ^
-TBA_SECRET = "MaroS6T59BrQ90zZAdq2gyPK0S0QiUjjBaR8Sa8CRuBwqpX9WnPlNIdlOQXr7FD3"
-EVENT_CODE = "2016arc"  # Get from TBA format is YEAR[code]
+TBA_SECRET = ""
+EVENT_CODE = ""  # Get from TBA event page. Format is YEAR[code]
 # Set it however you want. Usually just get it from TBA
-EVENT_NAME = "2016 INFIRST Indiana State Championship"
+EVENT_NAME = ""
 DEFAULT_TAGS = EVENT_CODE + \
     """, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics,
-     FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship,
-      Indiana State Championship"""
+     FIRST Stronghold""" # Just add tags with commas in between
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
 QUARTERT = "Quarterfinal Tiebreaker %s"
@@ -44,7 +43,7 @@ DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
 DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = "Footage of the " + EVENT_NAME + \
-" Event is courtesy the IndianaFIRST AV Crew." + """
+" Event is courtesy of " + """
 
 Alliance (Team1, Team2, Team3) - Score
 Blue Alliance (%s, %s, %s) - %s
@@ -322,7 +321,7 @@ if __name__ == '__main__':
     argparser.add_argument(
         "--keywords", help="Video keywords, comma separated", default=DEFAULT_TAGS)
     argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
-                           default=VALID_PRIVACY_STATUSES[2], help="Video privacy status.")
+                           default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
     argparser.add_argument(
         "--end", help="The last match you would like to upload, must be continous. Only necessary if you want to batch upload", default=None)
     argparser.add_argument("--gui", help="Switches the program to use the GUI data", default=False)
