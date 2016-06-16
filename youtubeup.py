@@ -7,12 +7,12 @@ import random
 import sys
 import time
 import datetime
-import re
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 from oauth2client.tools import argparser
 from TBA import *
+from tbaAPI import *
 from addtoplaylist import add_video_to_playlist
 from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import *
@@ -29,7 +29,9 @@ EVENT_CODE = "2016arc"  # Get from TBA format is YEAR[code]
 # Set it however you want. Usually just get it from TBA
 EVENT_NAME = "2016 INFIRST Indiana State Championship"
 DEFAULT_TAGS = EVENT_CODE + \
-    ", FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship, Indiana State Championship"
+    """, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics,
+     FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship,
+      Indiana State Championship"""
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
 QUARTERT = "Quarterfinal Tiebreaker %s"
@@ -41,13 +43,14 @@ EXTENSION = ".mp4"  # CHANGE IF YOU AREN'T USING MP4s
 DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
 DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
-DEFAULT_DESCRIPTION = "Footage of the " + EVENT_NAME + " Event is courtesy the IndianaFIRST AV Crew." + """
+DEFAULT_DESCRIPTION = "Footage of the " + EVENT_NAME + \
+" Event is courtesy the IndianaFIRST AV Crew." + """
 
 Alliance (Team1, Team2, Team3) - Score
 Blue Alliance (%s, %s, %s) - %s
 Red Alliance  (%s, %s, %s) - %s
 
-To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016""" + EVENT_CODE + """
+To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/""" + EVENT_CODE + """
 
 Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST).
 
@@ -66,7 +69,7 @@ def upload_multiple_videos(youtube, options):
             print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
         print ""
         options.mnum = str(int(options.mnum) + 1)
-    print "All matches uploaded to YouTube and added to TBA"
+    print "All matches have been uploaded"
 
 def quals_yt_title(options):
     return options.title % options.mnum
@@ -116,7 +119,6 @@ def quarters_filename(options):
         filename = EVENT_NAME + " - " + QUARTER % options.mnum + EXTENSION
         return str(filename)
     elif int(options.mnum) > 8:
-        print "why am i here?"
         mnum = int(options.mnum) - 8
         filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
         return str(filename)
@@ -203,7 +205,6 @@ def get_match_code(mcode, mnum):
 def tba_results(options):
     ecode, mcode = get_match_code(
         MATCH_TYPE[int(options.mcode)], int(options.mnum))
-    print mcode
     blue_data, red_data = get_match_results(ecode, mcode)
     return blue_data, red_data, mcode
 
@@ -327,27 +328,26 @@ if __name__ == '__main__':
     argparser.add_argument("--gui", help="Switches the program to use the GUI data", default=False)
     args = argparser.parse_args()
     if args.gui is True:
-        with open("gui.txt") as f:
-            content = f.readlines()
-        content = [x.strip('\n') for x in content]
-        if content[0] != "keep":
-            args.mnum = content[0]
-        if content[1] != "keep":
-            args.mcode = content[1]
-        if content[2] != "keep":
-            args.file = content[2]
-        if content[3] != "keep":
-            args.title = content[3]
-        if content[4] != "keep":
-            args.description = content[4]
-        if content[5] != "keep":
-            args.category = content[5]
-        if content[6] != "keep":
-            args.keywords = content[6]
-        if content[7] != "keep":
-            args.privacyStatus = content[7]
-        if content[8] != "keep":
-            args.end = content[8]
+        with open("data.txt", 'r') as f:
+            data = [line.strip() for line in f]
+        if data[0] != "keep":
+            args.mnum = data[0]
+        if data[1] != "keep":
+            args.mcode = data[1]
+        if data[2] != "keep":
+            args.file = data[2]
+        if data[3] != "keep":
+            args.title = data[3]
+        if data[4] != "keep":
+            args.description = data[4]
+        if data[5] != "keep":
+            args.category = data[5]
+        if data[6] != "keep":
+            args.keywords = data[6]
+        if data[7] != "keep":
+            args.privacyStatus = data[7]
+        if data[8] != "keep":
+            args.end = data[8]
 
     youtube = get_authenticated_service(args)
 

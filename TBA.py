@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import urllib2
-import bluealliance as tba
+import tbaAPI as tba
 import requests
 import simplejson as json
 

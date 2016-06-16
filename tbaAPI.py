@@ -2,6 +2,7 @@ import simplejson as json
 import numpy
 import requests
 import hashlib
+import re
 
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import LastModified
