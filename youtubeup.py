@@ -31,8 +31,7 @@ EVENT_CODE = "2016arc"  # Get from TBA format is YEAR[code]
 EVENT_NAME = "2016 INFIRST Indiana State Championship"
 DEFAULT_TAGS = EVENT_CODE + \
     """, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics,
-     FIRST Stronghold, INFIRST, IndianaFIRST, Indiana, District Championship,
-      Indiana State Championship"""
+     FIRST Stronghold"""
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
 QUARTERT = "Quarterfinal Tiebreaker %s"
@@ -45,7 +44,7 @@ DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
 DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = "Footage of the " + EVENT_NAME + \
-" Event is courtesy the IndianaFIRST AV Crew." + """
+" Event is courtesy of the IndianaFIRST AV Crew." + """
 
 Alliance (Team1, Team2, Team3) - Score
 Blue Alliance (%s, %s, %s) - %s
@@ -329,8 +328,10 @@ if __name__ == '__main__':
         "--end", help="""The last match you would like to upload, must be continous.
          Only necessary if you want to batch upload""", default=None)
     argparser.add_argument("--gui", help="Switches the program to use the GUI data", default=False)
+    
     args = argparser.parse_args()
-    if args.gui is True:
+    
+    if args.gui is not False:
         with open("data.txt", 'r') as f:
             data = [line.strip() for line in f]
         if data[0] != "keep":
