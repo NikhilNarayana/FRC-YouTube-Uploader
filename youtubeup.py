@@ -7,6 +7,7 @@ import random
 import sys
 import time
 import datetime
+import argparse
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
@@ -308,7 +309,8 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
 
 if __name__ == '__main__':
     argparser.add_argument("--mnum", help="""Match Number to add, if in elims
-        keep incrementing by one unless for tiebreaker, in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""")
+        keep incrementing by one unless for tiebreaker, 
+        in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""")
     argparser.add_argument(
         "--mcode", help="Match code (qm,qf,sf,f) starting at 0 ->3", default=0)
     argparser.add_argument(
@@ -317,14 +319,15 @@ if __name__ == '__main__':
         "--title", help="Video title", default=DEFAULT_TITLE)
     argparser.add_argument(
         "--description", help="Video description", default=DEFAULT_DESCRIPTION)
-    argparser.add_argument("--category", default=DEFAULT_VIDEO_CATEGORY, help="Numeric video category. " +
-                           "See https://developers.google.com/youtube/v3/docs/videoCategories/list")
+    argparser.add_argument("--category", default=DEFAULT_VIDEO_CATEGORY, help="""Numeric video category. 
+        See https://developers.google.com/youtube/v3/docs/videoCategories/list""")
     argparser.add_argument(
         "--keywords", help="Video keywords, comma separated", default=DEFAULT_TAGS)
     argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
                            default=VALID_PRIVACY_STATUSES[2], help="Video privacy status.")
     argparser.add_argument(
-        "--end", help="The last match you would like to upload, must be continous. Only necessary if you want to batch upload", default=None)
+        "--end", help="""The last match you would like to upload, must be continous.
+         Only necessary if you want to batch upload""", default=None)
     argparser.add_argument("--gui", help="Switches the program to use the GUI data", default=False)
     args = argparser.parse_args()
     if args.gui is True:
