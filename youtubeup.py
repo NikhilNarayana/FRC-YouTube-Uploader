@@ -75,31 +75,37 @@ def quals_yt_title(options):
     return options.title % options.mnum
 
 def quarters_yt_title(options):
-    if options.mnum < 8:
+    if options.mnum <= 8 and options.mnum >= 1:
         title = EVENT_NAME + " - " + QUARTER % options.mnum
         return title
-    elif options.mnum > 8:
+    elif options.mnum >= 9 and options.mnum <= 12:
         mnum = int(options.mnum) - 8
         title = EVENT_NAME + " - " + QUARTERT % str(mnum)
         return title
+    else:
+        raise Exception("options.mnum must be within 1 and 12")
 
 def semis_yt_title(options):
-    if options.mnum < 4:
+    if options.mnum <= 4 and options.mnum >= 1:
         title = EVENT_NAME + " - " + SEMI % options.mnum
         return title
-    elif options.mnum > 4:
+    elif options.mnum >= 5 and options.mnum <= 6:
         mnum = int(options.mnum) - 4
         title = EVENT_NAME + " - " + SEMIT % str(mnum)
         return title
+    else:
+        raise Exception("options.mnum must be within 1 and 6")
 
 def finals_yt_title(options):
-    if options.mnum < 2:
+    if options.mnum <= 2 and options.mnum >= 1:
         title = EVENT_NAME + " - " + FINALS % options.mnum
         return title
-    elif options.mnum > 2:
+    elif options.mnum == 3:
         mnum = int(options.mnum) - 2
         title = EVENT_NAME + " - " + FINALST % str(mnum)
         return title
+    else:
+        raise Exception("options.mnum must be within 1 and 3")
 
 def create_title(options):
     mcode = MATCH_TYPE[int(options.mcode)]
@@ -309,10 +315,12 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
     parser.add_argument('--mnum', 
+        type=int, 
         help="""Match Number to add, if in elims
         keep incrementing by one unless for tiebreaker, 
         in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""")
     parser.add_argument('--mcode', 
+        type=int, 
         help='Match code (qm,qf,sf,f) starting at 0 ->3', 
         default=0)
     parser.add_argument('--file', 
