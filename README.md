@@ -66,4 +66,4 @@ Most of the code was built specifically for the 2016 Indiana State Championship,
 ### updatePlaylistThumbnails.py
 This script expects two inputs, a playlist ID (`--pID`) and a thumbnail file name (`--tnail`). It will then update every the thumbnails of every video in that playlist to the one you provide. This makes it simple to update older playlists with a new thumbnail so you can keep your look consistent.
 
-This script is not used within the main youtubeup.py
+This script is not used within the youtubeup.py
