@@ -26,6 +26,7 @@ class MyTests(unittest.TestCase):
     	args.mnum = 6
     	self.assertEqual(yup.quarters_yt_title(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 6")
     	self.assertNotEqual(yup.semis_yt_title(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 5")
+        self.assertRaises(Exception, yup.finals_yt_title, args)
 
 
 if __name__ == '__main__':
