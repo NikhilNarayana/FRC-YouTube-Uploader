@@ -36,5 +36,14 @@ class MyTests(unittest.TestCase):
         self.assertNotEqual(yup.semis_match_code(mcode, mnum), (EVENT_CODE, "qf1m2"))
         self.assertRaises(ValueError, yup.finals_match_code, mcode, mnum)
 
+    def test_create_filename(self):
+        parser = argparse.ArgumentParser(description='argparse for testing')
+        args = parser.parse_args()
+        args.mcode = 1
+        args.mnum = 6
+        self.assertEqual(yup.quarters_filename(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 6.mp4")
+        self.assertNotEqual(yup.semis_filename(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 5.mp4")
+        self.assertRaises(ValueError, yup.finals_filename, args)
+
 if __name__ == '__main__':
     unittest.main()

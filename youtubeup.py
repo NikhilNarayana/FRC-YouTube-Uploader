@@ -121,31 +121,37 @@ def quals_filename(options):
     return options.file % options.mnum
 
 def quarters_filename(options):
-    if int(options.mnum) < 8:
+    if options.mnum <= 8 and options.mnum >= 1:
         filename = EVENT_NAME + " - " + QUARTER % options.mnum + EXTENSION
         return str(filename)
-    elif int(options.mnum) > 8:
+    elif options.mnum >= 9 and options.mnum <= 12:
         mnum = int(options.mnum) - 8
         filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
         return str(filename)
+    else:
+        raise ValueError("mnum must be between 1 and 12")
 
 def semis_filename(options):
-    if int(options.mnum) < 4:
+    if options.mnum <= 4 and options.mnum >= 1:
         filename = EVENT_NAME + " - " + SEMI % options.mnum + EXTENSION
         return str(filename)
-    elif int(options.mnum) > 4:
+    elif options.mnum >= 5 and options.mnum <= 6:
         mnum = int(options.mnum) - 4
         filename = EVENT_NAME + " - " + SEMIT % str(mnum) + EXTENSION
         return str(filename)
+    else:
+        raise ValueError("mnum must be between 1 and 6")
 
 def finals_filename(options):
-    if int(options.mnum) < 2:
+    if options.mnum <= 2 and options.mnum >= 1:
         filename = EVENT_NAME + " - " + FINALS % options.mnum + EXTENSION
         return str(filename)
-    elif int(options.mnum) > 2:
+    elif options.mnum == 3:
         mnum = int(options.mnum) - 2
         filename = EVENT_NAME + " - " + FINALST % str(mnum) + EXTENSION
         return str(filename)
+    else:
+        raise ValueError("mnum must be between 1 and 3")
 
 def create_filename(options):
     mcode = MATCH_TYPE[int(options.mcode)]
@@ -196,7 +202,7 @@ def semis_match_code(mcode, mnum):
         match = 3
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
-    else mnum > 6:
+    else:
         raise ValueError("mnum can't be larger than 6")
 
 def finals_match_code(mcode, mnum):
@@ -227,13 +233,13 @@ def initialize_upload(youtube, options):
 
     if options.keywords:
         tags = options.keywords.split(",")
-        tags.append("frc"+str(blue_data[1]))
-        tags.append("frc"+str(blue_data[2]))
-        tags.append("frc"+str(blue_data[3]))
-        tags.append("frc"+str(red_data[1]))
-        tags.append("frc"+str(red_data[2]))
-        tags.append("frc"+str(red_data[3]))
-        tags.append(get_hashtag(EVENT_CODE))
+        tags.append("frc" + str(blue_data[1]))
+        tags.append("frc" + str(blue_data[2]))
+        tags.append("frc" + str(blue_data[3]))
+        tags.append("frc" + str(red_data[1]))
+        tags.append("frc" + str(red_data[2]))
+        tags.append("frc" + str(red_data[3]))
+        tags.append("frc" + str(get_hashtag(EVENT_CODE)))
 
     body = dict(
         snippet=dict(
