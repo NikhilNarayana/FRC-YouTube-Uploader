@@ -162,42 +162,42 @@ def quals_match_code(mcode, mnum):
     return EVENT_CODE, match_code
 
 def quarters_match_code(mcode, mnum):
-    if mnum > 12:
-        raise ValueError("mnum can't be larger than 12")
     match_set = mnum % 4
     if match_set == 0:
         match_set = 4
-    if mnum <= 4:
+    elif mnum <= 4:
         match = 1
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
-    if mnum > 4 and mnum <= 8:
+    elif mnum > 4 and mnum <= 8:
         match = 2
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
-    if mnum > 8 and mnum <= 12:
+    elif mnum > 8 and mnum <= 12:
         match = 3
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
+    if mnum > 12:
+        raise ValueError("mnum can't be larger than 12")
 
 def semis_match_code(mcode, mnum):
-    if mnum > 6:
-        raise ValueError("mnum can't be larger than 6")
     match_set = mnum % 2
     if match_set == 0:
         match_set = 2
-    if mnum <= 2:
+    elif mnum <= 2:
         match = 1
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
-    if mnum > 2 and mnum <= 4:
+    elif mnum > 2 and mnum <= 4:
         match = 2
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
-    if mnum > 4 and mnum <= 6:
+    elif mnum > 4 and mnum <= 6:
         match = 3
         match_code = mcode + str(match_set) + "m" + str(match)
         return EVENT_CODE, match_code
+    else mnum > 6:
+        raise ValueError("mnum can't be larger than 6")
 
 def finals_match_code(mcode, mnum):
     if mnum > 3:
@@ -244,7 +244,7 @@ def initialize_upload(youtube, options):
             categoryId=options.category
         ),
         status=dict(
-            privacyStatus=options.privacyStatus
+            privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
         )
     )
 
@@ -347,9 +347,9 @@ if __name__ == '__main__':
         default=DEFAULT_TAGS)
     parser.add_argument("--privacyStatus", 
         "--privacyStatus", 
-        help="Video privacy status.", 
-        choices=VALID_PRIVACY_STATUSES, 
-        default=VALID_PRIVACY_STATUSES[2])
+        type=int, 
+        help="Video privacy status, public (0), private (1), unlisted (2))",  
+        default=2)
     parser.add_argument("--end", 
         help="""The last match you would like to upload, must be continous. 
         Only necessary if you want to batch upload""", 
