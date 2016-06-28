@@ -83,7 +83,7 @@ def quarters_yt_title(options):
         title = EVENT_NAME + " - " + QUARTERT % str(mnum)
         return title
     else:
-        raise Exception("options.mnum must be within 1 and 12")
+        raise ValueError("options.mnum must be within 1 and 12")
 
 def semis_yt_title(options):
     if options.mnum <= 4 and options.mnum >= 1:
@@ -94,7 +94,7 @@ def semis_yt_title(options):
         title = EVENT_NAME + " - " + SEMIT % str(mnum)
         return title
     else:
-        raise Exception("options.mnum must be within 1 and 6")
+        raise ValueError("options.mnum must be within 1 and 6")
 
 def finals_yt_title(options):
     if options.mnum <= 2 and options.mnum >= 1:
@@ -105,7 +105,7 @@ def finals_yt_title(options):
         title = EVENT_NAME + " - " + FINALST % str(mnum)
         return title
     else:
-        raise Exception("options.mnum must be within 1 and 3")
+        raise ValueError("options.mnum must be within 1 and 3")
 
 def create_title(options):
     mcode = MATCH_TYPE[int(options.mcode)]
@@ -162,6 +162,8 @@ def quals_match_code(mcode, mnum):
     return EVENT_CODE, match_code
 
 def quarters_match_code(mcode, mnum):
+    if mnum > 12:
+        raise ValueError("mnum can't be larger than 12")
     match_set = mnum % 4
     if match_set == 0:
         match_set = 4
@@ -179,6 +181,8 @@ def quarters_match_code(mcode, mnum):
         return EVENT_CODE, match_code
 
 def semis_match_code(mcode, mnum):
+    if mnum > 6:
+        raise ValueError("mnum can't be larger than 6")
     match_set = mnum % 2
     if match_set == 0:
         match_set = 2
@@ -196,6 +200,8 @@ def semis_match_code(mcode, mnum):
         return EVENT_CODE, match_code
 
 def finals_match_code(mcode, mnum):
+    if mnum > 3:
+        raise ValueError("mnum can't be larger than 3")
     match_code = MATCH_TYPE[mcode] + mnum
     return EVENT_CODE, match_code
 

@@ -26,8 +26,15 @@ class MyTests(unittest.TestCase):
     	args.mnum = 6
     	self.assertEqual(yup.quarters_yt_title(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 6")
     	self.assertNotEqual(yup.semis_yt_title(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 5")
-        self.assertRaises(Exception, yup.finals_yt_title, args)
+        self.assertRaises(ValueError, yup.finals_yt_title, args)
 
+    def test_get_match_code(self):
+        EVENT_CODE = "2016arc"
+        mcode = "qf"
+        mnum = 5
+        self.assertEqual(yup.quarters_match_code(mcode, mnum), (EVENT_CODE, "qf1m2"))
+        self.assertNotEqual(yup.semis_match_code(mcode, mnum), (EVENT_CODE, "qf1m2"))
+        self.assertRaises(ValueError, yup.finals_match_code, mcode, mnum)
 
 if __name__ == '__main__':
     unittest.main()
