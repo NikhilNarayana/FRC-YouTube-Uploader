@@ -15,3 +15,4 @@ six==1.10.0
 traceback2==1.4.0
 unittest2==1.1.0
 uritemplate==0.6
+web.py==0.37

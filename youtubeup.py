@@ -222,9 +222,30 @@ def get_match_code(mcode, mnum):
 
 def tba_results(options):
     ecode, mcode = get_match_code(
-        MATCH_TYPE[int(options.mcode)], int(options.mnum))
+        options.mcode, int(options.mnum))
     blue_data, red_data = get_match_results(ecode, mcode)
     return blue_data, red_data, mcode
+
+def init(args):
+    if args.gui == True:
+        DEFAULT_PLAYLIST_ID = args.pID
+        TBA_ID = args.tbaID
+        TBA_SECRET = args.tbaSecret
+        EVENT_CODE = args.ecode
+        EVENT_NAME = args.ename
+    else:
+        args.mcode = MATCH_TYPE[int(args.mcode)]
+
+    youtube = get_authenticated_service(args)
+
+    if args.end is not None:
+        multiple_videos(youtube, args)
+
+    else:
+        try:
+            initialize_upload(youtube, args)
+        except HttpError, e:
+            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
 def initialize_upload(youtube, options):
     print "Initializing upload for %s match %s" % (MATCH_TYPE[(int(options.mcode))], options.mnum)
@@ -253,30 +274,14 @@ def initialize_upload(youtube, options):
             privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
         )
     )
-
-    # Call the API's videos.insert method to create and upload the video.
     insert_request = youtube.videos().insert(
         part=",".join(body.keys()),
         body=body,
-        # The chunksize parameter specifies the size of each chunk of data, in
-        # bytes, that will be uploaded at a time. Set a higher value for
-        # reliable connections as fewer chunks lead to faster uploads. Set a lower
-        # value for better recovery on less reliable connections.
-        #
-        # Setting "chunksize" equal to -1 in the code below means that the entire
-        # file will be uploaded in a single HTTP request. (If the upload fails,
-        # it will still be retried where it left off.) This is usually a best
-        # practice, but if you're using Python older than 2.6 or if you're
-        # running on App Engine, you should set the chunksize to something like
-        # 1024 * 1024 (1 megabyte).
         media_body=MediaFileUpload(
             create_filename(options), chunksize=-1, resumable=True)
     )
 
     resumable_upload(insert_request, options.mnum, mcode, youtube)
-
-# This method implements an exponential backoff strategy to resume a
-# failed upload.
 
 def resumable_upload(insert_request, mnum, mcode, youtube):
     response = None
@@ -336,13 +341,13 @@ if __name__ == '__main__':
         help='Match code (qm,qf,sf,f) starting at 0 ->3', 
         default=0)
     parser.add_argument('--file', 
-        help="Video file to upload", 
+        help="Video file to upload. Only necessary if you are using a different naming scheme", 
         default=DEFAULT_FILE)
     parser.add_argument("--title", 
-        help="Video title", 
+        help="Video title. Only necessary if you are using a different naming scheme", 
         default=DEFAULT_TITLE)
     parser.add_argument("--description", 
-        help="Video description", 
+        help="Video description.", 
         default=DEFAULT_DESCRIPTION)
     parser.add_argument("--category", 
         help="""Numeric video category. 
@@ -363,38 +368,6 @@ if __name__ == '__main__':
     parser.add_argument("--gui", 
         help="Switches the program to use the GUI data", 
         default=False)
-    
     args = parser.parse_args()
-    
-    if args.gui is not False:
-        with open("data.txt", 'r') as f:
-            data = [line.strip() for line in f]
-        if data[0] != "keep":
-            args.mnum = data[0]
-        if data[1] != "keep":
-            args.mcode = data[1]
-        if data[2] != "keep":
-            args.file = data[2]
-        if data[3] != "keep":
-            args.title = data[3]
-        if data[4] != "keep":
-            args.description = data[4]
-        if data[5] != "keep":
-            args.category = data[5]
-        if data[6] != "keep":
-            args.keywords = data[6]
-        if data[7] != "keep":
-            args.privacyStatus = data[7]
-        if data[8] != "keep":
-            args.end = data[8]
 
-    youtube = get_authenticated_service(args)
-
-    if args.end is not None:
-        multiple_videos(youtube, args)
-
-    else:
-        try:
-            initialize_upload(youtube, args)
-        except HttpError, e:
-            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+    init(args)
