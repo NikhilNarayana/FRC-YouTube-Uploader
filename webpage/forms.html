@@ -19,10 +19,21 @@ $def with (form)
 	</head>
 	<body>
 		<h1>FRC Youtube Uploader</h1>
-		<p>For assistance with filling out the form go <a href="https://github.com/NikhilNarayana/FRC-CLI-Youtube-Uploader" target="_blank">here</a></p>
+		<p>For assistance with filling out the form go <a href="https://github.com/NikhilNarayana/FRC-CLI-Youtube-Uploader" target="_blank">here</a>
+			<br>
+			All values will stay the same when submitted, except for Match Number which increments.
+		</p>
 		<form name="main" method="post"> 
 			$if not form.valid: <p class="error">Try again</p>
 			$:form.render()
 			<input type="submit" style="margin-left: 250px">    
 		</form>
+		<br>
+		<br>
+		<br>
+		<footer>
+			<h5 style="margin: 3 0 0 0">Disclaimer: This has only been tested at official events and requires</h5>
+			<h5 style="margin: 3 0 0 0">- a high speed internet connection </h5>
+			<h5 style="margin: 3 0 0 0">- Event updates on TheBlueAlliance</h5>
+		</footer>
 	</body>
