@@ -246,7 +246,7 @@ def init(args):
 
     youtube = get_authenticated_service(args)
 
-    if (args.end is not None or args.end is 0) and int(args.end) > int(args.mnum):
+    if (args.end is not None or args.end == "Only for batch uploads") and int(args.end) > int(args.mnum):
         multiple_videos(youtube, args)
 
     else:

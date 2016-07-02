@@ -2,7 +2,6 @@ import web
 from web import form
 import youtubeup as yup
 import argparse
-import webbrowser
 
 render = web.template.render('webpage/')
 
@@ -35,12 +34,12 @@ dataform = form.Form(
         description="Match Type"),
     form.Textbox("end", 
         description="Last Match Number", 
-        value="0"),
+        value="Only for batch uploads"),
     form.Textarea("description",
         description="Video description",
         value="Add alternate description here."),
     validators = [form.Validator("Last Match Number must be 0 or greater than Match Number", 
-        lambda i: int(i.end) == 0 or int(i.end) > int(i.mnum))]
+        lambda i: int(i.end) == "Only for batch uploads" or int(i.end) > int(i.mnum))]
     )
 
 class index:
@@ -69,10 +68,9 @@ class index:
                 form.mnum.set_value(str(int(form.d.mnum) + 1))
             else:
                 form.mnum.set_value(str(int(form.d.end) + 1))
-                form.end.set_value("0")
+                form.end.set_value("Only for batch uploads")
             return render.forms(form)
 
 if __name__=="__main__":
     web.internalerror = web.debugerror
     app.run()
-    webbrowser.open("localhost:8080")
