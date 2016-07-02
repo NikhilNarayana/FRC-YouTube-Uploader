@@ -61,16 +61,6 @@ Thanks for watching!"""
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
-def upload_multiple_videos(youtube, options):
-    while int(options.mnum) <= int(options.end):
-        try:
-            initialize_upload(youtube, args)
-        except HttpError, e:
-            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
-        print ""
-        options.mnum = str(int(options.mnum) + 1)
-    print "All matches have been uploaded"
-
 def quals_yt_title(options):
     return options.title % options.mnum
 
@@ -226,6 +216,22 @@ def tba_results(options):
     blue_data, red_data = get_match_results(ecode, mcode)
     return blue_data, red_data, mcode
 
+def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
+    try:
+        return description % (blue1, blue2, blue3, blueScore, red1, red2, red3, redScore)
+    except TypeError, e:
+        return description
+
+def upload_multiple_videos(youtube, options):
+    while int(options.mnum) <= int(options.end):
+        try:
+            initialize_upload(youtube, args)
+        except HttpError, e:
+            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+        print ""
+        options.mnum = str(int(options.mnum) + 1)
+    print "All matches have been uploaded"
+
 def init(args):
     if args.gui == True:
         DEFAULT_PLAYLIST_ID = args.pID
@@ -233,12 +239,14 @@ def init(args):
         TBA_SECRET = args.tbaSecret
         EVENT_CODE = args.ecode
         EVENT_NAME = args.ename
+        if args.description != "Add alternate description here.":
+            DEFAULT_DESCRIPTION = args.description
     else:
         args.mcode = MATCH_TYPE[int(args.mcode)]
 
     youtube = get_authenticated_service(args)
 
-    if args.end is not None:
+    if (args.end is not None or args.end is 0) and int(args.end) > int(args.mnum):
         multiple_videos(youtube, args)
 
     else:
@@ -265,7 +273,7 @@ def initialize_upload(youtube, options):
     body = dict(
         snippet=dict(
             title=create_title(options),
-            description=options.description % (blue_data[1], blue_data[2], blue_data[3], blue_data[0],
+            description=create_description(options.description, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
                                                red_data[1], red_data[2], red_data[3], red_data[0]),
             tags=tags,
             categoryId=options.category
