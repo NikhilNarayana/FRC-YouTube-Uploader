@@ -1,3 +1,4 @@
+# Written by Wes Jordan and found here: Python TBA API Layer (https://github.com/Thing342/pyTBA)
 import simplejson as json
 import numpy
 import requests
@@ -262,6 +263,6 @@ def post_video(token, secret, event_key, match_video):
     if "Error" in r.content:
         raise Exception(r.content)
 
-def get_hashtag(event_key):
-    return re.search('\D+', event_key).group()
+def get_event_hashtag(event_key):
+    return "frc" + re.search('\D+', event_key).group()
 ### END ###

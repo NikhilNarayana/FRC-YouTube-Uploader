@@ -12,7 +12,7 @@ import simplejson as json
 class MyTests(unittest.TestCase):
 
     def test_get_hashtag(self):
-        self.assertEqual(tbaAPI.get_hashtag("2016arc"), "arc")
+        self.assertEqual(tbaAPI.get_event_hashtag("2016arc"), "frcarc")
 
     def test_parse_data(self):
     	blue_data = [132, "999", "180", "3166"]
@@ -44,6 +44,9 @@ class MyTests(unittest.TestCase):
         self.assertEqual(yup.quarters_filename(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 6.mp4")
         self.assertNotEqual(yup.semis_filename(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 5.mp4")
         self.assertRaises(ValueError, yup.finals_filename, args)
+
+    def test_tiebreaker_match_number(self):
+        self.assertEqual(yup.tiebreak_mnum(3, "qf"), 11)
 
 if __name__ == '__main__':
     unittest.main()

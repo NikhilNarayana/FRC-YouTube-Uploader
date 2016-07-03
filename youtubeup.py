@@ -11,7 +11,6 @@ import argparse
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
-from oauth2client.tools import argparser
 from TBA import *
 from tbaAPI import *
 from addtoplaylist import add_video_to_playlist
@@ -43,18 +42,22 @@ EXTENSION = ".mp4"  # CHANGE IF YOU AREN'T USING MP4s
 DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
 DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
-DEFAULT_DESCRIPTION = "Footage of the " + EVENT_NAME + \
-" Event is courtesy of the IndianaFIRST AV Crew." + """
+PRODUCTION_TEAM = "IndianaFIRST AV Crew"
+EVENT_ORGANIZATION = "IndianaFIRST"
+TWITTER_HANDLE = "IndianaFIRST"
+FACEBOOK_NAME = "IndianaFIRST"
+WEBSITE_LINK = "www.indianafirst.org"
+DEFAULT_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
 
 Alliance (Team1, Team2, Team3) - Score
 Blue Alliance (%s, %s, %s) - %s
 Red Alliance  (%s, %s, %s) - %s
 
-To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/""" + EVENT_CODE + """
+To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/%s
 
-Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST).
+Follow us on Twitter (@%s) and Facebook (%s).
 
-For more information and future event schedules, visit our website: www.indianafirst.org
+For more information and future event schedules, visit our website: %s
 
 Thanks for watching!"""
 
@@ -218,9 +221,20 @@ def tba_results(options):
 
 def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
     try:
-        return description % (blue1, blue2, blue3, blueScore, red1, red2, red3, redScore)
+        return description % (EVENT_NAME, PRODUCTION_TEAM,
+            blue1, blue2, blue3, blueScore, red1, red2,
+            red3, redScore, EVENT_CODE, TWITTER_HANDLE,
+            FACEBOOK_NAME, WEBSITE_LINK)
     except TypeError, e:
         return description
+
+def tiebreak_mnum(mnum, mcode):
+    switcher = {
+        "qf": int(mnum + 8),
+        "sf": int(mnum + 4),
+        "f1m": int(mnum + 2),
+    }
+    return switcher[mcode]
 
 def upload_multiple_videos(youtube, options):
     while int(options.mnum) <= int(options.end):
@@ -244,9 +258,12 @@ def init(args):
     else:
         args.mcode = MATCH_TYPE[int(args.mcode)]
 
+    if options.tiebreak is True:
+        options.mnum = tiebreak_mnum(options.mnum, options.mcode)
+
     youtube = get_authenticated_service(args)
 
-    if (args.end is not None or args.end == "Only for batch uploads") and int(args.end) > int(args.mnum):
+    if (args.end is not None or args.end != "Only for batch uploads") and int(args.end) > int(args.mnum):
         multiple_videos(youtube, args)
 
     else:
@@ -268,7 +285,7 @@ def initialize_upload(youtube, options):
         tags.append("frc" + str(red_data[1]))
         tags.append("frc" + str(red_data[2]))
         tags.append("frc" + str(red_data[3]))
-        tags.append("frc" + str(get_hashtag(EVENT_CODE)))
+        tags.append(get_event_hashtag(EVENT_CODE))
 
     body = dict(
         snippet=dict(
@@ -348,6 +365,10 @@ if __name__ == '__main__':
         type=int, 
         help='Match code (qm,qf,sf,f) starting at 0 ->3', 
         default=0)
+    parser.add_argument('--tiebreak', 
+        type=bool, 
+        help="True or False, default is False", 
+        default=False)
     parser.add_argument('--file', 
         help="Video file to upload. Only necessary if you are using a different naming scheme", 
         default=DEFAULT_FILE)

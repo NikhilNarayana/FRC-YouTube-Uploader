@@ -24,6 +24,9 @@ dataform = form.Form(
         description="TBA Event Secret",
         value="Contact 'contact@thebluealliance.com to get keys",
         size=41),
+    form.Textarea("description",
+        description="Video description",
+        value="Add alternate description here."),
     form.Textbox("mnum",
     	form.notnull,
     	form.regexp("\d+", "Cannot contain letters"),
@@ -32,14 +35,12 @@ dataform = form.Form(
     form.Dropdown("mcode",
         ["qm", "qf", "sf", "f"],
         description="Match Type"),
+    form.Checkbox("tiebreak", description="Tiebreaker"),
     form.Textbox("end", 
         description="Last Match Number", 
         value="Only for batch uploads"),
-    form.Textarea("description",
-        description="Video description",
-        value="Add alternate description here."),
-    validators = [form.Validator("Last Match Number must be 0 or greater than Match Number", 
-        lambda i: int(i.end) == "Only for batch uploads" or int(i.end) > int(i.mnum))]
+    validators = [form.Validator("Last Match Number must be greater than Match Number", 
+        lambda i: i.end == "Only for batch uploads" or int(i.end) > int(i.mnum))]
     )
 
 class index:
@@ -63,8 +64,9 @@ class index:
             args.tbaID = form.d.tbaID
             args.tbaSecret = form.d.tbaSecret
             args.description = form.d.description
+            args.tiebreak = form.d.tiebreak
             yup.init(args)
-            if form.d.end == "0":
+            if form.d.end == "Only for batch uploads":
                 form.mnum.set_value(str(int(form.d.mnum) + 1))
             else:
                 form.mnum.set_value(str(int(form.d.end) + 1))
