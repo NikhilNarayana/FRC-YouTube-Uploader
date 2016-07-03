@@ -19,37 +19,39 @@ A YouTube Uploader with FRC Matches in mind.
 2. Clone this repository into the folder that will contain the videos
 3. Install the requirements for the script with `pip install -r /path/to/requirements.txt`
 4. Add the thumbnail to the above folder as `thumbnail.png`
+5. Make your recording program follow this naming scheme: [EVENT_NAME] - [MATCH TYPE] ex. 2016 Indiana State Championship - Qualification Match 1. Also use the Tiebreaker scheme when necessary.
 5. Start the program by running `python start.py`
 6. Add in the necessary info.
 7. Hit submit everytime a match finishes. No need to update Match Number unless you are entering eliminations.
 8. Enjoy not having to deal with YouTube's front end 🎉
 
-### Web UI Examples
+### Web UI Breakdown
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/6HuZ1sHrGR0/0.jpg)](http://www.youtube.com/watch?v=6HuZ1sHrGR0)
+
 This demo shows a basic use of the application. In addition I have the data being sent to the backend shown in the console beforehand.
 
-#### Event Name
+I focused on simplicty and usability. All the necessary details fit into one small space allowing you to easily place this anywhere on your screen without needing to see all of it.
+
+##### Event Name
 You can name this as you wish, but it should also be used at the start of every video filename.
 
-#### Event Code
+##### Event Code
 Find this at TheBlueAlliance in the address bar of the event page. It generally follows [YEAR]code format such as 2016arc.
 
-#### Playlist ID
+##### Playlist ID
 If you want to add your video to a playlist you can find the playlist ID on the playlist page's address. Every playlist ID starts with PL making them easy to identify.
 
-#### TBA Event ID/Secret
+##### TBA Event ID/Secret
 Both of these must be obtained by contacting TBA at contact@thebluealliance.com for the keys to your event.
 
-#### Video Description
-The usual description used in the program is fairly lengthy, but provides a lot of links that may be useful. You will need to write in the `WEBSITE_LINK`, `TWITTER_HANDLE`, `FACEBOOK_NAME` if you want to make use of it though.
+##### Video Description
+The usual description used in the program is fairly lengthy, but provides a lot of links that may be useful. You will need to write in the `WEBSITE_LINK`, `TWITTER_HANDLE`, `FACEBOOK_NAME` in youtubeup.py if you want to make use of it though.
 
-#### Match Number
+##### Match Number
 Fairly self-explanatory, this value will increment each time you press "Submit" so you can forget about updating all the info for every match.
 
-#### Last Match Number
+##### Last Match Number
 If you want to batch upload a number of files you can do so with this. Every match including this number and `Match Number` will be uploaded and added to TBA. It will then replace this textbox with the original value and update Match Number to the last match uploaded + 1.
-
-####
 
 ## How to Setup for CLI use
 1. Install Python 2.7 for your OS
