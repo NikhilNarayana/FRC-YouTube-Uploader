@@ -43,7 +43,6 @@ DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
 DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 PRODUCTION_TEAM = "IndianaFIRST AV Crew"
-EVENT_ORGANIZATION = "IndianaFIRST"
 TWITTER_HANDLE = "IndianaFIRST"
 FACEBOOK_NAME = "IndianaFIRST"
 WEBSITE_LINK = "www.indianafirst.org"
@@ -101,14 +100,13 @@ def finals_yt_title(options):
         raise ValueError("options.mnum must be within 1 and 3")
 
 def create_title(options):
-    mcode = MATCH_TYPE[int(options.mcode)]
     switcher = {
         "qm": quals_yt_title,
         "qf": quarters_yt_title,
         "sf": semis_yt_title,
         "f1m": finals_yt_title,
     }
-    switcher[mcode](options)
+    return switcher[options.mcode](options)
 
 def quals_filename(options):
     return options.file % options.mnum
@@ -147,14 +145,13 @@ def finals_filename(options):
         raise ValueError("mnum must be between 1 and 3")
 
 def create_filename(options):
-    mcode = MATCH_TYPE[int(options.mcode)]
     switcher = {
         "qm": quals_filename,
         "qf": quarters_filename,
         "sf": semis_filename,
         "f1m": finals_filename,
     }
-    return switcher[mcode](options)
+    return switcher[options.mcode](options)
 
 def quals_match_code(mcode, mnum):
     match_code = str(mcode) + str(mnum)
@@ -258,13 +255,14 @@ def init(args):
     else:
         args.mcode = MATCH_TYPE[int(args.mcode)]
 
-    if options.tiebreak is True:
-        options.mnum = tiebreak_mnum(options.mnum, options.mcode)
+    if args.tiebreak is True:
+        args.mnum = tiebreak_mnum(args.mnum, args.mcode)
 
     youtube = get_authenticated_service(args)
 
-    if (args.end is not None or args.end != "Only for batch uploads") and int(args.end) > int(args.mnum):
-        multiple_videos(youtube, args)
+    if type(args.end) is int:
+        if int(args.end) > int(args.mnum):
+            multiple_videos(youtube, args)
 
     else:
         try:
@@ -273,7 +271,7 @@ def init(args):
             print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
 def initialize_upload(youtube, options):
-    print "Initializing upload for %s match %s" % (MATCH_TYPE[(int(options.mcode))], options.mnum)
+    print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
     tags = None
     blue_data, red_data, mcode = tba_results(options)
 
