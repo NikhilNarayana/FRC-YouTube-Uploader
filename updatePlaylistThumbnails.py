@@ -1,22 +1,19 @@
 #!/usr/bin/python
 
-import httplib2
-import os
-import sys
-
+from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import get_authenticated_service
 
 #Thumbnail file to use
 THUMBNAIL = ""
-PLAYLISTID = "PL9UFVOe2UANz-C62NqFLnebNieHc4Wiar"
+PLAYLISTID = ""
 
 # Retrieve the contentDetails part of the channel resource for the
 # authenticated user's channel.
 def update_thumbnails(youtube,pID,thumbnail):
 	playlistitems_list_request = youtube.playlistItems().list(
-		playlistId=PLAYLISTID,
+		playlistId=pID,
 		part="snippet",
 		maxResults=50
 	)

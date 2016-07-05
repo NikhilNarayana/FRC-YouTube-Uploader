@@ -6,7 +6,6 @@ import os
 import random
 import sys
 import time
-import datetime
 import argparse
 
 from apiclient.errors import HttpError
