@@ -1,5 +1,5 @@
 # FRC-CLI-YouTube-Uploader
-[![Build Status](https://travis-ci.org/NikhilNarayana/FRC-CLI-Youtube-Uploader.svg?branch=develop)](https://travis-ci.org/NikhilNarayana/FRC-CLI-Youtube-Uploader)
+[![Build Status](https://travis-ci.org/NikhilNarayana/FRC-YouTube-Uploader.svg?branch=develop)](https://travis-ci.org/NikhilNarayana/FRC-YouTube-Uploader)
 
 A YouTube Uploader with FRC Matches in mind.
 
