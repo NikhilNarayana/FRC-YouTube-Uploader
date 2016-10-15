@@ -293,7 +293,7 @@ def initialize_upload(youtube, options):
 		blue_data, red_data, mcode = tba_results(options)
 
 		if options.keywords:
-			tags = DEFAULT_TAGS.split(",")
+			tags = options.tags.split(",")
 			tags.append("frc" + str(blue_data[1]))
 			tags.append("frc" + str(blue_data[2]))
 			tags.append("frc" + str(blue_data[3]))
@@ -328,7 +328,7 @@ def initialize_upload(youtube, options):
 		ecode, mcode = get_match_code(options.mcode, int(options.mnum))
 
 		if options.keywords:
-			tags = DEFAULT_TAGS.split(",")
+			tags = options.tags.split(",")
 			tags.append(get_event_hashtag(EVENT_CODE))
 
 		body = dict(
