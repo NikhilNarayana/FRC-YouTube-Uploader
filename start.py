@@ -67,6 +67,7 @@ class index:
 			args.description = form.d.description
 			args.tiebreak = form.d.tiebreak
 			args.tba = form.d.tba
+			args.end = form.d.end
 			yup.init(args)
 			if form.d.end == "Only for batch uploads":
 				form.mnum.set_value(str(int(form.d.mnum) + 1))

@@ -21,9 +21,10 @@ DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 # Get from playlist URL - Starts with PL
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
-global TBA_ID = "8h9BbNm24dRkbCOo"  # Contact TBA for a token unique to each event
-# ^
-global TBA_SECRET = "MaroS6T59BrQ90zZAdq2gyPK0S0QiUjjBaR8Sa8CRuBwqpX9WnPlNIdlOQXr7FD3"
+global TBA_ID  # Contact TBA for a token unique to each event
+TBA_ID = ""
+global TBA_SECRET
+TBA_SECRET = ""
 EVENT_CODE = "2016arc"  # Get from TBA format is YEAR[code]
 # Set it however you want. Usually just get it from TBA
 EVENT_NAME = "2016 INFIRST Indiana State Championship"
@@ -222,8 +223,6 @@ def tba_results(options):
 
 def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore, ename, ecode):
 	if all(x <= -1 for x in (blue1, blue2, blue3, blueScore, red1, red2, red3, redScore)):
-		print description
-		print TBA_SECRET
 		return description % (ename, PRODUCTION_TEAM, TWITTER_HANDLE, FACEBOOK_NAME, WEBSITE_LINK)
 	try:
 		return description % (ename, PRODUCTION_TEAM,
@@ -260,13 +259,11 @@ def init(args):
 		args.category = DEFAULT_VIDEO_CATEGORY
 		args.file = args.ename + " - " + QUAL + EXTENSION
 		if args.tba is True:
-			print "We failed"
 			TBA_ID = args.tbaID
 			TBA_SECRET = args.tbaSecret
 			if args.description != "Add alternate description here.":
 				DEFAULT_DESCRIPTION = args.description
 		if args.tba is False:
-			print "We made it"
 			TBA_ID = -1
 			TBA_SECRET = -1
 			args.description = NO_TBA_DESCRIPTION
@@ -282,7 +279,7 @@ def init(args):
 
 	if type(args.end) is int:
 		if int(args.end) > int(args.mnum):
-			multiple_videos(youtube, args)
+			upload_multiple_videos(youtube, args)
 
 	else:
 		try:
@@ -353,9 +350,9 @@ def initialize_upload(youtube, options):
 				create_filename(options), chunksize=-1, resumable=True)
 		)
 
-		resumable_upload(insert_request, options.mnum, mcode, youtube)
+		resumable_upload(insert_request, options.mnum, mcode, youtube, options.tba)
 
-def resumable_upload(insert_request, mnum, mcode, youtube):
+def resumable_upload(insert_request, mnum, mcode, youtube, tba):
 	response = None
 	error = None
 	retry = 0
@@ -374,7 +371,7 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
 				add_video_to_playlist(
 					youtube, response['id'], DEFAULT_PLAYLIST_ID)
 				request_body = json.dumps({mcode: response['id']})
-				if args.tba:
+				if tba is True:
 					post_video(TBA_ID, TBA_SECRET, request_body, EVENT_CODE)
 
 			else:
