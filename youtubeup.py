@@ -57,6 +57,14 @@ For more information and future event schedules, visit our website: %s
 
 Thanks for watching!"""
 
+NO_TBA_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
+
+Follow us on Twitter (@%s) and Facebook (%s).
+
+For more information and future event schedules, visit our website: %s
+
+Thanks for watching!"""
+
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
@@ -213,6 +221,9 @@ def tba_results(options):
 	return blue_data, red_data, mcode
 
 def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
+	if all(x <= -1 for x in (blue1, blue2, blue3, blueScore, red1, red2, red3, redScore)):
+		return description % (EVENT_NAME, PRODUCTION_TEAM, EVENT_CODE, TWITTER_HANDLE, 
+			FACEBOOK_NAME, WEBSITE_LINK)
 	try:
 		return description % (EVENT_NAME, PRODUCTION_TEAM,
 			blue1, blue2, blue3, blueScore, red1, red2,
@@ -240,14 +251,19 @@ def upload_multiple_videos(youtube, options):
 	print "All matches have been uploaded"
 
 def init(args):
-	if args.gui == True:
-		DEFAULT_PLAYLIST_ID = args.pID
-		TBA_ID = args.tbaID
-		TBA_SECRET = args.tbaSecret
-		EVENT_CODE = args.ecode
-		EVENT_NAME = args.ename
-		if args.description != "Add alternate description here.":
-			DEFAULT_DESCRIPTION = args.description
+	if args.gui:
+		if args.tba:
+			DEFAULT_PLAYLIST_ID = args.pID
+			TBA_ID = args.tbaID
+			TBA_SECRET = args.tbaSecret
+			EVENT_CODE = args.ecode
+			EVENT_NAME = args.ename
+			if args.description != "Add alternate description here.":
+				DEFAULT_DESCRIPTION = args.description
+		else:
+			TBA_ID = -1
+			TBA_SECRET = -1
+			DEFAULT_DESCRIPTION = NO_TBA_DESCRIPTION
 	else:
 		args.mcode = MATCH_TYPE[int(args.mcode)]
 
@@ -269,40 +285,69 @@ def init(args):
 			print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
 def initialize_upload(youtube, options):
-	print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
-	tags = None
-	blue_data, red_data, mcode = tba_results(options)
+	if options.tba:
+		print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
+		tags = None
+		blue_data, red_data, mcode = tba_results(options)
 
-	if options.keywords:
-		tags = options.keywords.split(",")
-		tags.append("frc" + str(blue_data[1]))
-		tags.append("frc" + str(blue_data[2]))
-		tags.append("frc" + str(blue_data[3]))
-		tags.append("frc" + str(red_data[1]))
-		tags.append("frc" + str(red_data[2]))
-		tags.append("frc" + str(red_data[3]))
-		tags.append(get_event_hashtag(EVENT_CODE))
+		if options.keywords:
+			tags = options.keywords.split(",")
+			tags.append("frc" + str(blue_data[1]))
+			tags.append("frc" + str(blue_data[2]))
+			tags.append("frc" + str(blue_data[3]))
+			tags.append("frc" + str(red_data[1]))
+			tags.append("frc" + str(red_data[2]))
+			tags.append("frc" + str(red_data[3]))
+			tags.append(get_event_hashtag(EVENT_CODE))
 
-	body = dict(
-		snippet=dict(
-			title=create_title(options),
-			description=create_description(options.description, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
-											   red_data[1], red_data[2], red_data[3], red_data[0]),
-			tags=tags,
-			categoryId=options.category
-		),
-		status=dict(
-			privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
+		body = dict(
+			snippet=dict(
+				title=create_title(options),
+				description=create_description(options.description, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
+												   red_data[1], red_data[2], red_data[3], red_data[0]),
+				tags=tags,
+				categoryId=options.category
+			),
+			status=dict(
+				privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
+			)
 		)
-	)
-	insert_request = youtube.videos().insert(
-		part=",".join(body.keys()),
-		body=body,
-		media_body=MediaFileUpload(
-			create_filename(options), chunksize=-1, resumable=True)
-	)
+		insert_request = youtube.videos().insert(
+			part=",".join(body.keys()),
+			body=body,
+			media_body=MediaFileUpload(
+				create_filename(options), chunksize=-1, resumable=True)
+		)
 
-	resumable_upload(insert_request, options.mnum, mcode, youtube)
+		resumable_upload(insert_request, options.mnum, mcode, youtube)
+	else:
+		print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
+		tags = None
+		ecode, mcode = get_match_code(options.mcode, int(options.mnum))
+
+		if options.keywords:
+			tags = options.keywords.split(",")
+			tags.append(get_event_hashtag(EVENT_CODE))
+
+		body = dict(
+			snippet=dict(
+				title=create_title(options),
+				description=create_description(options.description, -1, -1, -1, -1, -1, -1, -1, -1),
+				tags=tags,
+				categoryId=options.category
+			),
+			status=dict(
+				privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
+			)
+		)
+		insert_request = youtube.videos().insert(
+			part=",".join(body.keys()),
+			body=body,
+			media_body=MediaFileUpload(
+				create_filename(options), chunksize=-1, resumable=True)
+		)
+
+		resumable_upload(insert_request, options.mnum, mcode, youtube)
 
 def resumable_upload(insert_request, mnum, mcode, youtube):
 	response = None
@@ -323,9 +368,8 @@ def resumable_upload(insert_request, mnum, mcode, youtube):
 				add_video_to_playlist(
 					youtube, response['id'], DEFAULT_PLAYLIST_ID)
 				request_body = json.dumps({mcode: response['id']})
-				post_video(TBA_ID, TBA_SECRET, request_body, EVENT_CODE)
-				# Comment out the above line if you are not adding videos to
-				# TBA
+				if args.tba:
+					post_video(TBA_ID, TBA_SECRET, request_body, EVENT_CODE)
 
 			else:
 				exit("The upload failed with an unexpected response: %s" %

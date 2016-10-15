@@ -36,10 +36,11 @@ dataform = form.Form(
 		["qm", "qf", "sf", "f"],
 		description="Match Type"),
 	form.Checkbox("tiebreak", description="Tiebreaker"),
+	form.Checkbox("tba", checked=True, description="Use The Blue Alliance"),
 	form.Textbox("end", 
 		description="Last Match Number", 
 		value="Only for batch uploads"),
-	validators = [form.Validator("Last Match Number must be greater than Match Number", 
+		validators = [form.Validator("Last Match Number must be greater than Match Number", 
 		lambda i: i.end == "Only for batch uploads" or int(i.end) > int(i.mnum))]
 	)
 
@@ -65,6 +66,7 @@ class index:
 			args.tbaSecret = form.d.tbaSecret
 			args.description = form.d.description
 			args.tiebreak = form.d.tiebreak
+			args.tba = form.d.tba
 			yup.init(args)
 			if form.d.end == "Only for batch uploads":
 				form.mnum.set_value(str(int(form.d.mnum) + 1))
