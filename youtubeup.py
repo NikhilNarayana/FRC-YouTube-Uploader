@@ -21,9 +21,9 @@ DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 # Get from playlist URL - Starts with PL
 DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
-TBA_ID = "8h9BbNm24dRkbCOo"  # Contact TBA for a token unique to each event
+global TBA_ID = "8h9BbNm24dRkbCOo"  # Contact TBA for a token unique to each event
 # ^
-TBA_SECRET = "MaroS6T59BrQ90zZAdq2gyPK0S0QiUjjBaR8Sa8CRuBwqpX9WnPlNIdlOQXr7FD3"
+global TBA_SECRET = "MaroS6T59BrQ90zZAdq2gyPK0S0QiUjjBaR8Sa8CRuBwqpX9WnPlNIdlOQXr7FD3"
 EVENT_CODE = "2016arc"  # Get from TBA format is YEAR[code]
 # Set it however you want. Usually just get it from TBA
 EVENT_NAME = "2016 INFIRST Indiana State Championship"
@@ -73,33 +73,33 @@ def quals_yt_title(options):
 
 def quarters_yt_title(options):
 	if options.mnum <= 8 and options.mnum >= 1:
-		title = EVENT_NAME + " - " + QUARTER % options.mnum
+		title = options.ename + " - " + QUARTER % options.mnum
 		return title
 	elif options.mnum >= 9 and options.mnum <= 12:
 		mnum = int(options.mnum) - 8
-		title = EVENT_NAME + " - " + QUARTERT % str(mnum)
+		title = options.ename + " - " + QUARTERT % str(mnum)
 		return title
 	else:
 		raise ValueError("options.mnum must be within 1 and 12")
 
 def semis_yt_title(options):
 	if options.mnum <= 4 and options.mnum >= 1:
-		title = EVENT_NAME + " - " + SEMI % options.mnum
+		title = options.ename + " - " + SEMI % options.mnum
 		return title
 	elif options.mnum >= 5 and options.mnum <= 6:
 		mnum = int(options.mnum) - 4
-		title = EVENT_NAME + " - " + SEMIT % str(mnum)
+		title = options.ename + " - " + SEMIT % str(mnum)
 		return title
 	else:
 		raise ValueError("options.mnum must be within 1 and 6")
 
 def finals_yt_title(options):
 	if options.mnum <= 2 and options.mnum >= 1:
-		title = EVENT_NAME + " - " + FINALS % options.mnum
+		title = options.ename + " - " + FINALS % options.mnum
 		return title
 	elif options.mnum == 3:
 		mnum = int(options.mnum) - 2
-		title = EVENT_NAME + " - " + FINALST % str(mnum)
+		title = options.ename + " - " + FINALST % str(mnum)
 		return title
 	else:
 		raise ValueError("options.mnum must be within 1 and 3")
@@ -118,33 +118,33 @@ def quals_filename(options):
 
 def quarters_filename(options):
 	if options.mnum <= 8 and options.mnum >= 1:
-		filename = EVENT_NAME + " - " + QUARTER % options.mnum + EXTENSION
+		filename = options.ename + " - " + QUARTER % options.mnum + EXTENSION
 		return str(filename)
 	elif options.mnum >= 9 and options.mnum <= 12:
 		mnum = int(options.mnum) - 8
-		filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
+		filename = options.ename + " - " + QUARTERT % str(mnum) + EXTENSION
 		return str(filename)
 	else:
 		raise ValueError("mnum must be between 1 and 12")
 
 def semis_filename(options):
 	if options.mnum <= 4 and options.mnum >= 1:
-		filename = EVENT_NAME + " - " + SEMI % options.mnum + EXTENSION
+		filename = options.ename + " - " + SEMI % options.mnum + EXTENSION
 		return str(filename)
 	elif options.mnum >= 5 and options.mnum <= 6:
 		mnum = int(options.mnum) - 4
-		filename = EVENT_NAME + " - " + SEMIT % str(mnum) + EXTENSION
+		filename = options.ename + " - " + SEMIT % str(mnum) + EXTENSION
 		return str(filename)
 	else:
 		raise ValueError("mnum must be between 1 and 6")
 
 def finals_filename(options):
 	if options.mnum <= 2 and options.mnum >= 1:
-		filename = EVENT_NAME + " - " + FINALS % options.mnum + EXTENSION
+		filename = options.ename + " - " + FINALS % options.mnum + EXTENSION
 		return str(filename)
 	elif options.mnum == 3:
 		mnum = int(options.mnum) - 2
-		filename = EVENT_NAME + " - " + FINALST % str(mnum) + EXTENSION
+		filename = options.ename + " - " + FINALST % str(mnum) + EXTENSION
 		return str(filename)
 	else:
 		raise ValueError("mnum must be between 1 and 3")
@@ -220,14 +220,15 @@ def tba_results(options):
 	blue_data, red_data = get_match_results(ecode, mcode)
 	return blue_data, red_data, mcode
 
-def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
+def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore, ename, ecode):
 	if all(x <= -1 for x in (blue1, blue2, blue3, blueScore, red1, red2, red3, redScore)):
-		return description % (EVENT_NAME, PRODUCTION_TEAM, EVENT_CODE, TWITTER_HANDLE, 
-			FACEBOOK_NAME, WEBSITE_LINK)
+		print description
+		print TBA_SECRET
+		return description % (ename, PRODUCTION_TEAM, TWITTER_HANDLE, FACEBOOK_NAME, WEBSITE_LINK)
 	try:
-		return description % (EVENT_NAME, PRODUCTION_TEAM,
+		return description % (ename, PRODUCTION_TEAM,
 			blue1, blue2, blue3, blueScore, red1, red2,
-			red3, redScore, EVENT_CODE, TWITTER_HANDLE,
+			red3, redScore, ecode, TWITTER_HANDLE,
 			FACEBOOK_NAME, WEBSITE_LINK)
 	except TypeError, e:
 		return description
@@ -252,24 +253,27 @@ def upload_multiple_videos(youtube, options):
 
 def init(args):
 	if args.gui:
-		if args.tba:
-			DEFAULT_PLAYLIST_ID = args.pID
+		DEFAULT_PLAYLIST_ID = args.pID
+		args.tags = DEFAULT_TAGS
+		args.privacyStatus = 0
+		args.title = args.ename + " - " + QUAL
+		args.category = DEFAULT_VIDEO_CATEGORY
+		args.file = args.ename + " - " + QUAL + EXTENSION
+		if args.tba is True:
+			print "We failed"
 			TBA_ID = args.tbaID
 			TBA_SECRET = args.tbaSecret
-			EVENT_CODE = args.ecode
-			EVENT_NAME = args.ename
 			if args.description != "Add alternate description here.":
 				DEFAULT_DESCRIPTION = args.description
-		else:
+		if args.tba is False:
+			print "We made it"
 			TBA_ID = -1
 			TBA_SECRET = -1
-			DEFAULT_DESCRIPTION = NO_TBA_DESCRIPTION
-			EVENT_CODE = args.ecode
-			EVENT_NAME = args.ename
+			args.description = NO_TBA_DESCRIPTION
 	else:
 		args.mcode = MATCH_TYPE[int(args.mcode)]
 
-	args.tags = DEFAULT_TAGS % EVENT_CODE
+	args.tags = args.tags % args.ecode
 
 	if args.tiebreak is True:
 		args.mnum = tiebreak_mnum(args.mnum, args.mcode)
@@ -292,7 +296,7 @@ def initialize_upload(youtube, options):
 		tags = None
 		blue_data, red_data, mcode = tba_results(options)
 
-		if options.keywords:
+		if options.tags:
 			tags = options.tags.split(",")
 			tags.append("frc" + str(blue_data[1]))
 			tags.append("frc" + str(blue_data[2]))
@@ -300,13 +304,13 @@ def initialize_upload(youtube, options):
 			tags.append("frc" + str(red_data[1]))
 			tags.append("frc" + str(red_data[2]))
 			tags.append("frc" + str(red_data[3]))
-			tags.append(get_event_hashtag(EVENT_CODE))
+			tags.append(get_event_hashtag(options.ecode))
 
 		body = dict(
 			snippet=dict(
 				title=create_title(options),
 				description=create_description(options.description, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
-												   red_data[1], red_data[2], red_data[3], red_data[0]),
+												   red_data[1], red_data[2], red_data[3], red_data[0], options.ename, options.ecode),
 				tags=tags,
 				categoryId=options.category
 			),
@@ -327,14 +331,14 @@ def initialize_upload(youtube, options):
 		tags = None
 		ecode, mcode = get_match_code(options.mcode, int(options.mnum))
 
-		if options.keywords:
+		if options.tags:
 			tags = options.tags.split(",")
-			tags.append(get_event_hashtag(EVENT_CODE))
+			tags.append(get_event_hashtag(options.ecode))
 
 		body = dict(
 			snippet=dict(
 				title=create_title(options),
-				description=create_description(options.description, -1, -1, -1, -1, -1, -1, -1, -1),
+				description=create_description(options.description, -1, -1, -1, -1, -1, -1, -1, -1, options.ename, options.ecode),
 				tags=tags,
 				categoryId=options.category
 			),
@@ -424,7 +428,7 @@ if __name__ == '__main__':
 		help="""Numeric video category. 
 		See https://developers.google.com/youtube/v3/docs/videoCategories/list""",
 		default=DEFAULT_VIDEO_CATEGORY)
-	parser.add_argument("--keywords", 
+	parser.add_argument("--tags", 
 		help="Video keywords, comma separated", 
 		default=DEFAULT_TAGS)
 	parser.add_argument("--privacyStatus", 

@@ -54,8 +54,10 @@ def get_authenticated_service(args):
 	storage = Storage("%s-oauth2.json" % sys.argv[0])
 	credentials = storage.get()
 
+	flags = argparser.parse_args(args=[])
+
 	if credentials is None or credentials.invalid:
-		credentials = run_flow(flow, storage, args)
+		credentials = run_flow(flow, storage, flags)
 
 	return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 				 http=credentials.authorize(httplib2.Http()))
