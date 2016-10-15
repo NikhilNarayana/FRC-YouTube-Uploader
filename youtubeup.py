@@ -264,10 +264,12 @@ def init(args):
 			TBA_ID = -1
 			TBA_SECRET = -1
 			DEFAULT_DESCRIPTION = NO_TBA_DESCRIPTION
+			EVENT_CODE = args.ecode
+			EVENT_NAME = args.ename
 	else:
 		args.mcode = MATCH_TYPE[int(args.mcode)]
 
-	args.tags = args.tags % EVENT_CODE
+	args.tags = DEFAULT_TAGS % EVENT_CODE
 
 	if args.tiebreak is True:
 		args.mnum = tiebreak_mnum(args.mnum, args.mcode)
@@ -291,7 +293,7 @@ def initialize_upload(youtube, options):
 		blue_data, red_data, mcode = tba_results(options)
 
 		if options.keywords:
-			tags = options.keywords.split(",")
+			tags = DEFAULT_TAGS.split(",")
 			tags.append("frc" + str(blue_data[1]))
 			tags.append("frc" + str(blue_data[2]))
 			tags.append("frc" + str(blue_data[3]))
@@ -326,7 +328,7 @@ def initialize_upload(youtube, options):
 		ecode, mcode = get_match_code(options.mcode, int(options.mnum))
 
 		if options.keywords:
-			tags = options.keywords.split(",")
+			tags = DEFAULT_TAGS.split(",")
 			tags.append(get_event_hashtag(EVENT_CODE))
 
 		body = dict(
