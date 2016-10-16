@@ -46,7 +46,7 @@ VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 YOUTUBE_UPLOAD_SCOPE = """https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl"""
 
 
-def get_authenticated_service(args):
+def get_authenticated_service():
 	flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
 								   scope=YOUTUBE_UPLOAD_SCOPE,
 								   message=MISSING_CLIENT_SECRETS_MESSAGE)

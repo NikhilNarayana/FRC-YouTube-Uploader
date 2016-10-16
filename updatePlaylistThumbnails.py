@@ -34,7 +34,7 @@ if __name__ == '__main__':
 	argparser.add_argument("--pID",help="PlaylistID of videos to change thumbnails for",default=PLAYLISTID)
 	argparser.add_argument("--tnail",help="Thumbnail filename, with extension, for playlist",default=THUMBNAIL)
 	args = argparser.parse_args()
-	youtube = get_authenticated_service(args)
+	youtube = get_authenticated_service()
 	try:
 		update_thumbnails(youtube,args.pID,args,thumbnail)
 	except HttpError, e:

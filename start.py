@@ -97,14 +97,16 @@ class index:
 			args.tiebreak, row[8] = formdata.has_key('tiebreak'), str(formdata.has_key('tiebreak'))
 			args.tba, row[9] = formdata.has_key('tba'), str(formdata.has_key('tba'))
 			args.end = row[10] = form.d.end
-			writer = csv.writer(open('form_values.csv', 'w'))
-			writer.writerow(row)
 			yup.init(args)
 			if form.d.end == "Only for batch uploads":
 				form.mnum.set_value(str(int(form.d.mnum) + 1))
 			else:
 				form.mnum.set_value(str(int(form.d.end) + 1))
 				form.end.set_value("Only for batch uploads")
+			row[6] = int(form.d.mnum)
+			row[10] = form.d.end
+			writer = csv.writer(open('form_values.csv', 'w'))
+			writer.writerow(row)
 			return render.forms(form)
 
 if __name__=="__main__":

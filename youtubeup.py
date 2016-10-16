@@ -268,7 +268,7 @@ def init(args):
 	if args.tiebreak is True:
 		args.mnum = tiebreak_mnum(args.mnum, args.mcode)
 
-	youtube = get_authenticated_service(args)
+	youtube = get_authenticated_service()
 
 	if int(args.end) > int(args.mnum):
 		upload_multiple_videos(youtube, args)
