@@ -264,5 +264,5 @@ def post_video(token, secret, event_key, match_video):
         raise Exception(r.content)
 
 def get_event_hashtag(event_key):
-    return re.search('\D+', event_key).group()
+    return "frc" + re.search('\D+', event_key).group()
 ### END ###
