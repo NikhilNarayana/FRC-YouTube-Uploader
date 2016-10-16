@@ -35,7 +35,7 @@ def video_id(value):
             return query.path.split('/')[2]
         if query.path[:3] == '/v/':
             return query.path.split('/')[2]
-    return None
+    return value
 
 def update_description(youtube, vID, ecode, mcode):
 	snippet = youtube.videos().list(
@@ -48,7 +48,7 @@ def update_description(youtube, vID, ecode, mcode):
 		red_data[1], red_data[2], red_data[3], red_data[0])
 	snippet['items'][0]['snippet']['description'] = newdesc
 	response = youtube.videos().update(part='snippet', body=dict(snippet=snippet['items'][0]['snippet'], id=vID)).execute()
-	print response
+	print "Updated description"
 
 dataform = form.Form(
 	form.Textbox("vURL", description="Video URL", size=41),
