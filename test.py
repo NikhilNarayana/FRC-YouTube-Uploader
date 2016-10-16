@@ -30,11 +30,10 @@ class MyTests(unittest.TestCase):
 		self.assertRaises(ValueError, yup.finals_yt_title, args)
 
 	def test_get_match_code(self):
-		EVENT_CODE = "2016arc"
 		mcode = "qf"
 		mnum = 5
-		self.assertEqual(yup.quarters_match_code(mcode, mnum), (EVENT_CODE, "qf1m2"))
-		self.assertNotEqual(yup.semis_match_code(mcode, mnum), (EVENT_CODE, "qf1m2"))
+		self.assertEqual(yup.quarters_match_code(mcode, mnum), ("qf1m2"))
+		self.assertNotEqual(yup.semis_match_code(mcode, mnum), ("qf1m2"))
 		self.assertRaises(ValueError, yup.finals_match_code, mcode, mnum)
 
 	def test_create_filename(self):
@@ -48,7 +47,11 @@ class MyTests(unittest.TestCase):
 		self.assertRaises(ValueError, yup.finals_filename, args)
 
 	def test_tiebreaker_match_number(self):
-		self.assertEqual(yup.tiebreak_mnum(3, "qf"), 11)
+		for x in range(1, 4):
+			self.assertEqual(yup.tiebreak_mnum(x, "qf"), x+8)
+		for x in range(1, 2):
+			self.assertEqual(yup.tiebreak_mnum(x, "sf"), x+4)
+		self.assertEqual(yup.tiebreak_mnum(3, "f1m"), 3)
 
 if __name__ == '__main__':
 	unittest.main()
