@@ -2,6 +2,7 @@ import web
 from web import form
 import youtubeup as yup
 import argparse
+import csv
 
 render = web.template.render('webpage/')
 
@@ -33,7 +34,7 @@ dataform = form.Form(
 		form.Validator("Must be more than 0", lambda x:int(x)>0),
 		description="Match Number"),
 	form.Dropdown("mcode",
-		["qm", "qf", "sf", "f"],
+		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f", "Finals")],
 		description="Match Type"),
 	form.Checkbox("tiebreak", description="Tiebreaker"),
 	form.Checkbox("tba", checked=True, description="Use The Blue Alliance"),
@@ -47,6 +48,31 @@ dataform = form.Form(
 class index:
 	def GET(self):
 		form = dataform()
+		with open('form_values.csv', 'rb') as csvfile:
+			reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+			i = 0
+			for row in reader:
+				for value in row:
+					if value is not "":
+						switcher = {
+							0: form.ename,
+							1: form.ecode,
+							2: form.pID,
+							3: form.tbaID,
+							4: form.tbaSecret,
+							5: form.description,
+							6: form.mnum,
+							7: form.mcode,
+							8: form.tiebreak,
+							9: form.tba,
+							10: form.end,
+						}
+						if i == 8 or i == 9:
+							if value == "True": switcher[i].set_value(True)
+							if value == "False": switcher[i].set_value(False)
+						else : switcher[i].set_value(value)
+					i = i + 1
+				break
 		return render.forms(form)
 
 	def POST(self):
@@ -54,21 +80,25 @@ class index:
 		if not form.validates():
 			return render.forms(form)
 		else:
+			reader = csv.reader(open('form_values.csv'))
+			row = next(reader)
 			parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
 			args = parser.parse_args()
-			args.gui = True
-			args.mnum = int(form.d.mnum)
-			args.mcode = form.d.mcode
-			args.pID = form.d.pID
-			args.ename = form.d.ename
-			args.ecode = form.d.ecode
-			args.tbaID = form.d.tbaID
-			args.tbaSecret = form.d.tbaSecret
-			args.description = form.d.description
 			formdata = web.input()
-			args.tiebreak = formdata.has_key('tiebreak')
-			args.tba = formdata.has_key('tba')
-			args.end = form.d.end
+			args.gui = True
+			args.ename = row[0] = form.d.ename
+			args.ecode = row[1] = form.d.ecode
+			args.pID = row[2] = form.d.pID
+			args.tbaID = row[3] = form.d.tbaID
+			args.tbaSecret = row[4] = form.d.tbaSecret
+			args.description = row[5] = form.d.description
+			args.mnum = row[6] = int(form.d.mnum)
+			args.mcode = row[7] = form.d.mcode
+			args.tiebreak, row[8] = formdata.has_key('tiebreak'), str(formdata.has_key('tiebreak'))
+			args.tba, row[9] = formdata.has_key('tba'), str(formdata.has_key('tba'))
+			args.end = row[10] = form.d.end
+			writer = csv.writer(open('form_values.csv', 'w'))
+			writer.writerow(row)
 			yup.init(args)
 			if form.d.end == "Only for batch uploads":
 				form.mnum.set_value(str(int(form.d.mnum) + 1))

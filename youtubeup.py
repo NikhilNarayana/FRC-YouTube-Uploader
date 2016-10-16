@@ -245,7 +245,6 @@ def upload_multiple_videos(youtube, options):
 
 def init(args):
 	if args.gui:
-		DEFAULT_PLAYLIST_ID = args.pID
 		args.tags = DEFAULT_TAGS
 		args.privacyStatus = 0
 		args.category = DEFAULT_VIDEO_CATEGORY
@@ -263,8 +262,9 @@ def init(args):
 			args.description = NO_TBA_DESCRIPTION
 	else:
 		args.mcode = MATCH_TYPE[int(args.mcode)]
-
-	args.tags = args.tags % args.ecode
+	args.dtags = True if args.tags == DEFAULT_TAGS else False
+	if args.dtags:
+		args.tags = args.tags % args.ecode
 	if args.tiebreak is True:
 		args.mnum = tiebreak_mnum(args.mnum, args.mcode)
 
@@ -284,7 +284,7 @@ def initialize_upload(youtube, options):
 		tags = None
 		blue_data, red_data, mcode = tba_results(options)
 
-		if options.tags:
+		if args.dtags:
 			tags = options.tags.split(",")
 			tags.append("frc" + str(blue_data[1]))
 			tags.append("frc" + str(blue_data[2]))
@@ -393,6 +393,7 @@ if __name__ == '__main__':
 	print "COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE A CODE REWRITE"
 	print "Use 'python start.py' instead"
 	sys.exit(0)
+	#The following is in case you actually want to try to make the command line side work
 	parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
 	parser.add_argument('--mnum', 
 		type=int, 
