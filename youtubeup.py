@@ -16,29 +16,20 @@ from addtoplaylist import add_video_to_playlist
 from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import *
 
-# Default Variables - A lot needs to be changed based on event
+# Default Variables - comments above 
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
-# Get from playlist URL - Starts with PL
-DEFAULT_PLAYLIST_ID = "PL9UFVOe2UANx7WGnZG57BogYFKThwhIa2"
-global TBA_ID  # Contact TBA for a token unique to each event
-TBA_ID = ""
-global TBA_SECRET
-TBA_SECRET = ""
-EVENT_CODE = "2016arc"  # Get from TBA format is YEAR[code]
-# Set it however you want. Usually just get it from TBA
-EVENT_NAME = "2016 INFIRST Indiana State Championship"
 DEFAULT_TAGS = """%s, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST Stronghold"""
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
 QUARTERT = "Quarterfinal Tiebreaker %s"
 SEMI = "Semifinal Match %s"
 SEMIT = "Semifinal Tiebreaker %s"
-FINALS = "Finals Match %s"
-FINALST = "Finals Tiebreaker"
+FINALS = "Final Match %s"
+FINALST = "Final Tiebreaker"
 EXTENSION = ".mp4"  # CHANGE IF YOU AREN'T USING MP4s
-DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
-DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
+DEFAULT_TITLE = "%s" + " - " + QUAL
+DEFAULT_FILE = "%s" + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 PRODUCTION_TEAM = "IndianaFIRST AV Crew"
 TWITTER_HANDLE = "IndianaFIRST"
@@ -56,7 +47,9 @@ Follow us on Twitter (@%s) and Facebook (%s).
 
 For more information and future event schedules, visit our website: %s
 
-Thanks for watching!"""
+Thanks for watching!
+
+Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
 
 NO_TBA_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
 
@@ -64,7 +57,9 @@ Follow us on Twitter (@%s) and Facebook (%s).
 
 For more information and future event schedules, visit our website: %s
 
-Thanks for watching!"""
+Thanks for watching!
+
+Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
@@ -100,7 +95,7 @@ def finals_yt_title(options):
 		return title
 	elif options.mnum == 3:
 		mnum = int(options.mnum) - 2
-		title = options.ename + " - " + FINALST % str(mnum)
+		title = options.ename + " - " + FINALST
 		return title
 	else:
 		raise ValueError("options.mnum must be within 1 and 3")
@@ -145,7 +140,7 @@ def finals_filename(options):
 		return str(filename)
 	elif options.mnum == 3:
 		mnum = int(options.mnum) - 2
-		filename = options.ename + " - " + FINALST % str(mnum) + EXTENSION
+		filename = options.ename + " - " + FINALST + EXTENSION
 		return str(filename)
 	else:
 		raise ValueError("mnum must be between 1 and 3")
@@ -161,7 +156,7 @@ def create_filename(options):
 
 def quals_match_code(mcode, mnum):
 	match_code = str(mcode) + str(mnum)
-	return EVENT_CODE, match_code
+	return match_code
 
 def quarters_match_code(mcode, mnum):
 	match_set = mnum % 4
@@ -170,15 +165,15 @@ def quarters_match_code(mcode, mnum):
 	elif mnum <= 4:
 		match = 1
 		match_code = mcode + str(match_set) + "m" + str(match)
-		return EVENT_CODE, match_code
+		return match_code
 	elif mnum > 4 and mnum <= 8:
 		match = 2
 		match_code = mcode + str(match_set) + "m" + str(match)
-		return EVENT_CODE, match_code
+		return match_code
 	elif mnum > 8 and mnum <= 12:
 		match = 3
 		match_code = mcode + str(match_set) + "m" + str(match)
-		return EVENT_CODE, match_code
+		return match_code
 	if mnum > 12:
 		raise ValueError("mnum can't be larger than 12")
 
@@ -189,23 +184,23 @@ def semis_match_code(mcode, mnum):
 	elif mnum <= 2:
 		match = 1
 		match_code = mcode + str(match_set) + "m" + str(match)
-		return EVENT_CODE, match_code
+		return match_code
 	elif mnum > 2 and mnum <= 4:
 		match = 2
 		match_code = mcode + str(match_set) + "m" + str(match)
-		return EVENT_CODE, match_code
+		return match_code
 	elif mnum > 4 and mnum <= 6:
 		match = 3
 		match_code = mcode + str(match_set) + "m" + str(match)
-		return EVENT_CODE, match_code
+		return match_code
 	else:
 		raise ValueError("mnum can't be larger than 6")
 
 def finals_match_code(mcode, mnum):
 	if mnum > 3:
 		raise ValueError("mnum can't be larger than 3")
-	match_code = MATCH_TYPE[mcode] + mnum
-	return EVENT_CODE, match_code
+	match_code = str(mcode) + str(mnum)
+	return match_code
 
 def get_match_code(mcode, mnum):
 	switcher = {
@@ -217,8 +212,8 @@ def get_match_code(mcode, mnum):
 	return switcher[mcode](mcode, mnum)
 
 def tba_results(options):
-	ecode, mcode = get_match_code(options.mcode, int(options.mnum))
-	blue_data, red_data = get_match_results(ecode, mcode)
+	mcode = get_match_code(options.mcode, int(options.mnum))
+	blue_data, red_data = get_match_results(options.ecode, mcode)
 	return blue_data, red_data, mcode
 
 def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore, ename, ecode):
@@ -234,20 +229,20 @@ def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, 
 
 def tiebreak_mnum(mnum, mcode):
 	switcher = {
-		"qf": int(mnum + 8),
-		"sf": int(mnum + 4),
-		"f1m": int(mnum + 2),
+		"qf": int(mnum) + 8,
+		"sf": int(mnum) + 4,
+		"f1m": 3,
 	}
 	return switcher[mcode]
 
 def upload_multiple_videos(youtube, options):
 	while int(options.mnum) <= int(options.end):
 		try:
-			initialize_upload(youtube, args)
+			initialize_upload(youtube, options)
 		except HttpError, e:
 			print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 		print ""
-		options.mnum = str(int(options.mnum) + 1)
+		options.mnum = int(options.mnum) + 1
 	print "All matches have been uploaded"
 
 def init(args):
@@ -255,9 +250,10 @@ def init(args):
 		DEFAULT_PLAYLIST_ID = args.pID
 		args.tags = DEFAULT_TAGS
 		args.privacyStatus = 0
-		args.title = args.ename + " - " + QUAL
 		args.category = DEFAULT_VIDEO_CATEGORY
 		args.file = args.ename + " - " + QUAL + EXTENSION
+		if args.mcode == "f":
+			args.mcode = "f1m"
 		if args.tba is True:
 			TBA_ID = args.tbaID
 			TBA_SECRET = args.tbaSecret
@@ -271,16 +267,13 @@ def init(args):
 		args.mcode = MATCH_TYPE[int(args.mcode)]
 
 	args.tags = args.tags % args.ecode
-
 	if args.tiebreak is True:
 		args.mnum = tiebreak_mnum(args.mnum, args.mcode)
 
 	youtube = get_authenticated_service(args)
 
-	if type(args.end) is int:
-		if int(args.end) > int(args.mnum):
-			upload_multiple_videos(youtube, args)
-
+	if int(args.end) > int(args.mnum):
+		upload_multiple_videos(youtube, args)
 	else:
 		try:
 			initialize_upload(youtube, args)
@@ -326,7 +319,7 @@ def initialize_upload(youtube, options):
 	else:
 		print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
 		tags = None
-		ecode, mcode = get_match_code(options.mcode, int(options.mnum))
+		mcode = get_match_code(options.mcode, int(options.mnum))
 
 		if options.tags:
 			tags = options.tags.split(",")
@@ -350,9 +343,9 @@ def initialize_upload(youtube, options):
 				create_filename(options), chunksize=-1, resumable=True)
 		)
 
-		resumable_upload(insert_request, options.mnum, mcode, youtube, options.tba)
+		resumable_upload(insert_request, options, mcode, youtube)
 
-def resumable_upload(insert_request, mnum, mcode, youtube, tba):
+def resumable_upload(insert_request, options, mcode, youtube):
 	response = None
 	error = None
 	retry = 0
@@ -369,10 +362,10 @@ def resumable_upload(insert_request, mnum, mcode, youtube, tba):
 				update_thumbnail(youtube, response['id'], "thumbnail.png")
 				print "Video thumbnail added"
 				add_video_to_playlist(
-					youtube, response['id'], DEFAULT_PLAYLIST_ID)
+					youtube, response['id'], options.pID)
 				request_body = json.dumps({mcode: response['id']})
-				if tba is True:
-					post_video(TBA_ID, TBA_SECRET, request_body, EVENT_CODE)
+				if options.tba is True:
+					post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
 
 			else:
 				exit("The upload failed with an unexpected response: %s" %
@@ -398,6 +391,10 @@ def resumable_upload(insert_request, mnum, mcode, youtube, tba):
 			time.sleep(sleep_seconds)
 
 if __name__ == '__main__':
+	# COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE CODE REWRITES
+	print "COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE A CODE REWRITE"
+	print "Use 'python start.py' instead"
+	sys.exit(0)
 	parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
 	parser.add_argument('--mnum', 
 		type=int, 

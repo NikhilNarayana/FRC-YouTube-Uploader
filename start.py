@@ -65,8 +65,9 @@ class index:
 			args.tbaID = form.d.tbaID
 			args.tbaSecret = form.d.tbaSecret
 			args.description = form.d.description
-			args.tiebreak = form.d.tiebreak
-			args.tba = form.d.tba
+			formdata = web.input()
+			args.tiebreak = formdata.has_key('tiebreak')
+			args.tba = formdata.has_key('tba')
 			args.end = form.d.end
 			yup.init(args)
 			if form.d.end == "Only for batch uploads":
