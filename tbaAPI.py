@@ -263,6 +263,6 @@ def post_video(token, secret, event_key, match_video):
     if "Error" in r.content:
         raise Exception(r.content)
 
-def get_hashtag(event_key):
+def get_event_hashtag(event_key):
     return re.search('\D+', event_key).group()
 ### END ###
