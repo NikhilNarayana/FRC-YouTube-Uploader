@@ -63,8 +63,11 @@ If you are still in need of assistance, feel free to contact me.
 * Stack Exchange - Bug Fixes
 
 
-## Extra Script
+## Extra Scripts
 ### updatePlaylistThumbnails.py
 This script expects two inputs, a playlist ID (`--pID`) and a thumbnail file name (`--tnail`). It will then update every the thumbnails of every video in that playlist to the one you provide. This makes it simple to update older playlists with a new thumbnail so you can keep your look consistent.
 
-This script is not used within youtubeup.py
+### addTBAToDescription.py
+addTBA will add match information to the video description retroactively. This script runs similarly to `start.py`. You start it with `python addTBAToDescription.py` and navigate to `localhost:8080` to use to script. You have to provide the video url, event code, and match code. Future goal is to add title to this
+
+These scripts are not used within start.py
