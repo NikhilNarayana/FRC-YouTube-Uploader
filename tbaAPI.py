@@ -249,20 +249,20 @@ def set_auth_sig(secret, event_key, request_body):
 	return request_path
 
 def post_video(token, secret, event_key, match_video):
-	global trusted_auth
-	set_auth_id(token)
-	set_auth_sig(secret, event_key, match_video)
-	#url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
-	url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
-	# ^ For testing purposes only, the line above is the real code.
-	if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
-		raise Exception("""An auth ID and/or auth secret required.
-			Please use set_auth_id() and/or set_auth_secret() to set them""")
+    global trusted_auth
+    set_auth_id(token)
+    set_auth_sig(secret, event_key, match_video)
+    #url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
+    url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
+    # ^ For testing purposes only, the line above is the real code.
+    if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
+        raise Exception("""An auth ID and/or auth secret required.
+            Please use set_auth_id() and/or set_auth_secret() to set them""")
 
-	r = s.post(url_str, data=match_video, headers=trusted_auth)
-	if "Error" in r.content:
-		raise Exception(r.content)
+    r = s.post(url_str, data=match_video, headers=trusted_auth)
+    if "Error" in r.content:
+        raise Exception(r.content)
 
-def get_event_hashtag(event_key):
-	return "frc" + re.search('\D+', event_key).group()
+def get_hashtag(event_key):
+    return re.search('\D+', event_key).group()
 ### END ###
