@@ -20,7 +20,7 @@ A YouTube Uploader with FRC Matches in mind.
 3. Install the requirements for the script with `pip install -r /path/to/requirements.txt`
 4. Add the thumbnail to the same folder as `thumbnail.png`
 5. Make your recording program follow this naming scheme: [EVENT_NAME] - [MATCH TYPE] ex. 2016 Indiana State Championship - Qualification Match 1. Also use the Tiebreaker scheme when necessary.
-5. Start the program by running `python start.py`
+5. Start the program by running `python start.py` and navigating to `localhost:8080` in your browser
 6. Add in the necessary info.
 7. Hit submit everytime a match finishes. No need to update Match Number unless you are entering eliminations.
 8. Enjoy not having to deal with YouTube's front end 🎉
