@@ -94,7 +94,6 @@ def finals_yt_title(options):
 		title = options.ename + " - " + FINALS % options.mnum
 		return title
 	elif options.mnum == 3:
-		mnum = int(options.mnum) - 2
 		title = options.ename + " - " + FINALST
 		return title
 	else:
@@ -139,7 +138,6 @@ def finals_filename(options):
 		filename = options.ename + " - " + FINALS % options.mnum + EXTENSION
 		return str(filename)
 	elif options.mnum == 3:
-		mnum = int(options.mnum) - 2
 		filename = options.ename + " - " + FINALST + EXTENSION
 		return str(filename)
 	else:
