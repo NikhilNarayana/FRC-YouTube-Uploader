@@ -1,0 +1,39 @@
+$def with (form)
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>FRC Youtube Uploader</title>
+		<meta name="description" content="FRC Youtube Uploader">
+		<meta name="author" content="Nikhil Narayana">
+		<meta name="theme-color" content="#E64545">
+
+		<!-- Latest compiled and minified Bootstrap CSS -->
+		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"> -->
+		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+		<!-- Personal CSS -->
+		<style type="text/css">
+		* {font-family: 'Roboto', sans-serif;}
+		</style>
+	</head>
+	<body>
+		<h1>FRC Youtube Uploader</h1>
+		<p>For assistance with filling out the form go <a href="https://github.com/NikhilNarayana/FRC-CLI-Youtube-Uploader" target="_blank">here</a>
+			<br>
+			All values will stay the same when submitted, except for Match Number which increments.
+		</p>
+		<form name="main" method="post"> 
+			$if not form.valid: <p class="error">Try again</p>
+			$:form.render()
+			<input type="submit" style="margin-left: 45%">
+		</form>
+		<br>
+		<br>
+		<br>
+		<footer>
+			<h5 style="margin: 3 0 0 0">Disclaimer: This has only been tested at official events and requires</h5>
+			<h5 style="margin: 3 0 0 0">- a high speed internet connection </h5>
+			<h5 style="margin: 3 0 0 0">- Event updates on TheBlueAlliance</h5>
+		</footer>
+	</body>

@@ -6,355 +6,436 @@ import os
 import random
 import sys
 import time
-import datetime
+import argparse
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
-from oauth2client.tools import argparser
 from TBA import *
 from tbaAPI import *
 from addtoplaylist import add_video_to_playlist
 from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import *
 
-# Default Variables - A lot needs to be changed based on event
+# Default Variables - comments above 
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
-# Get from playlist URL - Starts with PL
-DEFAULT_PLAYLIST_ID = ""
-TBA_ID = ""  # Contact TBA for a token unique to each event
-# ^
-TBA_SECRET = ""
-EVENT_CODE = ""  # Get from TBA event page. Format is YEAR[code]
-# Set it however you want. Usually just get it from TBA
-EVENT_NAME = ""
-DEFAULT_TAGS = EVENT_CODE + \
-    """, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics,
-     FIRST Stronghold""" # Just add tags with commas in between
+DEFAULT_TAGS = """%s, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST Stronghold"""
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
 QUARTERT = "Quarterfinal Tiebreaker %s"
 SEMI = "Semifinal Match %s"
 SEMIT = "Semifinal Tiebreaker %s"
-FINALS = "Finals Match %s"
-FINALST = "Finals Tiebreaker"
+FINALS = "Final Match %s"
+FINALST = "Final Tiebreaker"
 EXTENSION = ".mp4"  # CHANGE IF YOU AREN'T USING MP4s
-DEFAULT_TITLE = EVENT_NAME + " - " + QUAL
-DEFAULT_FILE = EVENT_NAME + " - " + QUAL + EXTENSION
+DEFAULT_TITLE = "%s" + " - " + QUAL
+DEFAULT_FILE = "%s" + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
-DEFAULT_DESCRIPTION = "Footage of the " + EVENT_NAME + \
-" Event is courtesy of " + """
+PRODUCTION_TEAM = "IndianaFIRST AV Crew"
+TWITTER_HANDLE = "IndianaFIRST"
+FACEBOOK_NAME = "IndianaFIRST"
+WEBSITE_LINK = "www.indianafirst.org"
+DEFAULT_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
 
 Alliance (Team1, Team2, Team3) - Score
 Blue Alliance (%s, %s, %s) - %s
 Red Alliance  (%s, %s, %s) - %s
 
-To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/""" + EVENT_CODE + """
+To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/%s
 
-Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST).
+Follow us on Twitter (@%s) and Facebook (%s).
 
-For more information and future event schedules, visit our website: www.indianafirst.org
+For more information and future event schedules, visit our website: %s
 
-Thanks for watching!"""
+Thanks for watching!
+
+Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+
+NO_TBA_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
+
+Follow us on Twitter (@%s) and Facebook (%s).
+
+For more information and future event schedules, visit our website: %s
+
+Thanks for watching!
+
+Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
-def upload_multiple_videos(youtube, options):
-    while int(options.mnum) <= int(options.end):
-        try:
-            initialize_upload(youtube, args)
-        except HttpError, e:
-            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
-        print ""
-        options.mnum = str(int(options.mnum) + 1)
-    print "All matches have been uploaded"
-
 def quals_yt_title(options):
-    return options.title % options.mnum
+	return options.title % options.mnum
 
 def quarters_yt_title(options):
-    if options.mnum < 8:
-        title = EVENT_NAME + " - " + QUARTER % options.mnum
-        return title
-    elif options.mnum > 8:
-        mnum = int(options.mnum) - 8
-        title = EVENT_NAME + " - " + QUARTERT % str(mnum)
-        return title
+	if options.mnum <= 8 and options.mnum >= 1:
+		title = options.ename + " - " + QUARTER % options.mnum
+		return title
+	elif options.mnum >= 9 and options.mnum <= 12:
+		mnum = int(options.mnum) - 8
+		title = options.ename + " - " + QUARTERT % str(mnum)
+		return title
+	else:
+		raise ValueError("options.mnum must be within 1 and 12")
 
 def semis_yt_title(options):
-    if options.mnum < 4:
-        title = EVENT_NAME + " - " + SEMI % options.mnum
-        return title
-    elif options.mnum > 4:
-        mnum = int(options.mnum) - 4
-        title = EVENT_NAME + " - " + SEMIT % str(mnum)
-        return title
+	if options.mnum <= 4 and options.mnum >= 1:
+		title = options.ename + " - " + SEMI % options.mnum
+		return title
+	elif options.mnum >= 5 and options.mnum <= 6:
+		mnum = int(options.mnum) - 4
+		title = options.ename + " - " + SEMIT % str(mnum)
+		return title
+	else:
+		raise ValueError("options.mnum must be within 1 and 6")
 
 def finals_yt_title(options):
-    if options.mnum < 2:
-        title = EVENT_NAME + " - " + FINALS % options.mnum
-        return title
-    elif options.mnum > 2:
-        mnum = int(options.mnum) - 2
-        title = EVENT_NAME + " - " + FINALST % str(mnum)
-        return title
+	if options.mnum <= 2 and options.mnum >= 1:
+		title = options.ename + " - " + FINALS % options.mnum
+		return title
+	elif options.mnum == 3:
+		title = options.ename + " - " + FINALST
+		return title
+	else:
+		raise ValueError("options.mnum must be within 1 and 3")
 
 def create_title(options):
-    mcode = MATCH_TYPE[int(options.mcode)]
-    switcher = {
-        "qm": quals_yt_title,
-        "qf": quarters_yt_title,
-        "sf": semis_yt_title,
-        "f1m": finals_yt_title,
-    }
-    switcher[mcode](options)
+	switcher = {
+		"qm": quals_yt_title,
+		"qf": quarters_yt_title,
+		"sf": semis_yt_title,
+		"f1m": finals_yt_title,
+	}
+	return switcher[options.mcode](options)
 
 def quals_filename(options):
-    return options.file % options.mnum
+	return options.file % options.mnum
 
 def quarters_filename(options):
-    if int(options.mnum) < 8:
-        filename = EVENT_NAME + " - " + QUARTER % options.mnum + EXTENSION
-        return str(filename)
-    elif int(options.mnum) > 8:
-        mnum = int(options.mnum) - 8
-        filename = EVENT_NAME + " - " + QUARTERT % str(mnum) + EXTENSION
-        return str(filename)
+	if options.mnum <= 8 and options.mnum >= 1:
+		filename = options.ename + " - " + QUARTER % options.mnum + EXTENSION
+		return str(filename)
+	elif options.mnum >= 9 and options.mnum <= 12:
+		mnum = int(options.mnum) - 8
+		filename = options.ename + " - " + QUARTERT % str(mnum) + EXTENSION
+		return str(filename)
+	else:
+		raise ValueError("mnum must be between 1 and 12")
 
 def semis_filename(options):
-    if int(options.mnum) < 4:
-        filename = EVENT_NAME + " - " + SEMI % options.mnum + EXTENSION
-        return str(filename)
-    elif int(options.mnum) > 4:
-        mnum = int(options.mnum) - 4
-        filename = EVENT_NAME + " - " + SEMIT % str(mnum) + EXTENSION
-        return str(filename)
+	if options.mnum <= 4 and options.mnum >= 1:
+		filename = options.ename + " - " + SEMI % options.mnum + EXTENSION
+		return str(filename)
+	elif options.mnum >= 5 and options.mnum <= 6:
+		mnum = int(options.mnum) - 4
+		filename = options.ename + " - " + SEMIT % str(mnum) + EXTENSION
+		return str(filename)
+	else:
+		raise ValueError("mnum must be between 1 and 6")
 
 def finals_filename(options):
-    if int(options.mnum) < 2:
-        filename = EVENT_NAME + " - " + FINALS % options.mnum + EXTENSION
-        return str(filename)
-    elif int(options.mnum) > 2:
-        mnum = int(options.mnum) - 2
-        filename = EVENT_NAME + " - " + FINALST % str(mnum) + EXTENSION
-        return str(filename)
+	if options.mnum <= 2 and options.mnum >= 1:
+		filename = options.ename + " - " + FINALS % options.mnum + EXTENSION
+		return str(filename)
+	elif options.mnum == 3:
+		filename = options.ename + " - " + FINALST + EXTENSION
+		return str(filename)
+	else:
+		raise ValueError("mnum must be between 1 and 3")
 
 def create_filename(options):
-    mcode = MATCH_TYPE[int(options.mcode)]
-    switcher = {
-        "qm": quals_filename,
-        "qf": quarters_filename,
-        "sf": semis_filename,
-        "f1m": finals_filename,
-    }
-    return switcher[mcode](options)
+	switcher = {
+		"qm": quals_filename,
+		"qf": quarters_filename,
+		"sf": semis_filename,
+		"f1m": finals_filename,
+	}
+	return switcher[options.mcode](options)
 
 def quals_match_code(mcode, mnum):
-    match_code = str(mcode) + str(mnum)
-    return EVENT_CODE, match_code
+	match_code = str(mcode) + str(mnum)
+	return match_code
 
 def quarters_match_code(mcode, mnum):
-    match_set = mnum % 4
-    if match_set == 0:
-        match_set = 4
-    if mnum <= 4:
-        match = 1
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return EVENT_CODE, match_code
-    if mnum > 4 and mnum <= 8:
-        match = 2
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return EVENT_CODE, match_code
-    if mnum > 8 and mnum <= 12:
-        match = 3
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return EVENT_CODE, match_code
+	match_set = mnum % 4
+	if match_set == 0:
+		match_set = 4
+	elif mnum <= 4:
+		match = 1
+		match_code = mcode + str(match_set) + "m" + str(match)
+		return match_code
+	elif mnum > 4 and mnum <= 8:
+		match = 2
+		match_code = mcode + str(match_set) + "m" + str(match)
+		return match_code
+	elif mnum > 8 and mnum <= 12:
+		match = 3
+		match_code = mcode + str(match_set) + "m" + str(match)
+		return match_code
+	if mnum > 12:
+		raise ValueError("mnum can't be larger than 12")
 
 def semis_match_code(mcode, mnum):
-    match_set = mnum % 2
-    if match_set == 0:
-        match_set = 2
-    if mnum <= 2:
-        match = 1
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return EVENT_CODE, match_code
-    if mnum > 2 and mnum <= 4:
-        match = 2
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return EVENT_CODE, match_code
-    if mnum > 4 and mnum <= 6:
-        match = 3
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return EVENT_CODE, match_code
+	match_set = mnum % 2
+	if match_set == 0:
+		match_set = 2
+	elif mnum <= 2:
+		match = 1
+		match_code = mcode + str(match_set) + "m" + str(match)
+		return match_code
+	elif mnum > 2 and mnum <= 4:
+		match = 2
+		match_code = mcode + str(match_set) + "m" + str(match)
+		return match_code
+	elif mnum > 4 and mnum <= 6:
+		match = 3
+		match_code = mcode + str(match_set) + "m" + str(match)
+		return match_code
+	else:
+		raise ValueError("mnum can't be larger than 6")
 
 def finals_match_code(mcode, mnum):
-    match_code = MATCH_TYPE[mcode] + mnum
-    return EVENT_CODE, match_code
+	if mnum > 3:
+		raise ValueError("mnum can't be larger than 3")
+	match_code = str(mcode) + str(mnum)
+	return match_code
 
 def get_match_code(mcode, mnum):
-    switcher = {
-        "qm": quals_match_code,
-        "qf": quarters_match_code,
-        "sf": semis_match_code,
-        "f1m": finals_match_code,
-    }
-    return switcher[mcode](mcode, mnum)
+	switcher = {
+		"qm": quals_match_code,
+		"qf": quarters_match_code,
+		"sf": semis_match_code,
+		"f1m": finals_match_code,
+	}
+	return switcher[mcode](mcode, mnum)
 
 def tba_results(options):
-    ecode, mcode = get_match_code(
-        MATCH_TYPE[int(options.mcode)], int(options.mnum))
-    blue_data, red_data = get_match_results(ecode, mcode)
-    return blue_data, red_data, mcode
+	mcode = get_match_code(options.mcode, int(options.mnum))
+	blue_data, red_data = get_match_results(options.ecode, mcode)
+	return blue_data, red_data, mcode
+
+def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore, ename, ecode):
+	if all(x <= -1 for x in (blue1, blue2, blue3, blueScore, red1, red2, red3, redScore)):
+		return description % (ename, PRODUCTION_TEAM, TWITTER_HANDLE, FACEBOOK_NAME, WEBSITE_LINK)
+	try:
+		return description % (ename, PRODUCTION_TEAM,
+			blue1, blue2, blue3, blueScore, red1, red2,
+			red3, redScore, ecode, TWITTER_HANDLE,
+			FACEBOOK_NAME, WEBSITE_LINK)
+	except TypeError, e:
+		return description
+
+def tiebreak_mnum(mnum, mcode):
+	switcher = {
+		"qf": int(mnum) + 8,
+		"sf": int(mnum) + 4,
+		"f1m": 3,
+	}
+	return switcher[mcode]
+
+def upload_multiple_videos(youtube, options):
+	while int(options.mnum) <= int(options.end):
+		try:
+			initialize_upload(youtube, options)
+		except HttpError, e:
+			print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+		print ""
+		options.mnum = int(options.mnum) + 1
+	print "All matches have been uploaded"
+
+def init(args):
+	if args.gui:
+		args.tags = DEFAULT_TAGS
+		args.privacyStatus = 0
+		args.category = DEFAULT_VIDEO_CATEGORY
+		args.file = args.ename + " - " + QUAL + EXTENSION
+		if args.mcode == "f":
+			args.mcode = "f1m"
+		if args.tba is True:
+			TBA_ID = args.tbaID
+			TBA_SECRET = args.tbaSecret
+			if args.description != "Add alternate description here.":
+				DEFAULT_DESCRIPTION = args.description
+		if args.tba is False:
+			TBA_ID = -1
+			TBA_SECRET = -1
+			args.description = NO_TBA_DESCRIPTION
+	else:
+		args.mcode = MATCH_TYPE[int(args.mcode)]
+	args.dtags = True if args.tags == DEFAULT_TAGS else False
+	if args.dtags:
+		args.tags = args.tags % args.ecode
+	if args.tiebreak is True:
+		args.mnum = tiebreak_mnum(args.mnum, args.mcode)
+
+	youtube = get_authenticated_service(args)
+
+	if int(args.end) > int(args.mnum):
+		upload_multiple_videos(youtube, args)
+	else:
+		try:
+			initialize_upload(youtube, args)
+		except HttpError, e:
+			print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
 def initialize_upload(youtube, options):
-    print "Initializing upload for %s match %s" % (MATCH_TYPE[(int(options.mcode))], options.mnum)
-    tags = None
-    blue_data, red_data, mcode = tba_results(options)
+	if options.tba:
+		print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
+		tags = None
+		blue_data, red_data, mcode = tba_results(options)
 
-    if options.keywords:
-        tags = options.keywords.split(",")
-        tags.append("frc"+str(blue_data[1]))
-        tags.append("frc"+str(blue_data[2]))
-        tags.append("frc"+str(blue_data[3]))
-        tags.append("frc"+str(red_data[1]))
-        tags.append("frc"+str(red_data[2]))
-        tags.append("frc"+str(red_data[3]))
-        tags.append(get_hashtag(EVENT_CODE))
+		if args.dtags:
+			tags = options.tags.split(",")
+			tags.append("frc" + str(blue_data[1]))
+			tags.append("frc" + str(blue_data[2]))
+			tags.append("frc" + str(blue_data[3]))
+			tags.append("frc" + str(red_data[1]))
+			tags.append("frc" + str(red_data[2]))
+			tags.append("frc" + str(red_data[3]))
+			tags.append(get_event_hashtag(options.ecode))
 
-    body = dict(
-        snippet=dict(
-            title=create_title(options),
-            description=options.description % (blue_data[1], blue_data[2], blue_data[3], blue_data[0],
-                                               red_data[1], red_data[2], red_data[3], red_data[0]),
-            tags=tags,
-            categoryId=options.category
-        ),
-        status=dict(
-            privacyStatus=options.privacyStatus
-        )
-    )
+		body = dict(
+			snippet=dict(
+				title=create_title(options),
+				description=create_description(options.description, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
+												   red_data[1], red_data[2], red_data[3], red_data[0], options.ename, options.ecode),
+				tags=tags,
+				categoryId=options.category
+			),
+			status=dict(
+				privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
+			)
+		)
+		insert_request = youtube.videos().insert(
+			part=",".join(body.keys()),
+			body=body,
+			media_body=MediaFileUpload(
+				create_filename(options), chunksize=-1, resumable=True)
+		)
 
-    # Call the API's videos.insert method to create and upload the video.
-    insert_request = youtube.videos().insert(
-        part=",".join(body.keys()),
-        body=body,
-        # The chunksize parameter specifies the size of each chunk of data, in
-        # bytes, that will be uploaded at a time. Set a higher value for
-        # reliable connections as fewer chunks lead to faster uploads. Set a lower
-        # value for better recovery on less reliable connections.
-        #
-        # Setting "chunksize" equal to -1 in the code below means that the entire
-        # file will be uploaded in a single HTTP request. (If the upload fails,
-        # it will still be retried where it left off.) This is usually a best
-        # practice, but if you're using Python older than 2.6 or if you're
-        # running on App Engine, you should set the chunksize to something like
-        # 1024 * 1024 (1 megabyte).
-        media_body=MediaFileUpload(
-            create_filename(options), chunksize=-1, resumable=True)
-    )
+		resumable_upload(insert_request, options.mnum, mcode, youtube)
+	else:
+		print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
+		tags = None
+		mcode = get_match_code(options.mcode, int(options.mnum))
 
-    resumable_upload(insert_request, options.mnum, mcode, youtube)
+		if options.tags:
+			tags = options.tags.split(",")
+			tags.append(get_event_hashtag(options.ecode))
 
-# This method implements an exponential backoff strategy to resume a
-# failed upload.
+		body = dict(
+			snippet=dict(
+				title=create_title(options),
+				description=create_description(options.description, -1, -1, -1, -1, -1, -1, -1, -1, options.ename, options.ecode),
+				tags=tags,
+				categoryId=options.category
+			),
+			status=dict(
+				privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
+			)
+		)
+		insert_request = youtube.videos().insert(
+			part=",".join(body.keys()),
+			body=body,
+			media_body=MediaFileUpload(
+				create_filename(options), chunksize=-1, resumable=True)
+		)
 
-def resumable_upload(insert_request, mnum, mcode, youtube):
-    response = None
-    error = None
-    retry = 0
-    retry_status_codes = get_retry_status_codes()
-    retry_exceptions = get_retry_exceptions()
-    max_retries = get_max_retries()
-    while response is None:
-        try:
-            print "Uploading file..."
-            status, response = insert_request.next_chunk()
-            if 'id' in response:
-                print "Video id '%s' was successfully uploaded." % response['id']
-                print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-                update_thumbnail(youtube, response['id'], "thumbnail.png")
-                print "Video thumbnail added"
-                add_video_to_playlist(
-                    youtube, response['id'], DEFAULT_PLAYLIST_ID)
-                request_body = json.dumps({mcode: response['id']})
-                post_video(TBA_ID, TBA_SECRET, request_body, EVENT_CODE)
-                # Comment out the above line if you are not adding videos to
-                # TBA
+		resumable_upload(insert_request, options, mcode, youtube)
 
-            else:
-                exit("The upload failed with an unexpected response: %s" %
-                     response)
-        except HttpError, e:
-            if e.resp.status in retry_status_codes:
-                error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
-                                                                     e.content)
-            else:
-                raise
-        except retry_exceptions, e:
-            error = "A retriable error occurred: %s" % e
+def resumable_upload(insert_request, options, mcode, youtube):
+	response = None
+	error = None
+	retry = 0
+	retry_status_codes = get_retry_status_codes()
+	retry_exceptions = get_retry_exceptions()
+	max_retries = get_max_retries()
+	while response is None:
+		try:
+			print "Uploading file..."
+			status, response = insert_request.next_chunk()
+			if 'id' in response:
+				print "Video id '%s' was successfully uploaded." % response['id']
+				print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
+				update_thumbnail(youtube, response['id'], "thumbnail.png")
+				print "Video thumbnail added"
+				add_video_to_playlist(
+					youtube, response['id'], options.pID)
+				request_body = json.dumps({mcode: response['id']})
+				if options.tba is True:
+					post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
 
-        if error is not None:
-            print error
-            retry += 1
-            if retry > max_retries:
-                exit("No longer attempting to retry.")
+			else:
+				exit("The upload failed with an unexpected response: %s" %
+					 response)
+		except HttpError, e:
+			if e.resp.status in retry_status_codes:
+				error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
+																	 e.content)
+			else:
+				raise
+		except retry_exceptions, e:
+			error = "A retriable error occurred: %s" % e
 
-            max_sleep = 2 ** retry
-            sleep_seconds = random.random() * max_sleep
-            print "Sleeping %f seconds and then retrying..." % sleep_seconds
-            time.sleep(sleep_seconds)
+		if error is not None:
+			print error
+			retry += 1
+			if retry > max_retries:
+				exit("No longer attempting to retry.")
+
+			max_sleep = 2 ** retry
+			sleep_seconds = random.random() * max_sleep
+			print "Sleeping %f seconds and then retrying..." % sleep_seconds
+			time.sleep(sleep_seconds)
 
 if __name__ == '__main__':
-    argparser.add_argument("--mnum", help="""Match Number to add, if in elims
-        keep incrementing by one unless for tiebreaker, in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""")
-    argparser.add_argument(
-        "--mcode", help="Match code (qm,qf,sf,f) starting at 0 ->3", default=0)
-    argparser.add_argument(
-        "--file", help="Video file to upload", default=DEFAULT_FILE)
-    argparser.add_argument(
-        "--title", help="Video title", default=DEFAULT_TITLE)
-    argparser.add_argument(
-        "--description", help="Video description", default=DEFAULT_DESCRIPTION)
-    argparser.add_argument("--category", default=DEFAULT_VIDEO_CATEGORY, help="Numeric video category. " +
-                           "See https://developers.google.com/youtube/v3/docs/videoCategories/list")
-    argparser.add_argument(
-        "--keywords", help="Video keywords, comma separated", default=DEFAULT_TAGS)
-    argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
-                           default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
-    argparser.add_argument(
-        "--end", help="The last match you would like to upload, must be continous. Only necessary if you want to batch upload", default=None)
-    argparser.add_argument("--gui", help="Switches the program to use the GUI data", default=False)
-    args = argparser.parse_args()
-    if args.gui is True:
-        with open("data.txt", 'r') as f:
-            data = [line.strip() for line in f]
-        if data[0] != "keep":
-            args.mnum = data[0]
-        if data[1] != "keep":
-            args.mcode = data[1]
-        if data[2] != "keep":
-            args.file = data[2]
-        if data[3] != "keep":
-            args.title = data[3]
-        if data[4] != "keep":
-            args.description = data[4]
-        if data[5] != "keep":
-            args.category = data[5]
-        if data[6] != "keep":
-            args.keywords = data[6]
-        if data[7] != "keep":
-            args.privacyStatus = data[7]
-        if data[8] != "keep":
-            args.end = data[8]
+	# COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE CODE REWRITES
+	print "COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE A CODE REWRITE"
+	print "Use 'python start.py' instead"
+	sys.exit(0)
+	#The following is in case you actually want to try to make the command line side work
+	parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
+	parser.add_argument('--mnum', 
+		type=int, 
+		help="""Match Number to add, if in elims
+		keep incrementing by one unless for tiebreaker, 
+		in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""")
+	parser.add_argument('--mcode', 
+		type=int, 
+		help='Match code (qm,qf,sf,f) starting at 0 ->3', 
+		default=0)
+	parser.add_argument('--tiebreak', 
+		type=bool, 
+		help="True or False, default is False", 
+		default=False)
+	parser.add_argument('--file', 
+		help="Video file to upload. Only necessary if you are using a different naming scheme", 
+		default=DEFAULT_FILE)
+	parser.add_argument("--title", 
+		help="Video title. Only necessary if you are using a different naming scheme", 
+		default=DEFAULT_TITLE)
+	parser.add_argument("--description", 
+		help="Video description.", 
+		default=DEFAULT_DESCRIPTION)
+	parser.add_argument("--category", 
+		help="""Numeric video category. 
+		See https://developers.google.com/youtube/v3/docs/videoCategories/list""",
+		default=DEFAULT_VIDEO_CATEGORY)
+	parser.add_argument("--tags", 
+		help="Video keywords, comma separated", 
+		default=DEFAULT_TAGS)
+	parser.add_argument("--privacyStatus", 
+		"--privacyStatus", 
+		type=int, 
+		help="Video privacy status, public (0), private (1), unlisted (2))",  
+		default=2)
+	parser.add_argument("--end", 
+		help="""The last match you would like to upload, must be continous. 
+		Only necessary if you want to batch upload""", 
+		default=None)
+	parser.add_argument("--gui", 
+		help="Switches the program to use the GUI data", 
+		default=False)
+	args = parser.parse_args()
 
-    youtube = get_authenticated_service(args)
-
-    if args.end is not None:
-        multiple_videos(youtube, args)
-
-    else:
-        try:
-            initialize_upload(youtube, args)
-        except HttpError, e:
-            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+	init(args)
