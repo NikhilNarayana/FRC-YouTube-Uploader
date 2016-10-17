@@ -43,16 +43,16 @@ Find this at TheBlueAlliance in the address bar of the event page. It generally 
 You can find the playlist ID on the playlist page's web address. Every playlist ID starts with PL making them easy to identify.
 
 ##### TBA Event ID/Secret
-Both of these must be obtained by contacting TBA at contact@thebluealliance.com for the keys to your event.
+Both of these must be obtained by contacting TBA at contact@thebluealliance.com for the keys to your event. If your event is not on TBA I suggest you just uncheck the `Use The Blue Alliance` checkbox and not worry.
 
 ##### Video Description
 The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. The usual description is found in `youtubeup.py`
 
 ##### Match Number
-Fairly self-explanatory, this value will increment each time you press "Submit" so you can forget about updating all the info for every match.
+Fairly self-explanatory, just remember to reset the value when you go into each stage of playoffs. This value will increment each time you press "Submit" so you can forget about updating it after every match.
 
 ##### Last Match Number
-If you want to batch upload a number of files you can do so with this. Every match `Match Number` and this number inclusive will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
+If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number inclusive will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
 
 If you are still in need of assistance, feel free to contact me.
 
