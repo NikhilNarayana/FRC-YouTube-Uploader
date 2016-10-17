@@ -31,15 +31,10 @@ EXTENSION = ".mp4"  # CHANGE IF YOU AREN'T USING MP4s
 DEFAULT_TITLE = "%s" + " - " + QUAL
 DEFAULT_FILE = "%s" + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
-PRODUCTION_TEAM = "IndianaFIRST AV Crew"
-TWITTER_HANDLE = "IndianaFIRST"
-FACEBOOK_NAME = "IndianaFIRST"
-WEBSITE_LINK = "www.indianafirst.org"
 DEFAULT_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
 
-Alliance (Team1, Team2, Team3) - Score
-Blue Alliance (%s, %s, %s) - %s
-Red Alliance  (%s, %s, %s) - %s
+Red Alliance (%s, %s, %s) - %s
+Blue Alliance  (%s, %s, %s) - %s
 
 To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/%s
 
@@ -160,7 +155,7 @@ def quarters_match_code(mcode, mnum):
 	match_set = mnum % 4
 	if match_set == 0:
 		match_set = 4
-	elif mnum <= 4:
+	if mnum <= 4:
 		match = 1
 		match_code = mcode + str(match_set) + "m" + str(match)
 		return match_code
@@ -172,14 +167,14 @@ def quarters_match_code(mcode, mnum):
 		match = 3
 		match_code = mcode + str(match_set) + "m" + str(match)
 		return match_code
-	if mnum > 12:
+	else:
 		raise ValueError("mnum can't be larger than 12")
 
 def semis_match_code(mcode, mnum):
 	match_set = mnum % 2
 	if match_set == 0:
 		match_set = 2
-	elif mnum <= 2:
+	if mnum <= 2:
 		match = 1
 		match_code = mcode + str(match_set) + "m" + str(match)
 		return match_code
@@ -214,14 +209,13 @@ def tba_results(options):
 	blue_data, red_data = get_match_results(options.ecode, mcode)
 	return blue_data, red_data, mcode
 
-def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore, ename, ecode):
-	if all(x <= -1 for x in (blue1, blue2, blue3, blueScore, red1, red2, red3, redScore)):
-		return description % (ename, PRODUCTION_TEAM, TWITTER_HANDLE, FACEBOOK_NAME, WEBSITE_LINK)
+def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
+	if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
+		return options.description % (ename, PRODUCTION_TEAM, TWITTER_HANDLE, FACEBOOK_NAME, WEBSITE_LINK)
 	try:
-		return description % (ename, PRODUCTION_TEAM,
-			blue1, blue2, blue3, blueScore, red1, red2,
-			red3, redScore, ecode, TWITTER_HANDLE,
-			FACEBOOK_NAME, WEBSITE_LINK)
+		return options.description % (options.ename, options.prodteam,
+			red1, red2, red3, redScore, blue1, blue2, blue3, blueScore,
+			options.ecode, options.twit, options.fb, options.web)
 	except TypeError, e:
 		return description
 
@@ -244,31 +238,28 @@ def upload_multiple_videos(youtube, options):
 	print "All matches have been uploaded"
 
 def init(args):
-	if args.gui:
-		args.tags = DEFAULT_TAGS
-		args.privacyStatus = 0
-		args.category = DEFAULT_VIDEO_CATEGORY
-		args.file = args.ename + " - " + QUAL + EXTENSION
-		if args.mcode == "f":
-			args.mcode = "f1m"
-		if args.tba is True:
-			TBA_ID = args.tbaID
-			TBA_SECRET = args.tbaSecret
-			if args.description != "Add alternate description here.":
-				DEFAULT_DESCRIPTION = args.description
-		if args.tba is False:
-			TBA_ID = -1
-			TBA_SECRET = -1
-			args.description = NO_TBA_DESCRIPTION
-	else:
-		args.mcode = MATCH_TYPE[int(args.mcode)]
+	args.tags = DEFAULT_TAGS
+	args.privacyStatus = 0
+	args.category = DEFAULT_VIDEO_CATEGORY
+	args.file = args.ename + " - " + QUAL + EXTENSION
+	if args.mcode == "f":
+		args.mcode = "f1m"
+	if args.tba is True:
+		TBA_ID = args.tbaID
+		TBA_SECRET = args.tbaSecret
+		if args.description != "Add alternate description here.":
+			DEFAULT_DESCRIPTION = args.description
+	if args.tba is False:
+		TBA_ID = -1
+		TBA_SECRET = -1
+		args.description = NO_TBA_DESCRIPTION
 	args.dtags = True if args.tags == DEFAULT_TAGS else False
 	if args.dtags:
 		args.tags = args.tags % args.ecode
 	if args.tiebreak is True:
 		args.mnum = tiebreak_mnum(args.mnum, args.mcode)
 
-	youtube = get_authenticated_service(args)
+	youtube = get_authenticated_service()
 
 	if int(args.end) > int(args.mnum):
 		upload_multiple_videos(youtube, args)
@@ -297,7 +288,7 @@ def initialize_upload(youtube, options):
 		body = dict(
 			snippet=dict(
 				title=create_title(options),
-				description=create_description(options.description, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
+				description=create_description(options, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
 												   red_data[1], red_data[2], red_data[3], red_data[0], options.ename, options.ecode),
 				tags=tags,
 				categoryId=options.category

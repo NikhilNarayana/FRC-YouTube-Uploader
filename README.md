@@ -20,12 +20,13 @@ A YouTube Uploader with FRC Matches in mind.
 3. Install the requirements for the script with `pip install -r /path/to/requirements.txt`
 4. Add the thumbnail to the same folder as `thumbnail.png`
 5. Make your recording program follow this naming scheme: [EVENT_NAME] - [MATCH TYPE] ex. 2016 Indiana State Championship - Qualification Match 1. Also use the Tiebreaker scheme when necessary.
-5. Start the program by running `python start.py`
+5. Start the program by running `python start.py` and navigating to `localhost:8080` in your browser
 6. Add in the necessary info.
 7. Hit submit everytime a match finishes. No need to update Match Number unless you are entering eliminations.
 8. Enjoy not having to deal with YouTube's front end 🎉
 
 ### Web UI Breakdown
+A bit out of date, but still shows the idea behind the program.
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/6HuZ1sHrGR0/0.jpg)](http://www.youtube.com/watch?v=6HuZ1sHrGR0)
 
 This demo shows a basic use of the application. In addition I have the data being sent to the backend shown in the console beforehand.
@@ -45,7 +46,7 @@ You can find the playlist ID on the playlist page's web address. Every playlist 
 Both of these must be obtained by contacting TBA at contact@thebluealliance.com for the keys to your event.
 
 ##### Video Description
-The usual description used in the program is fairly lengthy, but provides a lot of links that may be useful. You will need to write in the `WEBSITE_LINK`, `TWITTER_HANDLE`, `FACEBOOK_NAME` in youtubeup.py if you want to make use of it though.
+The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. The usual description is found in `youtubeup.py`
 
 ##### Match Number
 Fairly self-explanatory, this value will increment each time you press "Submit" so you can forget about updating all the info for every match.
@@ -63,8 +64,11 @@ If you are still in need of assistance, feel free to contact me.
 * Stack Exchange - Bug Fixes
 
 
-## Extra Script
+## Extra Scripts
 ### updatePlaylistThumbnails.py
 This script expects two inputs, a playlist ID (`--pID`) and a thumbnail file name (`--tnail`). It will then update every the thumbnails of every video in that playlist to the one you provide. This makes it simple to update older playlists with a new thumbnail so you can keep your look consistent.
 
-This script is not used within youtubeup.py
+### addTBAToDescription.py
+addTBA will add match information to the video description retroactively. This script runs similarly to `start.py`. You start it with `python addTBAToDescription.py` and navigate to `localhost:8080` to use to script. You have to provide the video url, event code, and match code. Future goal is to add title to this
+
+These scripts are not used within start.py
