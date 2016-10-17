@@ -31,14 +31,10 @@ EXTENSION = ".mp4"  # CHANGE IF YOU AREN'T USING MP4s
 DEFAULT_TITLE = "%s" + " - " + QUAL
 DEFAULT_FILE = "%s" + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
-PRODUCTION_TEAM = "IndianaFIRST AV Crew"
-TWITTER_HANDLE = "IndianaFIRST"
-FACEBOOK_NAME = "IndianaFIRST"
-WEBSITE_LINK = "www.indianafirst.org"
 DEFAULT_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
 
-Blue Alliance (%s, %s, %s) - %s
-Red Alliance  (%s, %s, %s) - %s
+Red Alliance (%s, %s, %s) - %s
+Blue Alliance  (%s, %s, %s) - %s
 
 To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/%s
 
@@ -210,17 +206,17 @@ def get_match_code(mcode, mnum):
 
 def tba_results(options):
 	mcode = get_match_code(options.mcode, int(options.mnum))
+	print mcode
 	blue_data, red_data = get_match_results(options.ecode, mcode)
 	return blue_data, red_data, mcode
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
-	if all(x <= -1 for x in (blue1, blue2, blue3, blueScore, red1, red2, red3, redScore)):
+	if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
 		return options.description % (ename, PRODUCTION_TEAM, TWITTER_HANDLE, FACEBOOK_NAME, WEBSITE_LINK)
 	try:
 		return options.description % (options.ename, options.prodteam,
-			blue1, blue2, blue3, blueScore, red1, red2,
-			red3, redScore, options.ecode, options.twit,
-			options.fb, options.web)
+			red1, red2, red3, redScore, blue1, blue2, blue3, blueScore,
+			options.ecode, options.twit, options.fb, options.web)
 	except TypeError, e:
 		return description
 
