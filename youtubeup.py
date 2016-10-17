@@ -213,14 +213,14 @@ def tba_results(options):
 	blue_data, red_data = get_match_results(options.ecode, mcode)
 	return blue_data, red_data, mcode
 
-def create_description(description, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore, ename, ecode):
+def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
 	if all(x <= -1 for x in (blue1, blue2, blue3, blueScore, red1, red2, red3, redScore)):
-		return description % (ename, PRODUCTION_TEAM, TWITTER_HANDLE, FACEBOOK_NAME, WEBSITE_LINK)
+		return options.description % (ename, PRODUCTION_TEAM, TWITTER_HANDLE, FACEBOOK_NAME, WEBSITE_LINK)
 	try:
-		return description % (ename, PRODUCTION_TEAM,
+		return options.description % (options.ename, options.prodteam,
 			blue1, blue2, blue3, blueScore, red1, red2,
-			red3, redScore, ecode, TWITTER_HANDLE,
-			FACEBOOK_NAME, WEBSITE_LINK)
+			red3, redScore, options.ecode, options.twit,
+			options.fb, options.web)
 	except TypeError, e:
 		return description
 
@@ -243,24 +243,21 @@ def upload_multiple_videos(youtube, options):
 	print "All matches have been uploaded"
 
 def init(args):
-	if args.gui:
-		args.tags = DEFAULT_TAGS
-		args.privacyStatus = 0
-		args.category = DEFAULT_VIDEO_CATEGORY
-		args.file = args.ename + " - " + QUAL + EXTENSION
-		if args.mcode == "f":
-			args.mcode = "f1m"
-		if args.tba is True:
-			TBA_ID = args.tbaID
-			TBA_SECRET = args.tbaSecret
-			if args.description != "Add alternate description here.":
-				DEFAULT_DESCRIPTION = args.description
-		if args.tba is False:
-			TBA_ID = -1
-			TBA_SECRET = -1
-			args.description = NO_TBA_DESCRIPTION
-	else:
-		args.mcode = MATCH_TYPE[int(args.mcode)]
+	args.tags = DEFAULT_TAGS
+	args.privacyStatus = 0
+	args.category = DEFAULT_VIDEO_CATEGORY
+	args.file = args.ename + " - " + QUAL + EXTENSION
+	if args.mcode == "f":
+		args.mcode = "f1m"
+	if args.tba is True:
+		TBA_ID = args.tbaID
+		TBA_SECRET = args.tbaSecret
+		if args.description != "Add alternate description here.":
+			DEFAULT_DESCRIPTION = args.description
+	if args.tba is False:
+		TBA_ID = -1
+		TBA_SECRET = -1
+		args.description = NO_TBA_DESCRIPTION
 	args.dtags = True if args.tags == DEFAULT_TAGS else False
 	if args.dtags:
 		args.tags = args.tags % args.ecode
@@ -296,7 +293,7 @@ def initialize_upload(youtube, options):
 		body = dict(
 			snippet=dict(
 				title=create_title(options),
-				description=create_description(options.description, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
+				description=create_description(options, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
 												   red_data[1], red_data[2], red_data[3], red_data[0], options.ename, options.ecode),
 				tags=tags,
 				categoryId=options.category
