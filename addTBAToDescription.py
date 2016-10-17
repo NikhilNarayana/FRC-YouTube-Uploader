@@ -27,18 +27,18 @@ def tbainfo(ecode, mcode):
 
 
 def run(youtube, vURL, pID, ecode, mID, mnum, end):
+	vID = video_id(vURL)
+	update_description(youtube, vID, ecode, mID, mnum)
+	vURL = (str("https://www.youtube.com/watch?v=%s" % get_next_video_id(youtube, vID, pID)))
 	if end != "Only for batch updates":
 		while int(mnum) <= int(end):
+			mnum = int(mnum) + 1
 			vID = video_id(vURL)
 			update_description(youtube, vID, ecode, mID, mnum)
 			vURL = (str("https://www.youtube.com/watch?v=%s" % get_next_video_id(youtube, vID, pID)))
-			mnum = int(mnum) + 1
 		print "Updated all video descriptions"
 		return vURL
 	else:
-		vID = video_id(vURL)
-		update_description(youtube, vID, ecode, mID, mnum)
-		vURL = (str("https://www.youtube.com/watch?v=%s" % get_next_video_id(youtube, vID, pID)))
 		return vURL
 
 
@@ -66,6 +66,7 @@ def get_next_video_id(youtube, vID, pID):
 		part="snippet",
 		maxResults=50
 	).execute()
+	#Because of the YouTube API's pagination you need to grab every page with a token
 	nextPageToken = playlistitems_list["nextPageToken"]
 	while ('nextPageToken' in playlistitems_list):
 		nextPageList = youtube.playlistItems().list(
@@ -84,7 +85,7 @@ def get_next_video_id(youtube, vID, pID):
 			return playlist_item["snippet"]["resourceId"]["videoId"]
 		if (playlist_item["snippet"]["resourceId"]["videoId"] == vID and next is False) and playlistitems_list["pageInfo"]["resultsPerPage"] <= playlist_item["snippet"]["position"]:
 			next = True
-	return None
+	return None #if you get here the playlistID must not work
 
 
 def update_description(youtube, vID, ecode, mID, mnum):
@@ -98,7 +99,7 @@ def update_description(youtube, vID, ecode, mID, mnum):
 	newdesc = newdesc % (red_data[1], red_data[2], red_data[3], red_data[0], 
 		blue_data[1], blue_data[2], blue_data[3], blue_data[0])
 	snippet['items'][0]['snippet']['description'] = newdesc
-	response = youtube.videos().update(
+	youtube.videos().update(
 		part='snippet', 
 		body=dict(
 			snippet=snippet['items'][0]['snippet'],
@@ -108,8 +109,8 @@ def update_description(youtube, vID, ecode, mID, mnum):
 
 dataform = form.Form(
 	form.Textbox("pID",
-		form.regexp("^PL", "Must be a playlist ID, all of which start with 'PL'"),
-		form.regexp("^\s*\S+\s*$", "Can not contain spaces."),
+		form.regexp("^PL", "Must be a playlist ID, all of which start with 'PL'. Find it in the web address of the playlist page"),
+		form.regexp("^\s*\S+\s*$", "Cannot contain spaces."),
 		description="Playlist ID",
 		size=41),
 	form.Textbox("vURL", description="Video URL", size=41),
@@ -138,6 +139,7 @@ class index:
 			return render.forms(form)
 		youtube = get_authenticated_service()
 		form.vURL.set_value(run(youtube, form.d.vURL, form.d.pID, form.d.ecode, form.d.mcode, form.d.mnum, form.d.end))
+		#The return value is always the vURL for the next match
 		if form.d.end == "Only for batch updates":
 			form.mnum.set_value(str(int(form.d.mnum) + 1))
 		else:
