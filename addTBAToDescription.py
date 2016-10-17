@@ -20,6 +20,12 @@ credits = """
 
 Updated with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
 
+def tbainfo(ecode, mcode):
+	blue_data, red_data = TBA.get_match_results(ecode, mcode)
+	print data % (blue_data[1], blue_data[2], blue_data[3], blue_data[0], 
+		red_data[1], red_data[2], red_data[3], red_data[0])
+
+
 def run(youtube, vURL, pID, ecode, mID, mnum, end):
 	if end != "Only for batch updates":
 		while int(mnum) <= int(end):
@@ -119,7 +125,7 @@ class index:
 		if not form.validates():
 			return render.forms(form)
 		youtube = get_authenticated_service()
-		form.d.vURL.set_value(run(youtube, form.d.vURL, form.d.pID, form.d.ecode, form.d.mcode, form.d.mnum, form.d.end))
+		form.vURL.set_value(run(youtube, form.d.vURL, form.d.pID, form.d.ecode, form.d.mcode, form.d.mnum, form.d.end))
 		if form.d.end == "Only for batch updates":
 			form.mnum.set_value(str(int(form.d.mnum) + 1))
 		else:
