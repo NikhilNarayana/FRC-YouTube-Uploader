@@ -155,7 +155,7 @@ def quarters_match_code(mcode, mnum):
 	match_set = mnum % 4
 	if match_set == 0:
 		match_set = 4
-	elif mnum <= 4:
+	if mnum <= 4:
 		match = 1
 		match_code = mcode + str(match_set) + "m" + str(match)
 		return match_code
@@ -167,14 +167,14 @@ def quarters_match_code(mcode, mnum):
 		match = 3
 		match_code = mcode + str(match_set) + "m" + str(match)
 		return match_code
-	if mnum > 12:
+	else:
 		raise ValueError("mnum can't be larger than 12")
 
 def semis_match_code(mcode, mnum):
 	match_set = mnum % 2
 	if match_set == 0:
 		match_set = 2
-	elif mnum <= 2:
+	if mnum <= 2:
 		match = 1
 		match_code = mcode + str(match_set) + "m" + str(match)
 		return match_code
@@ -206,7 +206,6 @@ def get_match_code(mcode, mnum):
 
 def tba_results(options):
 	mcode = get_match_code(options.mcode, int(options.mnum))
-	print mcode
 	blue_data, red_data = get_match_results(options.ecode, mcode)
 	return blue_data, red_data, mcode
 

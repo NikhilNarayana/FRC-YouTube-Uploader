@@ -7,7 +7,6 @@ from urlparse import *
 from youtubeAuthenticate import *
 import simplejson as json
 import TBA
-import pdb
 
 render = web.template.render('webpage/')
 
@@ -88,13 +87,13 @@ def get_next_video_id(youtube, vID, pID):
 	return None
 
 
-def update_description(youtube, vID, ecode, mcode, mnum):
+def update_description(youtube, vID, ecode, mID, mnum):
 	snippet = youtube.videos().list(
 			part="snippet",
 			id=vID).execute()
 	olddesc = snippet['items'][0]['snippet']['description']
 	newdesc = data + olddesc + credits
-	mcode = yup.get_match_code(mcode, int(mnum))
+	mcode = yup.get_match_code(mID, int(mnum))
 	blue_data, red_data = TBA.get_match_results(ecode, mcode)
 	newdesc = newdesc % (red_data[1], red_data[2], red_data[3], red_data[0], 
 		blue_data[1], blue_data[2], blue_data[3], blue_data[0])
@@ -116,7 +115,7 @@ dataform = form.Form(
 	form.Textbox("vURL", description="Video URL", size=41),
 	form.Textbox("ecode", description="Event Code (ex. 2016arc)"),
 	form.Dropdown("mcode",
-		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f", "Finals")],
+		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
 		description="Match Type"),
 	form.Textbox("mnum",
 		form.notnull,
