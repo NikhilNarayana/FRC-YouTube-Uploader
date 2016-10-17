@@ -37,7 +37,6 @@ FACEBOOK_NAME = "IndianaFIRST"
 WEBSITE_LINK = "www.indianafirst.org"
 DEFAULT_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
 
-Alliance (Team1, Team2, Team3) - Score
 Blue Alliance (%s, %s, %s) - %s
 Red Alliance  (%s, %s, %s) - %s
 
