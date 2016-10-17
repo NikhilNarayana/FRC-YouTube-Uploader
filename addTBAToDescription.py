@@ -7,13 +7,14 @@ from urlparse import *
 from youtubeAuthenticate import *
 import simplejson as json
 import TBA
+import pdb
 
 render = web.template.render('webpage/')
 
 urls = ('/', 'index')
 app = web.application(urls, globals())
-data = """Blue Alliance (%s, %s, %s) - %s
-Red Alliance  (%s, %s, %s) - %s
+data = """Red Alliance (%s, %s, %s) - %s
+Blue Alliance  (%s, %s, %s) - %s
 
 """
 credits = """
@@ -30,16 +31,14 @@ def run(youtube, vURL, pID, ecode, mID, mnum, end):
 	if end != "Only for batch updates":
 		while int(mnum) <= int(end):
 			vID = video_id(vURL)
-			mcode = str(mID) + str(mnum)
-			update_description(youtube, vID, ecode, mcode)
+			update_description(youtube, vID, ecode, mID, mnum)
 			vURL = (str("https://www.youtube.com/watch?v=%s" % get_next_video_id(youtube, vID, pID)))
 			mnum = int(mnum) + 1
 		print "Updated all video descriptions"
 		return vURL
 	else:
 		vID = video_id(vURL)
-		mcode = str(mID) + str(mnum)
-		update_description(youtube, vID, ecode, mcode)
+		update_description(youtube, vID, ecode, mID, mnum)
 		vURL = (str("https://www.youtube.com/watch?v=%s" % get_next_video_id(youtube, vID, pID)))
 		return vURL
 
@@ -67,24 +66,38 @@ def get_next_video_id(youtube, vID, pID):
 		playlistId=pID,
 		part="snippet",
 		maxResults=50
-		).execute()
+	).execute()
+	nextPageToken = playlistitems_list["nextPageToken"]
+	while ('nextPageToken' in playlistitems_list):
+		nextPageList = youtube.playlistItems().list(
+				playlistId=pID,
+				part="snippet",
+				maxResults=50,
+				pageToken=nextPageToken
+			).execute()
+		playlistitems_list["items"] = playlistitems_list["items"] + nextPageList["items"]
+		if "nextPageToken" not in nextPageList:
+			playlistitems_list.pop('nextPageToken', None)
+		else:
+			nextPageToken = nextPageList['nextPageToken']
 	for playlist_item in playlistitems_list["items"]:
 		if next is True:
 			return playlist_item["snippet"]["resourceId"]["videoId"]
-		if playlist_item["snippet"]["resourceId"]["videoId"] == vID and next is False:
+		if (playlist_item["snippet"]["resourceId"]["videoId"] == vID and next is False) and playlistitems_list["pageInfo"]["resultsPerPage"] <= playlist_item["snippet"]["position"]:
 			next = True
 	return None
 
 
-def update_description(youtube, vID, ecode, mcode):
+def update_description(youtube, vID, ecode, mcode, mnum):
 	snippet = youtube.videos().list(
 			part="snippet",
 			id=vID).execute()
 	olddesc = snippet['items'][0]['snippet']['description']
 	newdesc = data + olddesc + credits
+	mcode = yup.get_match_code(mcode, int(mnum))
 	blue_data, red_data = TBA.get_match_results(ecode, mcode)
-	newdesc = newdesc % (blue_data[1], blue_data[2], blue_data[3], blue_data[0], 
-		red_data[1], red_data[2], red_data[3], red_data[0])
+	newdesc = newdesc % (red_data[1], red_data[2], red_data[3], red_data[0], 
+		blue_data[1], blue_data[2], blue_data[3], blue_data[0])
 	snippet['items'][0]['snippet']['description'] = newdesc
 	response = youtube.videos().update(
 		part='snippet', 
