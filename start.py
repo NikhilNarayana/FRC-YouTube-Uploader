@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import web
 from web import form
 import youtubeup as yup
