@@ -53,5 +53,60 @@ class MyTests(unittest.TestCase):
 			self.assertEqual(yup.tiebreak_mnum(x, "sf"), x+4)
 		self.assertEqual(yup.tiebreak_mnum(3, "f1m"), 3)
 
+	def test_description(self):
+		parser = argparse.ArgumentParser(description='argparse for testing')
+		args = parser.parse_args()
+		args.ename, args.ecode, args.prodteam, args.twit, args.fb, args.web, args.mnum, args.mcode = "2016 Indiana State Championship", "2016incmp", "IndianaFIRST AV", "IndianaFIRST", "IndianaFIRST", "www.IndianaFIRST.org", 1, "qm"
+		blue_data, red_data, mcode = yup.tba_results(args)
+		args.description = """Footage of the %s Event is courtesy of the %s.
+
+		Follow us on Twitter (@%s) and Facebook (%s).
+
+		For more information and future event schedules, visit our website: %s
+
+		Thanks for watching!
+
+		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+		expected_description = """Footage of the 2016 Indiana State Championship Event is courtesy of the IndianaFIRST AV.
+
+		Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST).
+
+		For more information and future event schedules, visit our website: www.IndianaFIRST.org
+
+		Thanks for watching!
+
+		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+		self.assertEqual(yup.create_description(args, -1, -1, -1, -1, -1, -1, -1, -1), expected_description)
+		args.description = """Footage of the %s %s Event is courtesy of the %s.
+
+		Red Alliance (%s, %s, %s) - %s
+		Blue Alliance (%s, %s, %s) - %s
+
+		To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/%s
+
+		Follow us on Twitter (@%s) and Facebook (%s).
+
+		For more information and future event schedules, visit our website: %s
+
+		Thanks for watching!
+
+		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+		expected_description = """Footage of the 2016 Indiana State Championship District Championship Event is courtesy of the IndianaFIRST AV.
+
+		Red Alliance (4580, 3559, 1720) - 83
+		Blue Alliance (71, 1741, 234) - 138
+
+		To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/2016incmp
+
+		Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST).
+
+		For more information and future event schedules, visit our website: www.IndianaFIRST.org
+
+		Thanks for watching!
+
+		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+		self.assertEqual(yup.create_description(args, blue_data[1], blue_data[2], blue_data[3], blue_data[0], 
+			red_data[1], red_data[2], red_data[3], red_data[0]), expected_description)
+
 if __name__ == '__main__':
 	unittest.main()
