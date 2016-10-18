@@ -15,7 +15,7 @@ render = web.template.render('webpage/')
 urls = ('/', 'index')
 app = web.application(urls, globals())
 data = """Red Alliance (%s, %s, %s) - %s
-Blue Alliance  (%s, %s, %s) - %s
+Blue Alliance (%s, %s, %s) - %s
 
 """
 credits = """
@@ -24,8 +24,8 @@ Updated with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube
 
 def tbainfo(ecode, mcode):
 	blue_data, red_data = TBA.get_match_results(ecode, mcode)
-	print data % (blue_data[1], blue_data[2], blue_data[3], blue_data[0], 
-		red_data[1], red_data[2], red_data[3], red_data[0])
+	print data % (red_data[1], red_data[2], red_data[3], red_data[0], 
+		blue_data[1], blue_data[2], blue_data[3], blue_data[0])
 
 
 def run(youtube, vURL, pID, ecode, mID, mnum, end):

@@ -34,7 +34,7 @@ MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = """Footage of the %s %s Event is courtesy of the %s.
 
 Red Alliance (%s, %s, %s) - %s
-Blue Alliance  (%s, %s, %s) - %s
+Blue Alliances (%s, %s, %s) - %s
 
 To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/%s
 
@@ -211,7 +211,7 @@ def tba_results(options):
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
 	if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
-		return options.description % (options.ename, PRODUCTION_TEAM, TWITTER_HANDLE, FACEBOOK_NAME, WEBSITE_LINK)
+		return options.description % (options.ename, options.prodteam, options.twit, options.fb, options.web)
 	try:
 		return options.description % (options.ename, get_event_type(options.ecode), options.prodteam,
 			red1, red2, red3, redScore, blue1, blue2, blue3, blueScore,
