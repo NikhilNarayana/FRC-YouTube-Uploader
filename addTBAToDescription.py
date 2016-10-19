@@ -31,13 +31,14 @@ def tbainfo(ecode, mcode):
 def run(youtube, vURL, pID, ecode, mID, mnum, end):
 	vID = video_id(vURL)
 	update_description(youtube, vID, ecode, mID, mnum)
-	vURL = (str("https://www.youtube.com/watch?v=%s" % get_next_video_id(youtube, vID, pID)))
+	playlistitems_list = playlistHandler(youtube, vID, pID)
+	vURL = (str("https://www.youtube.com/watch?v=%s" % get_next_video_id(playlistitems_list, vID, pID)))
 	if end != "Only for batch updates":
 		while int(mnum) <= int(end):
 			mnum = int(mnum) + 1
 			vID = video_id(vURL)
 			update_description(youtube, vID, ecode, mID, mnum)
-			vURL = (str("https://www.youtube.com/watch?v=%s" % get_next_video_id(youtube, vID, pID)))
+			vURL = (str("https://www.youtube.com/watch?v=%s" % get_next_video_id(playlistitems_list, vID, pID)))
 		print "Updated all video descriptions"
 		return vURL
 	else:
@@ -61,8 +62,16 @@ def video_id(value):
             return query.path.split('/')[2]
     return value
 
-def get_next_video_id(youtube, vID, pID):
+def get_next_video_id(playlistitems_list, vID, pID):
 	next = False
+	for playlist_item in playlistitems_list["items"]:
+		if next is True:
+			return playlist_item["snippet"]["resourceId"]["videoId"]
+		if (playlist_item["snippet"]["resourceId"]["videoId"] == vID and next is False) and playlistitems_list["pageInfo"]["resultsPerPage"] <= playlist_item["snippet"]["position"]:
+			next = True
+	return None #if you get here the playlistID must not work
+
+def playlistHandler(youtube, vID, pID):
 	playlistitems_list = youtube.playlistItems().list(
 		playlistId=pID,
 		part="snippet",
@@ -82,13 +91,7 @@ def get_next_video_id(youtube, vID, pID):
 			playlistitems_list.pop('nextPageToken', None)
 		else:
 			nextPageToken = nextPageList['nextPageToken']
-	for playlist_item in playlistitems_list["items"]:
-		if next is True:
-			return playlist_item["snippet"]["resourceId"]["videoId"]
-		if (playlist_item["snippet"]["resourceId"]["videoId"] == vID and next is False) and playlistitems_list["pageInfo"]["resultsPerPage"] <= playlist_item["snippet"]["position"]:
-			next = True
-	return None #if you get here the playlistID must not work
-
+	return playlistitems_list
 
 def update_description(youtube, vID, ecode, mID, mnum):
 	snippet = youtube.videos().list(
