@@ -7,6 +7,7 @@ import random
 import sys
 import time
 import argparse
+import pdb
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
@@ -15,6 +16,7 @@ from tbaAPI import *
 from addtoplaylist import add_video_to_playlist
 from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import *
+from datetime import *
 
 # Default Variables - comments above 
 DEFAULT_VIDEO_CATEGORY = 28
@@ -259,17 +261,19 @@ def init(args):
 	if args.tiebreak is True:
 		args.mnum = tiebreak_mnum(args.mnum, args.mcode)
 
-	youtube = get_authenticated_service()
+	youtube = get_youtube_service()
+	spreadsheet = get_spreadsheet_service()
 
-	if int(args.end) > int(args.mnum):
-		upload_multiple_videos(youtube, args)
+	if type(args.end) is int:
+		if int(args.end) > int(args.mnum):
+			upload_multiple_videos(youtube, args)
 	else:
 		try:
-			initialize_upload(youtube, args)
+			initialize_upload(youtube, spreadsheet, args)
 		except HttpError, e:
 			print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
-def initialize_upload(youtube, options):
+def initialize_upload(youtube, spreadsheet, options):
 	if options.tba:
 		print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
 		tags = None
@@ -332,9 +336,9 @@ def initialize_upload(youtube, options):
 				create_filename(options), chunksize=-1, resumable=True)
 		)
 
-		resumable_upload(insert_request, options, mcode, youtube)
+		resumable_upload(insert_request, options, mcode, youtube, spreadsheet)
 
-def resumable_upload(insert_request, options, mcode, youtube):
+def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 	response = None
 	error = None
 	retry = 0
@@ -355,6 +359,11 @@ def resumable_upload(insert_request, options, mcode, youtube):
 				request_body = json.dumps({mcode: response['id']})
 				if options.tba is True:
 					post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
+				spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
+				rowRange = "Data!A1:E1"
+				values = [[str(datetime.now()),"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, options.prodteam]]
+				body = {'values': values}
+				appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="RAW", body=body).execute()
 
 			else:
 				exit("The upload failed with an unexpected response: %s" %

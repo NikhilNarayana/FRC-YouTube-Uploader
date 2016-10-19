@@ -1,18 +1,11 @@
-#!/usr/bin/python
-
-import httplib
-import httplib2
-import os
-import random
-import sys
-import time
+#!/usr/bin/env python
 
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
-from youtubeAuthenticate import get_authenticated_service
+from youtubeAuthenticate import get_youtube_service
 
 #Default Variables
-THUMBNAIL = "2016 Walker Warren.png"
+THUMBNAIL = ""
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
@@ -28,7 +21,7 @@ if __name__ == '__main__':
 	argparser.add_argument("--file", help="Thumbnail file to upload", default=THUMBNAIL)
 	args = argparser.parse_args()
 
-	youtube = get_authenticated_service(args)
+	youtube = get_youtube_service(args)
 	
 	try:
 		update_thumbnail(youtube,args.vID,args.file)
