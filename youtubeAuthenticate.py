@@ -41,12 +41,10 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
-
 YOUTUBE_UPLOAD_SCOPE = """https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl"""
+SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
 
-
-def get_authenticated_service():
+def get_youtube_service():
 	flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
 								   scope=YOUTUBE_UPLOAD_SCOPE,
 								   message=MISSING_CLIENT_SECRETS_MESSAGE)
@@ -62,6 +60,22 @@ def get_authenticated_service():
 	return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 				 http=credentials.authorize(httplib2.Http()))
 
+
+def get_spreadsheet_service():
+	flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=SPREADSHEETS_SCOPE)
+	flow.user_agent = "FRC YouTube Uploader"
+
+	storage = Storage("%s-oauth2-spreadsheet.json" % sys.argv[0])
+	credentials = storage.get()
+
+	flags = argparser.parse_args(args=[])
+
+	if credentials is None or credentials.invalid:
+		credentials = run_flow(flow, storage, flags)
+
+	http = credentials.authorize(httplib2.Http())
+	discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?''version=v4')
+	return build('sheets', 'v4', http=http, discoveryServiceUrl=discoveryUrl)
 
 def get_retry_status_codes():
 	return RETRIABLE_STATUS_CODES

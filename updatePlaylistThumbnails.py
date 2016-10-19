@@ -3,7 +3,7 @@
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 from updateThumbnail import update_thumbnail
-from youtubeAuthenticate import get_authenticated_service
+from youtubeAuthenticate import get_youtube_service
 
 #Thumbnail file to use
 THUMBNAIL = ""
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 	argparser.add_argument("--pID",help="PlaylistID of videos to change thumbnails for",default=PLAYLISTID)
 	argparser.add_argument("--tnail",help="Thumbnail filename, with extension, for playlist",default=THUMBNAIL)
 	args = argparser.parse_args()
-	youtube = get_authenticated_service()
+	youtube = get_youtube_service()
 	try:
 		update_thumbnails(youtube,args.pID,args,thumbnail)
 	except HttpError, e:

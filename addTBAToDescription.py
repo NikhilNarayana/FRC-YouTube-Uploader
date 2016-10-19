@@ -139,7 +139,7 @@ class index:
 		form = dataform()
 		if not form.validates():
 			return render.forms(form)
-		youtube = get_authenticated_service()
+		youtube = get_youtube_service()
 		form.vURL.set_value(run(youtube, form.d.vURL, form.d.pID, form.d.ecode, form.d.mcode, form.d.mnum, form.d.end))
 		#The return value is always the vURL for the next match
 		if form.d.end == "Only for batch updates":

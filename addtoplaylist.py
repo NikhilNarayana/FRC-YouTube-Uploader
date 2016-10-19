@@ -6,7 +6,7 @@ import sys
 
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
-from youtubeAuthenticate import get_authenticated_service
+from youtubeAuthenticate import get_youtube_service
 
 
 #Default Variables
@@ -38,7 +38,7 @@ def add_video_to_playlist(youtube,videoID,playlistID):
 if __name__ == '__main__':
 	argparser.add_argument("--vID",required=True,help="Video ID to add to playlist")
 	args = argparser.parse_args()
-	youtube = get_authenticated_service(args)
+	youtube = get_youtube_service(args)
 	try:
 		add_video_to_playlist(youtube,args.vID,PLAYLIST_ID)
 	except HttpError, e:
