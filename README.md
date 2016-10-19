@@ -15,23 +15,26 @@ A YouTube Uploader with FRC Matches in mind.
 
 
 ## How to Setup
-1. Install Python 2.7 for your OS
+1. Install Python 2.7 for your OS with the PATH added and make sure there are no other versions of python.
 2. Clone this repository into the folder that will contain the videos
 3. Install the requirements for the script with `pip install -r /path/to/requirements.txt`
 4. Add the thumbnail to the same folder as `thumbnail.png`
 5. Make your recording program follow this naming scheme: [EVENT_NAME] - [MATCH TYPE] ex. 2016 Indiana State Championship - Qualification Match 1. Also use the Tiebreaker scheme when necessary.
-5. Start the program by running `python start.py` and navigating to `localhost:8080` in your browser
+5. Start the program by running `start.py` and navigating to `localhost:8080` in your browser
 6. Add in the necessary info.
 7. Hit submit everytime a match finishes. No need to update Match Number unless you are entering eliminations.
 8. Enjoy not having to deal with YouTube's front end 🎉
 
 ### Web UI Breakdown
-A bit out of date, but still shows the idea behind the program.
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/6HuZ1sHrGR0/0.jpg)](http://www.youtube.com/watch?v=6HuZ1sHrGR0)
-
-This demo shows a basic use of the application. In addition I have the data being sent to the backend shown in the console beforehand.
+![alt text](http://i.imgur.com/z9PxgCP.png)
 
 I focused on simplicty and usability. All the necessary details fit into one small space allowing you to easily place this anywhere on your screen without needing to see all of it.
+
+##### Match File Locations
+You can now pick whether the match files  are in the same folder as the scripts or the one above. Default is one above.
+
+##### Production Team/Facebook Name/Twitter Handle/Website Link
+Constants that used to be in the script it self, you can now edit them as you see fit without going into the code.
 
 ##### Event Name
 You can name this as you wish, but it should also be used at the start of every video filename. Generally includes [YEAR] [NAME OF EVENT]
