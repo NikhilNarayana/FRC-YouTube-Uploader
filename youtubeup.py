@@ -319,7 +319,7 @@ def initialize_upload(youtube, spreadsheet, options):
 	insert_request = youtube.videos().insert(
 			part=",".join(body.keys()),
 			body=body,
-			media_body=MediaFileUpload(create_filename(options), chunksize=-1, resumable=True)
+			media_body=MediaFileUpload(options.where+create_filename(options), chunksize=-1, resumable=True)
 		)
 
 	resumable_upload(insert_request, options, mcode, youtube, spreadsheet)
@@ -350,7 +350,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 				rowRange = "Data!A1:F1"
 				if type(options.end) is int: wasBatch = "True"
 				else: wasBatch = "False"
-				values = [[str(datetime.now()),totalTime,"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, wasBatch]]
+				values = [[str(datetime.now()),str(totalTime),"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, wasBatch]]
 				body = {'values': values}
 				appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="RAW", body=body).execute()
 			else:
