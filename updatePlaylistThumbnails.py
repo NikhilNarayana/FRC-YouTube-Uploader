@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser

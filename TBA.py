@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
 import urllib2
 import tbaAPI as tba
 import requests
