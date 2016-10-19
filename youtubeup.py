@@ -361,10 +361,11 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 					post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
 				spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
 				rowRange = "Data!A1:E1"
-				values = [[str(datetime.now()),"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, options.prodteam]]
+				if type(options.end) is int: wasBatch = "True"
+				else: wasBatch = "False"
+				values = [[str(datetime.now()),"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, wasBatch]]
 				body = {'values': values}
 				appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="RAW", body=body).execute()
-
 			else:
 				exit("The upload failed with an unexpected response: %s" %
 					 response)
