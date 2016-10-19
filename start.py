@@ -5,7 +5,7 @@ from web import form
 import youtubeup as yup
 import argparse
 import csv
-import pdb
+from datetime import datetime
 
 render = web.template.render('webpage/')
 
@@ -91,6 +91,7 @@ class index:
 		if not form.validates():
 			return render.forms(form)
 		else:
+			args.then = datetime.now()
 			reader = csv.reader(open('form_values.csv'))
 			row = next(reader)
 			parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
