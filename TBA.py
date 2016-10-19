@@ -1,11 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
 import urllib2
 import tbaAPI as tba
 import requests
 import simplejson as json
 
 def get_event_type(event_key):
-	tba.set_api_key("Nikki-Narayana","FRC-Match-Uploader","2.2")
+	tba.set_api_key("Nikki-Narayana","FRC-Match-Uploader","2.3")
 	event = tba.event_get(event_key)
 	return event.info["event_type_string"]
 

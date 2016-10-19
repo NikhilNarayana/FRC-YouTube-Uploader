@@ -1,13 +1,10 @@
 #!/usr/bin/python
 
-import httplib
-import httplib2
 import os
 import random
 import sys
 import time
 import argparse
-import pdb
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
@@ -274,12 +271,12 @@ def init(args):
 			print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
 def initialize_upload(youtube, spreadsheet, options):
+	print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
+	tags = None
 	if options.tba:
-		print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
-		tags = None
 		blue_data, red_data, mcode = tba_results(options)
 
-		if args.dtags:
+		if options.dtags:
 			tags = options.tags.split(",")
 			tags.append("frc" + str(blue_data[1]))
 			tags.append("frc" + str(blue_data[2]))
@@ -301,17 +298,7 @@ def initialize_upload(youtube, spreadsheet, options):
 				privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
 			)
 		)
-		insert_request = youtube.videos().insert(
-			part=",".join(body.keys()),
-			body=body,
-			media_body=MediaFileUpload(
-				create_filename(options), chunksize=-1, resumable=True)
-		)
-
-		resumable_upload(insert_request, options.mnum, mcode, youtube)
 	else:
-		print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
-		tags = None
 		mcode = get_match_code(options.mcode, int(options.mnum))
 
 		if options.tags:
@@ -329,14 +316,13 @@ def initialize_upload(youtube, spreadsheet, options):
 				privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
 			)
 		)
-		insert_request = youtube.videos().insert(
+	insert_request = youtube.videos().insert(
 			part=",".join(body.keys()),
 			body=body,
-			media_body=MediaFileUpload(
-				create_filename(options), chunksize=-1, resumable=True)
+			media_body=MediaFileUpload(options.where+create_filename(options), chunksize=-1, resumable=True)
 		)
 
-		resumable_upload(insert_request, options, mcode, youtube, spreadsheet)
+	resumable_upload(insert_request, options, mcode, youtube, spreadsheet)
 
 def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 	response = None
@@ -359,12 +345,14 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 				request_body = json.dumps({mcode: response['id']})
 				if options.tba is True:
 					post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
+				totalTime = datetime.now() - options.then
 				spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
-				rowRange = "Data!A1:E1"
-				values = [[str(datetime.now()),"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, options.prodteam]]
+				rowRange = "Data!A1:F1"
+				if type(options.end) is int: wasBatch = "True"
+				else: wasBatch = "False"
+				values = [[str(datetime.now()),str(totalTime),"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, wasBatch]]
 				body = {'values': values}
 				appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="RAW", body=body).execute()
-
 			else:
 				exit("The upload failed with an unexpected response: %s" %
 					 response)
@@ -393,49 +381,3 @@ if __name__ == '__main__':
 	print "COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE A CODE REWRITE"
 	print "Use 'python start.py' instead"
 	sys.exit(0)
-	#The following is in case you actually want to try to make the command line side work
-	parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
-	parser.add_argument('--mnum', 
-		type=int, 
-		help="""Match Number to add, if in elims
-		keep incrementing by one unless for tiebreaker, 
-		in which case add 8(qf), 4(sf), or 2(f) to the tiebreaker number""")
-	parser.add_argument('--mcode', 
-		type=int, 
-		help='Match code (qm,qf,sf,f) starting at 0 ->3', 
-		default=0)
-	parser.add_argument('--tiebreak', 
-		type=bool, 
-		help="True or False, default is False", 
-		default=False)
-	parser.add_argument('--file', 
-		help="Video file to upload. Only necessary if you are using a different naming scheme", 
-		default=DEFAULT_FILE)
-	parser.add_argument("--title", 
-		help="Video title. Only necessary if you are using a different naming scheme", 
-		default=DEFAULT_TITLE)
-	parser.add_argument("--description", 
-		help="Video description.", 
-		default=DEFAULT_DESCRIPTION)
-	parser.add_argument("--category", 
-		help="""Numeric video category. 
-		See https://developers.google.com/youtube/v3/docs/videoCategories/list""",
-		default=DEFAULT_VIDEO_CATEGORY)
-	parser.add_argument("--tags", 
-		help="Video keywords, comma separated", 
-		default=DEFAULT_TAGS)
-	parser.add_argument("--privacyStatus", 
-		"--privacyStatus", 
-		type=int, 
-		help="Video privacy status, public (0), private (1), unlisted (2))",  
-		default=2)
-	parser.add_argument("--end", 
-		help="""The last match you would like to upload, must be continous. 
-		Only necessary if you want to batch upload""", 
-		default=None)
-	parser.add_argument("--gui", 
-		help="Switches the program to use the GUI data", 
-		default=False)
-	args = parser.parse_args()
-
-	init(args)
