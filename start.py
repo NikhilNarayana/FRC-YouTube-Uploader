@@ -24,6 +24,7 @@ dataform = form.Form(
 	form.Textbox("web", description="Website Link", size=41),
 	form.Textbox("ename", description="Event Name", size=41),
 	form.Textbox("ecode", description="Event Code (ex. 2016arc)"),
+	form.Textbox("ext", description="File Extension", size=41),
 	form.Textbox("pID",
 		form.regexp("^PL", "Must be a playlist ID, all of which start with 'PL'"),
 		form.regexp("^\s*\S+\s*$", "Can not contain spaces."),
@@ -79,17 +80,18 @@ class index(threading.Thread):
 							4: form.web,
 							5: form.ename,
 							6: form.ecode,
-							7: form.pID,
-							8: form.tbaID,
-							9: form.tbaSecret,
-							10: form.description,
-							11: form.mnum,
-							12: form.mcode,
-							13: form.tiebreak,
-							14: form.tba,
-							15: form.end,
+							7: form.ext
+							8: form.pID,
+							9: form.tbaID,
+							10: form.tbaSecret,
+							11: form.description,
+							12: form.mnum,
+							13: form.mcode,
+							14: form.tiebreak,
+							15: form.tba,
+							16: form.end,
 						}
-						if i == 13 or i == 14 or i == 0:
+						if i == 15 or i == 14 or i == 0:
 							if value == "True": switcher[i].set_value(True)
 							if value == "False": switcher[i].set_value(False)
 						else : switcher[i].set_value(value)
@@ -117,15 +119,16 @@ class index(threading.Thread):
 			args.web = row[4] = form.d.web
 			args.ename = row[5] = form.d.ename
 			args.ecode = row[6] = form.d.ecode
-			args.pID = row[7] = form.d.pID
-			args.tbaID = row[8] = form.d.tbaID
-			args.tbaSecret = row[9] = form.d.tbaSecret
-			args.description = row[10] = form.d.description
-			args.mnum = row[11] = int(form.d.mnum)
-			args.mcode = row[12] = form.d.mcode
-			args.tiebreak, row[13] = formdata.has_key('tiebreak'), str(formdata.has_key('tiebreak'))
-			args.tba, row[14] = formdata.has_key('tba'), str(formdata.has_key('tba'))
-			args.end = row[15] = form.d.end
+			args.ext = row[7] = form.d.ext
+			args.pID = row[8] = form.d.pID
+			args.tbaID = row[9] = form.d.tbaID
+			args.tbaSecret = row[10] = form.d.tbaSecret
+			args.description = row[11] = form.d.description
+			args.mnum = row[12] = int(form.d.mnum)
+			args.mcode = row[13] = form.d.mcode
+			args.tiebreak, row[14] = formdata.has_key('tiebreak'), str(formdata.has_key('tiebreak'))
+			args.tba, row[15] = formdata.has_key('tba'), str(formdata.has_key('tba'))
+			args.end = row[16] = form.d.end
 			thr = threading.Thread(target=yup.init, args=(args,))
 			thr.daemon = True
 			thr.start()
@@ -138,7 +141,6 @@ class index(threading.Thread):
 			row[15] = form.d.end
 			writer = csv.writer(open('form_values.csv', 'w'))
 			writer.writerow(row)
-			thr.join()
 			return render.forms(form)
 
 if __name__=="__main__":

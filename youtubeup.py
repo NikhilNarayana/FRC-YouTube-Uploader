@@ -14,6 +14,7 @@ from addtoplaylist import add_video_to_playlist
 from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import *
 from datetime import *
+import threading
 
 # Default Variables - comments above 
 DEFAULT_VIDEO_CATEGORY = 28
@@ -26,10 +27,6 @@ SEMI = "Semifinal Match %s"
 SEMIT = "Semifinal Tiebreaker %s"
 FINALS = "Final Match %s"
 FINALST = "Final Tiebreaker"
-EXTENSION = ".mp4"  # CHANGE IF YOU AREN'T USING MP4s
-DEFAULT_TITLE = "%s" + " - " + QUAL
-DEFAULT_FILE = "%s" + " - " + QUAL + EXTENSION
-MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = """Footage of the %s %s Event is courtesy of the %s.
 
 Red Alliance (%s, %s, %s) - %s
@@ -103,32 +100,32 @@ def quals_filename(options):
 
 def quarters_filename(options):
 	if options.mnum <= 8 and options.mnum >= 1:
-		filename = options.ename + " - " + QUARTER % options.mnum + EXTENSION
+		filename = options.ename + " - " + QUARTER % options.mnum + options.ext
 		return str(filename)
 	elif options.mnum >= 9 and options.mnum <= 12:
 		mnum = int(options.mnum) - 8
-		filename = options.ename + " - " + QUARTERT % str(mnum) + EXTENSION
+		filename = options.ename + " - " + QUARTERT % str(mnum) + options.ext
 		return str(filename)
 	else:
 		raise ValueError("mnum must be between 1 and 12")
 
 def semis_filename(options):
 	if options.mnum <= 4 and options.mnum >= 1:
-		filename = options.ename + " - " + SEMI % options.mnum + EXTENSION
+		filename = options.ename + " - " + SEMI % options.mnum + options.ext
 		return str(filename)
 	elif options.mnum >= 5 and options.mnum <= 6:
 		mnum = int(options.mnum) - 4
-		filename = options.ename + " - " + SEMIT % str(mnum) + EXTENSION
+		filename = options.ename + " - " + SEMIT % str(mnum) + options.ext
 		return str(filename)
 	else:
 		raise ValueError("mnum must be between 1 and 6")
 
 def finals_filename(options):
 	if options.mnum <= 2 and options.mnum >= 1:
-		filename = options.ename + " - " + FINALS % options.mnum + EXTENSION
+		filename = options.ename + " - " + FINALS % options.mnum + options.ext
 		return str(filename)
 	elif options.mnum == 3:
-		filename = options.ename + " - " + FINALST + EXTENSION
+		filename = options.ename + " - " + FINALST + options.ext
 		return str(filename)
 	else:
 		raise ValueError("mnum must be between 1 and 3")
@@ -225,10 +222,19 @@ def tiebreak_mnum(mnum, mcode):
 	}
 	return switcher[mcode]
 
-def upload_multiple_videos(youtube, options):
+def upload_multiple_videos(youtube, spreadsheet, options):
 	while int(options.mnum) <= int(options.end):
 		try:
-			initialize_upload(youtube, options)
+			thr1 = threading.Thread(target=initialize_upload, args=(youtube, spreadsheet, options))
+			options.mnum = int(options.mnum) + 1
+			thr2 = threading.Thread(target=initialize_upload, args=(youtube, spreadsheet, options))
+			thr1.daemon = True
+			thr2.daemon = True
+			thr1.start()
+			time.sleep(20)
+			thr2.start()
+			thr1.join()
+			thr2.join()
 		except HttpError, e:
 			print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 		print ""
@@ -246,7 +252,7 @@ def init(args):
 		TBA_ID = args.tbaID
 		TBA_SECRET = args.tbaSecret
 		if args.description != "Add alternate description here.":
-			DEFAULT_DESCRIPTION = args.description
+			args.description = DEFAULT_DESCRIPTION
 	if args.tba is False:
 		TBA_ID = -1
 		TBA_SECRET = -1
@@ -262,7 +268,7 @@ def init(args):
 
 	if type(args.end) is int:
 		if int(args.end) > int(args.mnum):
-			upload_multiple_videos(youtube, args)
+			upload_multiple_videos(youtube, spreadsheet, args)
 	else:
 		try:
 			initialize_upload(youtube, spreadsheet, args)
