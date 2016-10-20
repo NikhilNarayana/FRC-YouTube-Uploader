@@ -64,9 +64,7 @@ class MyTests(unittest.TestCase):
 
 		For more information and future event schedules, visit our website: %s
 
-		Thanks for watching!
-
-		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+		Thanks for watching!"""
 		expected_description = """Footage of the 2016 Indiana State Championship Event is courtesy of the IndianaFIRST AV.
 
 		Follow us on Twitter (@IndianaFIRST) and Facebook (IndianaFIRST).
@@ -75,7 +73,7 @@ class MyTests(unittest.TestCase):
 
 		Thanks for watching!
 
-		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 		self.assertEqual(yup.create_description(args, -1, -1, -1, -1, -1, -1, -1, -1), expected_description)
 		args.description = """Footage of the %s %s Event is courtesy of the %s.
 
@@ -88,9 +86,7 @@ class MyTests(unittest.TestCase):
 
 		For more information and future event schedules, visit our website: %s
 
-		Thanks for watching!
-
-		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+		Thanks for watching!"""
 		expected_description = """Footage of the 2016 Indiana State Championship District Championship Event is courtesy of the IndianaFIRST AV.
 
 		Red Alliance (4580, 3559, 1720) - 83
@@ -104,7 +100,7 @@ class MyTests(unittest.TestCase):
 
 		Thanks for watching!
 
-		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 		self.assertEqual(yup.create_description(args, blue_data[1], blue_data[2], blue_data[3], blue_data[0], 
 			red_data[1], red_data[2], red_data[3], red_data[0]), expected_description)
 

@@ -41,9 +41,7 @@ Follow us on Twitter (@%s) and Facebook (%s).
 
 For more information and future event schedules, visit our website: %s
 
-Thanks for watching!
-
-Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+Thanks for watching!"""
 
 NO_TBA_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
 
@@ -51,9 +49,7 @@ Follow us on Twitter (@%s) and Facebook (%s).
 
 For more information and future event schedules, visit our website: %s
 
-Thanks for watching!
-
-Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+Thanks for watching!"""
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
@@ -209,12 +205,15 @@ def tba_results(options):
 	return blue_data, red_data, mcode
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
+	credits = """
+
+		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 	if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
-		return options.description % (options.ename, options.prodteam, options.twit, options.fb, options.web)
+		return options.description % (options.ename, options.prodteam, options.twit, options.fb, options.web) + credits
 	try:
 		return options.description % (options.ename, get_event_type(options.ecode), options.prodteam,
 			red1, red2, red3, redScore, blue1, blue2, blue3, blueScore,
-			options.ecode, options.twit, options.fb, options.web)
+			options.ecode, options.twit, options.fb, options.web) + credits
 	except TypeError, e:
 		return description
 
