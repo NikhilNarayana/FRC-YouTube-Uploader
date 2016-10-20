@@ -8,11 +8,10 @@ import re
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import LastModified
 
-app_id = {'X-TBA-App-Id': ""}
+app_id = {'X-TBA-App-Id': "Nikki-Narayana:FRC-YouTube-Uploader:2.4"}
 trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
 
-s = requests.Session()
-s = CacheControl(s, heuristic=LastModified())
+s = CacheControl(requests.Session(), heuristic=LastModified())
 s.headers.update(app_id)
 
 

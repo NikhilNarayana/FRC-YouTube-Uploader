@@ -3,7 +3,7 @@
 import os
 import random
 import sys
-import time
+import time as ntime
 import argparse
 
 from apiclient.errors import HttpError
@@ -231,7 +231,7 @@ def upload_multiple_videos(youtube, spreadsheet, options):
 			thr1.daemon = True
 			thr2.daemon = True
 			thr1.start()
-			time.sleep(20)
+			ntime.sleep(20)
 			thr2.start()
 			thr1.join()
 			thr2.join()
@@ -379,7 +379,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 			max_sleep = 2 ** retry
 			sleep_seconds = random.random() * max_sleep
 			print "Sleeping %f seconds and then retrying..." % sleep_seconds
-			time.sleep(sleep_seconds)
+			ntime.sleep(sleep_seconds)
 
 if __name__ == '__main__':
 	# COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE CODE REWRITES

@@ -11,9 +11,6 @@ from time import sleep
 
 render = web.template.render('webpage/')
 
-# urls = ('/', 'index')
-# app = web.application(urls, globals())
-
 dataform = form.Form(
 	form.Dropdown("where",
 		[("../","Parent Folder to Scripts"),("", "Same Folder as Scripts")],
