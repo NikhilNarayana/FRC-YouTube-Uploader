@@ -202,7 +202,7 @@ def tba_results(options):
 	return blue_data, red_data, mcode
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
-	if args.ddescription == False:
+	if options.ddescription == False:
 		return options.description
 	credits = """
 
