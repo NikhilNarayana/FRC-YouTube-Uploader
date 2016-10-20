@@ -59,6 +59,7 @@ class MyTests(unittest.TestCase):
 		args = parser.parse_args()
 		args.ename, args.ecode, args.prodteam, args.twit, args.fb, args.web, args.mnum, args.mcode = "2016 Indiana State Championship", "2016incmp", "IndianaFIRST AV", "IndianaFIRST", "IndianaFIRST", "www.IndianaFIRST.org", 1, "qm"
 		blue_data, red_data, mcode = yup.tba_results(args)
+		args.ddescription = True
 		args.description = """Footage of the %s Event is courtesy of the %s.
 
 		Follow us on Twitter (@%s) and Facebook (%s).
@@ -102,6 +103,11 @@ class MyTests(unittest.TestCase):
 		Thanks for watching!
 
 		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
+		self.assertEqual(yup.create_description(args, blue_data[1], blue_data[2], blue_data[3], blue_data[0], 
+			red_data[1], red_data[2], red_data[3], red_data[0]), expected_description)
+		args.ddescription = False
+		args.description = "Haha"
+		args.expected_description = "Haha"
 		self.assertEqual(yup.create_description(args, blue_data[1], blue_data[2], blue_data[3], blue_data[0], 
 			red_data[1], red_data[2], red_data[3], red_data[0]), expected_description)
 
