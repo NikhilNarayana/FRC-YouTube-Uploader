@@ -107,7 +107,7 @@ class MyTests(unittest.TestCase):
 			red_data[1], red_data[2], red_data[3], red_data[0]), expected_description)
 		args.ddescription = False
 		args.description = "Haha"
-		args.expected_description = "Haha"
+		expected_description = "Haha"
 		self.assertEqual(yup.create_description(args, blue_data[1], blue_data[2], blue_data[3], blue_data[0], 
 			red_data[1], red_data[2], red_data[3], red_data[0]), expected_description)
 
