@@ -5,12 +5,11 @@ A YouTube Uploader with FRC Matches in mind.
 
 
 ## Current Feature Set:
-* Upload Videos (single or batch uploads possible)
-* Add Custom Thumbnails to a video
+* Asynchronous Upload Videos (single or batch uploads possible)
 * Add to a YouTube Playlist
-* Get match results from TBA and add them to the description
-* Add videos to The Blue Alliance automatically
-* Mostly Automated Web Interface
+* Include match results from TBA in description
+* Add videos links to The Blue Alliance automatically
+* Mostly Automated, Non-Blocking Web Interface
 * Saves and Reads form values to and from CSV
 
 

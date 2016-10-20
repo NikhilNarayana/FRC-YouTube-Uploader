@@ -4,15 +4,15 @@ import numpy
 import requests
 import hashlib
 import re
+from datetime import *
 
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import LastModified
 
-app_id = {'X-TBA-App-Id': ""}
+app_id = {'X-TBA-App-Id': "Nikki-Narayana:FRC-YouTube-Uploader:2.4"}
 trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
 
-s = requests.Session()
-s = CacheControl(s, heuristic=LastModified())
+s = CacheControl(requests.Session(), heuristic=LastModified())
 s.headers.update(app_id)
 
 
@@ -263,4 +263,20 @@ def post_video(token, secret, event_key, match_video):
 
 def get_event_hashtag(event_key):
     return "frc" + re.search('\D+', event_key).group()
+
+#Until TBA API v3 is released, this is the best way to get the info on all current events
+def get_events_of_the_week():
+	now = datetime.now()
+	days = []
+	ongoing_events = []
+	for day in xrange(now.day, now.day+7):
+		days.append(str(now.year) + "-" + str(now.month) + "-" + str(day))
+	url_str = "http://www.thebluealliance.com/api/v2/events/%s" % str(now.year)
+	r = s.get(url_str, headers=app_id)
+	events = json.loads(r.text)
+	for event in events:
+		for day in days:
+			if event['start_date'] == day or event['end_date'] == day:
+				ongoing_events.append(event)
+	return ongoing_events
 ### END ###
