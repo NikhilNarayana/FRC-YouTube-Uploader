@@ -41,6 +41,7 @@ class MyTests(unittest.TestCase):
 		args = parser.parse_args()
 		args.mcode = 1
 		args.mnum = 6
+		args.ext = ".mp4"
 		args.ename = "2016 INFIRST Indiana State Championship"
 		self.assertEqual(yup.quarters_filename(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 6.mp4")
 		self.assertNotEqual(yup.semis_filename(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 5.mp4")
