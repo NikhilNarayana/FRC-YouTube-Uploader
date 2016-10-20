@@ -5,8 +5,9 @@ from web import form
 import youtubeup as yup
 import argparse
 import csv
-from datetime import datetime
+from datetime import *
 import threading
+from tbaAPI import *
 from time import sleep
 
 render = web.template.render('webpage/')
@@ -15,6 +16,9 @@ dataform = form.Form(
 	form.Dropdown("where",
 		[("../","Parent Folder to Scripts"),("", "Same Folder as Scripts")],
 		description="Match Files Location"),
+	form.Dropdown("events",
+		[],
+		description="This Week's Events"),
 	form.Textbox("prodteam", description="Production Team", size=41),
 	form.Textbox("twit", description="Twitter Handle", size=41),
 	form.Textbox("fb", description="Facebook Name", size=41),
@@ -63,6 +67,11 @@ class index(threading.Thread):
 
 	def GET(self):
 		form = dataform()
+		events = get_events_of_the_week()
+		for event in events:
+			form.events.args.append((event['key'],event['name'].split("-")[0]))
+		form.events.args.append(("","Other"))
+		del form.events.args[0]
 		with open('form_values.csv', 'rb') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',', quotechar='|')
 			i = 0
@@ -71,24 +80,25 @@ class index(threading.Thread):
 					if value is not "":
 						switcher = {
 							0: form.where,
-							1: form.prodteam,
-							2: form.twit,
-							3: form.fb,
-							4: form.web,
-							5: form.ename,
-							6: form.ecode,
-							7: form.ext
-							8: form.pID,
-							9: form.tbaID,
-							10: form.tbaSecret,
-							11: form.description,
-							12: form.mnum,
-							13: form.mcode,
-							14: form.tiebreak,
-							15: form.tba,
-							16: form.end,
+							1: form.events,
+							2: form.prodteam,
+							3: form.twit,
+							4: form.fb,
+							5: form.web,
+							6: form.ename,
+							7: form.ecode,
+							8: form.ext,
+							9: form.pID,
+							10: form.tbaID,
+							11: form.tbaSecret,
+							12: form.description,
+							13: form.mnum,
+							14: form.mcode,
+							15: form.tiebreak,
+							16: form.tba,
+							17: form.end,
 						}
-						if i == 15 or i == 14 or i == 0:
+						if i == 15 or i == 16 or i == 0:
 							if value == "True": switcher[i].set_value(True)
 							if value == "False": switcher[i].set_value(False)
 						else : switcher[i].set_value(value)
@@ -101,6 +111,11 @@ class index(threading.Thread):
 		if not form.validates():
 			return render.forms(form)
 		else:
+			form.ecode.set_value(form.d.events)
+			events = get_events_of_the_week()
+			for event in events:
+				if event['key'] == form.d.events:
+					form.ename.set_value(event['name'].split("-")[0])
 			then = datetime.now()
 			reader = csv.reader(open('form_values.csv'))
 			row = next(reader)
@@ -110,22 +125,23 @@ class index(threading.Thread):
 			args.then = then
 			args.gui = True
 			args.where = row[0] = form.d.where
-			args.prodteam = row[1] = form.d.prodteam
-			args.twit = row[2] = form.d.twit
-			args.fb = row[3] = form.d.fb
-			args.web = row[4] = form.d.web
-			args.ename = row[5] = form.d.ename
-			args.ecode = row[6] = form.d.ecode
-			args.ext = row[7] = form.d.ext
-			args.pID = row[8] = form.d.pID
-			args.tbaID = row[9] = form.d.tbaID
-			args.tbaSecret = row[10] = form.d.tbaSecret
-			args.description = row[11] = form.d.description
-			args.mnum = row[12] = int(form.d.mnum)
-			args.mcode = row[13] = form.d.mcode
-			args.tiebreak, row[14] = formdata.has_key('tiebreak'), str(formdata.has_key('tiebreak'))
-			args.tba, row[15] = formdata.has_key('tba'), str(formdata.has_key('tba'))
-			args.end = row[16] = form.d.end
+			row[1] = form.d.events
+			args.prodteam = row[2] = form.d.prodteam
+			args.twit = row[3] = form.d.twit
+			args.fb = row[4] = form.d.fb
+			args.web = row[5] = form.d.web
+			args.ename = row[6] = form.d.ename
+			args.ecode = row[7] = form.d.ecode
+			args.ext = row[8] = form.d.ext
+			args.pID = row[9] = form.d.pID
+			args.tbaID = row[10] = form.d.tbaID
+			args.tbaSecret = row[11] = form.d.tbaSecret
+			args.description = row[12] = form.d.description
+			args.mnum = row[13] = int(form.d.mnum)
+			args.mcode = row[14] = form.d.mcode
+			args.tiebreak, row[15] = formdata.has_key('tiebreak'), str(formdata.has_key('tiebreak'))
+			args.tba, row[16] = formdata.has_key('tba'), str(formdata.has_key('tba'))
+			args.end = row[17] = form.d.end
 			thr = threading.Thread(target=yup.init, args=(args,))
 			thr.daemon = True
 			thr.start()
@@ -134,8 +150,8 @@ class index(threading.Thread):
 			else:
 				form.mnum.set_value(str(int(form.d.end) + 1))
 				form.end.set_value("Only for batch uploads")
-			row[11] = int(form.d.mnum)
-			row[15] = form.d.end
+			row[13] = int(form.d.mnum)
+			row[17] = form.d.end
 			writer = csv.writer(open('form_values.csv', 'w'))
 			writer.writerow(row)
 			return render.forms(form)
