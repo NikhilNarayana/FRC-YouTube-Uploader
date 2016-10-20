@@ -202,6 +202,8 @@ def tba_results(options):
 	return blue_data, red_data, mcode
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
+	if args.ddescription == False:
+		return options.description
 	credits = """
 
 		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
@@ -241,22 +243,22 @@ def upload_multiple_videos(youtube, spreadsheet, options):
 		options.mnum = int(options.mnum) + 1
 	print "All matches have been uploaded"
 
-def init(args):
+def init(args): #intializng all the variables where necessary and parsing data to create proper namespace fields
 	args.tags = DEFAULT_TAGS
 	args.privacyStatus = 0
 	args.category = DEFAULT_VIDEO_CATEGORY
-	args.file = args.ename + " - " + QUAL + EXTENSION
-	if args.mcode == "f":
-		args.mcode = "f1m"
-	if args.tba is True:
+	if args.tba is True: #Specific changes for if using TBA
 		TBA_ID = args.tbaID
 		TBA_SECRET = args.tbaSecret
-		if args.description != "Add alternate description here.":
+		if args.description == "Add alternate description here.":
+			args.ddescription = True
 			args.description = DEFAULT_DESCRIPTION
-	if args.tba is False:
+	if args.tba is False: #Specific changes for if not using TBA
 		TBA_ID = -1
 		TBA_SECRET = -1
-		args.description = NO_TBA_DESCRIPTION
+		if args.description == "Add alternate description here.":
+			args.ddescription = True
+			args.description = NO_TBA_DESCRIPTION
 	args.dtags = True if args.tags == DEFAULT_TAGS else False
 	if args.dtags:
 		args.tags = args.tags % args.ecode
@@ -266,14 +268,17 @@ def init(args):
 	youtube = get_youtube_service()
 	spreadsheet = get_spreadsheet_service()
 
-	if type(args.end) is int:
-		if int(args.end) > int(args.mnum):
-			upload_multiple_videos(youtube, spreadsheet, args)
-	else:
-		try:
-			initialize_upload(youtube, spreadsheet, args)
-		except HttpError, e:
-			print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+	args.file = create_title(args)
+	if os.path.isfile(args.file): #Check to make sure the file exists before continuing
+		if type(args.end) is int: #if args.end is a string you can run this
+			if int(args.end) > int(args.mnum):
+				upload_multiple_videos(youtube, spreadsheet, args)
+		else:
+			try:
+				initialize_upload(youtube, spreadsheet, args)
+			except HttpError, e:
+				print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+	else: print "Failed"
 
 def initialize_upload(youtube, spreadsheet, options):
 	print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
@@ -293,7 +298,7 @@ def initialize_upload(youtube, spreadsheet, options):
 
 		body = dict(
 			snippet=dict(
-				title=create_title(options),
+				title=options.file,
 				description=create_description(options, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
 												   red_data[1], red_data[2], red_data[3], red_data[0]),
 				tags=tags,
@@ -312,7 +317,7 @@ def initialize_upload(youtube, spreadsheet, options):
 
 		body = dict(
 			snippet=dict(
-				title=create_title(options),
+				title=options.file,
 				description=create_description(options, -1, -1, -1, -1, -1, -1, -1, -1),
 				tags=tags,
 				categoryId=options.category

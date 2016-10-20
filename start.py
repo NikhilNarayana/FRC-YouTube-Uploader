@@ -44,7 +44,7 @@ dataform = form.Form(
 		form.Validator("Must be more than 0", lambda x:int(x)>0),
 		description="Match Number"),
 	form.Dropdown("mcode",
-		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f", "Finals")],
+		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
 		description="Match Type"),
 	form.Checkbox("tiebreak", description="Tiebreaker"),
 	form.Checkbox("tba", checked=True, description="Use The Blue Alliance"),
@@ -66,6 +66,7 @@ class index(threading.Thread):
 		with open('form_values.csv', 'rb') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',', quotechar='|')
 			i = 0
+			#read the file for values that can be updated in the form before loading
 			for row in reader:
 				for value in row:
 					if value is not "":
@@ -101,49 +102,54 @@ class index(threading.Thread):
 		if not form.validates():
 			return render.forms(form)
 		else:
-			then = datetime.now()
+			then = datetime.now() #For calculating time to finish the upload completely
+			form.ecode.set_value(form.d.events)
+			events = get_events_of_the_week()
+			for event in events:
+				if event['key'] == form.d.events:
+					form.ename.set_value(event['name'].split("-")[0])
 			reader = csv.reader(open('form_values.csv'))
 			row = next(reader)
 			parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
 			args = parser.parse_args()
 			formdata = web.input()
 			args.then = then
-			args.gui = True
-			args.where = row[0] = form.d.where
-			args.prodteam = row[1] = form.d.prodteam
-			args.twit = row[2] = form.d.twit
-			args.fb = row[3] = form.d.fb
-			args.web = row[4] = form.d.web
-			args.ename = row[5] = form.d.ename
-			args.ecode = row[6] = form.d.ecode
-			args.ext = row[7] = form.d.ext
-			args.pID = row[8] = form.d.pID
-			args.tbaID = row[9] = form.d.tbaID
-			args.tbaSecret = row[10] = form.d.tbaSecret
-			args.description = row[11] = form.d.description
-			args.mnum = row[12] = int(form.d.mnum)
-			args.mcode = row[13] = form.d.mcode
-			args.tiebreak, row[14] = formdata.has_key('tiebreak'), str(formdata.has_key('tiebreak'))
-			args.tba, row[15] = formdata.has_key('tba'), str(formdata.has_key('tba'))
-			args.end = row[16] = form.d.end
-			thr = threading.Thread(target=yup.init, args=(args,))
-			thr.daemon = True
-			thr.start()
+			args.where = row[0] = form.d.where #every args and row value is set to the corresponding form value
+			row[1] = form.d.events
+			args.prodteam = row[2] = form.d.prodteam
+			args.twit = row[3] = form.d.twit
+			args.fb = row[4] = form.d.fb
+			args.web = row[5] = form.d.web
+			args.ename = row[6] = form.d.ename
+			args.ecode = row[7] = form.d.ecode
+			args.ext = row[8] = form.d.ext
+			args.pID = row[9] = form.d.pID
+			args.tbaID = row[10] = form.d.tbaID
+			args.tbaSecret = row[11] = form.d.tbaSecret
+			args.description = row[12] = form.d.description
+			args.mnum = row[13] = int(form.d.mnum)
+			args.mcode = row[14] = form.d.mcode
+			args.tiebreak, row[15] = formdata.has_key('tiebreak'), str(formdata.has_key('tiebreak'))
+			args.tba, row[16] = formdata.has_key('tba'), str(formdata.has_key('tba'))
+			args.end = row[17] = form.d.end
+			thr = threading.Thread(target=yup.init, args=(args,)) #Thread yup.init to prevent blocking
+			thr.daemon = True #allow thread to run in background
+			thr.start() #start yup.init
 			if form.d.end == "Only for batch uploads":
 				form.mnum.set_value(str(int(form.d.mnum) + 1))
 			else:
 				form.mnum.set_value(str(int(form.d.end) + 1))
 				form.end.set_value("Only for batch uploads")
-			row[11] = int(form.d.mnum)
-			row[15] = form.d.end
+				row[17] = form.d.end
+			row[13] = int(form.d.mnum) #Update these values
 			writer = csv.writer(open('form_values.csv', 'w'))
-			writer.writerow(row)
+			writer.writerow(row) #write the list of values to the row
 			return render.forms(form)
 
 if __name__=="__main__":
-	web.internalerror = web.debugerror
-	t = index()
+	web.internalerror = web.debugerror #if an error give debug values
+	t = index() #create index object, which is a thread
 	t.daemon = True
 	t.start()
 	while True:
-		sleep(100)
+		sleep(100) #allow exiting the thread with ctrl + C
