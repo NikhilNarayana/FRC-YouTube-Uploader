@@ -1,4 +1,4 @@
-$def with (form)
+$def with (form, version)
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
@@ -19,6 +19,8 @@ $def with (form)
 	</head>
 	<body>
 		<h1>FRC Youtube Uploader</h1>
+		$if version:
+			<b>YOU ARE NOT ON THE LATEST VERSION</b> <br> Get it <a href='https://github.com/NikhilNarayana/FRC-YouTube-Uploader/releases'>here</a>
 		<p>For assistance with filling out the form go <a href="https://github.com/NikhilNarayana/FRC-CLI-Youtube-Uploader" target="_blank">here</a>
 			<br>
 			All values will stay the same when submitted, except for Match Number which increments.

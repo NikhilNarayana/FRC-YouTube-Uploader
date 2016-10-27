@@ -8,8 +8,26 @@ import csv
 from datetime import datetime
 import threading
 from time import sleep
+import urllib2
+from BeautifulSoup import BeautifulSoup
+from tidylib import tidy_document
+
+CURRENT_VERSION = "2.4.2"
 
 render = web.template.render('webpage/')
+
+def compare_version():
+	html = urllib2.urlopen("https://github.com/NikhilNarayana/FRC-YouTube-Uploader/releases").read()
+
+	tidy, errors = tidy_document(html)
+
+	soup = BeautifulSoup(tidy)
+	version = soup.find('span', attrs={'class' : 'css-truncate-target'})
+
+	if version.contents[0][1:] == CURRENT_VERSION:
+		return False
+	else:
+		return True
 
 dataform = form.Form(
 	form.Dropdown("where",
@@ -63,10 +81,11 @@ class index(threading.Thread):
 
 	def GET(self):
 		form = dataform()
+		version = compare_version()
 		with open('form_values.csv', 'rb') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',', quotechar='|')
 			i = 0
-			#read the file for values that can be updated in the form before loading
+			# read the file for values that can be updated in the form before loading
 			for row in reader:
 				for value in row:
 					if value is not "":
@@ -78,7 +97,7 @@ class index(threading.Thread):
 							4: form.web,
 							5: form.ename,
 							6: form.ecode,
-							7: form.ext
+							7: form.ext,
 							8: form.pID,
 							9: form.tbaID,
 							10: form.tbaSecret,
@@ -95,9 +114,10 @@ class index(threading.Thread):
 						else : switcher[i].set_value(value)
 					i = i + 1
 				break
-		return render.forms(form)
+		return render.forms(form, version)
 
 	def POST(self):
+		version = compare_version()
 		form = dataform()
 		if not form.validates():
 			return render.forms(form)
@@ -144,7 +164,7 @@ class index(threading.Thread):
 			row[13] = int(form.d.mnum) #Update these values
 			writer = csv.writer(open('form_values.csv', 'w'))
 			writer.writerow(row) #write the list of values to the row
-			return render.forms(form)
+			return render.forms(form, version)
 
 if __name__=="__main__":
 	web.internalerror = web.debugerror #if an error give debug values
