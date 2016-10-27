@@ -25,9 +25,9 @@ def compare_version():
 	version = soup.find('span', attrs={'class' : 'css-truncate-target'})
 
 	if version.contents[0][1:] == CURRENT_VERSION:
-		return False
-	else:
 		return True
+	else:
+		return False
 
 dataform = form.Form(
 	form.Dropdown("where",

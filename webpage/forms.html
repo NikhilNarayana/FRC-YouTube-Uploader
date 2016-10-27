@@ -9,8 +9,6 @@ $def with (form, version)
 		<meta name="author" content="Nikhil Narayana">
 		<meta name="theme-color" content="#E64545">
 
-		<!-- Latest compiled and minified Bootstrap CSS -->
-		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"> -->
 		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 		<!-- Personal CSS -->
 		<style type="text/css">
@@ -19,7 +17,7 @@ $def with (form, version)
 	</head>
 	<body>
 		<h1>FRC Youtube Uploader</h1>
-		$if version:
+		$if not version:
 			<b>YOU ARE NOT ON THE LATEST VERSION</b> <br> Get it <a href='https://github.com/NikhilNarayana/FRC-YouTube-Uploader/releases'>here</a>
 		<p>For assistance with filling out the form go <a href="https://github.com/NikhilNarayana/FRC-CLI-Youtube-Uploader" target="_blank">here</a>
 			<br>
