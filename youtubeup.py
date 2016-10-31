@@ -360,7 +360,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 				rowRange = "Data!A1:F1"
 				if type(options.end) is int: wasBatch = "True"
 				else: wasBatch = "False"
-				values = [[str(datetime.now()),str(totalTime),"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, wasBatch]]
+				values = [[str(datetime.now()),str(totalTime)[1:],"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, wasBatch]]
 				body = {'values': values}
 				appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="RAW", body=body).execute()
 			else:
@@ -389,5 +389,5 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 if __name__ == '__main__':
 	# COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE CODE REWRITES
 	print "COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE A CODE REWRITE"
-	print "Use 'python start.py' instead"
+	print "Use 'start.py' instead"
 	sys.exit(0)
