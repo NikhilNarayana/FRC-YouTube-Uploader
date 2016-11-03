@@ -16,7 +16,7 @@ from youtubeAuthenticate import *
 from datetime import *
 import threading
 
-# Default Variables - comments above 
+# Default Variables
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_TAGS = """%s, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST Stronghold"""
@@ -30,7 +30,7 @@ FINALST = "Final Tiebreaker"
 DEFAULT_DESCRIPTION = """Footage of the %s %s Event is courtesy of the %s.
 
 Red Alliance (%s, %s, %s) - %s
-Blue Alliances (%s, %s, %s) - %s
+Blue Alliance (%s, %s, %s) - %s
 
 To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/%s
 
@@ -385,9 +385,3 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 			sleep_seconds = random.random() * max_sleep
 			print "Sleeping %f seconds and then retrying..." % sleep_seconds
 			ntime.sleep(sleep_seconds)
-
-if __name__ == '__main__':
-	# COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE CODE REWRITES
-	print "COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE A CODE REWRITE"
-	print "Use 'start.py' instead"
-	sys.exit(0)
