@@ -91,24 +91,24 @@ class index(threading.Thread):
 					if value is not "":
 						switcher = {
 							0: form.where,
-							1: form.prodteam,
-							2: form.twit,
-							3: form.fb,
-							4: form.web,
-							5: form.ename,
-							6: form.ecode,
-							7: form.ext,
-							8: form.pID,
-							9: form.tbaID,
-							10: form.tbaSecret,
-							11: form.description,
-							12: form.mnum,
-							13: form.mcode,
-							14: form.tiebreak,
-							15: form.tba,
-							16: form.end,
+							2: form.prodteam,
+							3: form.twit,
+							4: form.fb,
+							5: form.web,
+							6: form.ename,
+							7: form.ecode,
+							8: form.ext,
+							9: form.pID,
+							10: form.tbaID,
+							11: form.tbaSecret,
+							12: form.description,
+							13: form.mnum,
+							14: form.mcode,
+							15: form.tiebreak,
+							16: form.tba,
+							17: form.end,
 						}
-						if i == 15 or i == 14 or i == 0:
+						if i == 15 or i == 16 or i == 0:
 							if value == "True": switcher[i].set_value(True)
 							if value == "False": switcher[i].set_value(False)
 						else : switcher[i].set_value(value)
@@ -123,11 +123,11 @@ class index(threading.Thread):
 			return render.forms(form)
 		else:
 			then = datetime.now() #For calculating time to finish the upload completely
-			form.ecode.set_value(form.d.events)
-			events = get_events_of_the_week()
-			for event in events:
-				if event['key'] == form.d.events:
-					form.ename.set_value(event['name'].split("-")[0])
+			# form.ecode.set_value(form.d.events)
+			# events = get_events_of_the_week()
+			# for event in events:
+			# 	if event['key'] == form.d.events:
+			# 		form.ename.set_value(event['name'].split("-")[0])
 			reader = csv.reader(open('form_values.csv'))
 			row = next(reader)
 			parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
@@ -135,7 +135,7 @@ class index(threading.Thread):
 			formdata = web.input()
 			args.then = then
 			args.where = row[0] = form.d.where #every args and row value is set to the corresponding form value
-			row[1] = form.d.events
+			#row[1] = form.d.events
 			args.prodteam = row[2] = form.d.prodteam
 			args.twit = row[3] = form.d.twit
 			args.fb = row[4] = form.d.fb

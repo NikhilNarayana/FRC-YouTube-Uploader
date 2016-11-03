@@ -271,7 +271,8 @@ def get_events_of_the_week():
 	ongoing_events = []
 	for day in xrange(now.day, now.day+7):
 		days.append(str(now.year) + "-" + str(now.month) + "-" + str(day))
-	url_str = "http://www.thebluealliance.com/api/v2/events/%s" % str(now.year)
+	url_str = "http://tba.lopreiato.me/api/v2/events/%s" % str(now.year)
+	#url_str = "http://www.thebluealliance.com/api/v2/events/%s" % str(now.year)
 	r = s.get(url_str, headers=app_id)
 	events = json.loads(r.text)
 	for event in events:

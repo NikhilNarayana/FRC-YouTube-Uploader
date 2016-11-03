@@ -52,7 +52,7 @@ VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
 def quals_yt_title(options):
-	return options.title % options.mnum
+	return options.ename + " - " + QUAL % options.mnum
 
 def quarters_yt_title(options):
 	if options.mnum <= 8 and options.mnum >= 1:
@@ -96,7 +96,7 @@ def create_title(options):
 	return switcher[options.mcode](options)
 
 def quals_filename(options):
-	return options.file % options.mnum
+	return options.ename + " - " + QUAL + options.ext % options.mnum
 
 def quarters_filename(options):
 	if options.mnum <= 8 and options.mnum >= 1:
@@ -268,7 +268,7 @@ def init(args): #intializng all the variables where necessary and parsing data t
 	youtube = get_youtube_service()
 	spreadsheet = get_spreadsheet_service()
 
-	args.file = create_title(args)
+	args.file = create_filename(args)
 	if os.path.isfile(args.file): #Check to make sure the file exists before continuing
 		if type(args.end) is int: #if args.end is a string you can run this
 			if int(args.end) > int(args.mnum):
