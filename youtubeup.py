@@ -96,7 +96,7 @@ def create_title(options):
 	return switcher[options.mcode](options)
 
 def quals_filename(options):
-	return options.ename + " - " + QUAL + options.ext % options.mnum
+	return options.ename + " - " + QUAL % options.mnum + options.ext
 
 def quarters_filename(options):
 	if options.mnum <= 8 and options.mnum >= 1:
@@ -269,6 +269,7 @@ def init(args): #intializng all the variables where necessary and parsing data t
 	spreadsheet = get_spreadsheet_service()
 
 	args.file = create_filename(args)
+	args.title = create_title(args)
 	if os.path.isfile(args.file): #Check to make sure the file exists before continuing
 		if type(args.end) is int: #if args.end is a string you can run this
 			if int(args.end) > int(args.mnum):
@@ -278,7 +279,7 @@ def init(args): #intializng all the variables where necessary and parsing data t
 				initialize_upload(youtube, spreadsheet, args)
 			except HttpError, e:
 				print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
-	else: print "Failed"
+	else: raise ValueError("The file doesn't exist, please check the name schema for more info")
 
 def initialize_upload(youtube, spreadsheet, options):
 	print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
@@ -298,7 +299,7 @@ def initialize_upload(youtube, spreadsheet, options):
 
 		body = dict(
 			snippet=dict(
-				title=options.file,
+				title=options.title,
 				description=create_description(options, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
 												   red_data[1], red_data[2], red_data[3], red_data[0]),
 				tags=tags,
@@ -317,7 +318,7 @@ def initialize_upload(youtube, spreadsheet, options):
 
 		body = dict(
 			snippet=dict(
-				title=options.file,
+				title=options.title,
 				description=create_description(options, -1, -1, -1, -1, -1, -1, -1, -1),
 				tags=tags,
 				categoryId=options.category

@@ -252,7 +252,8 @@ def post_video(token, secret, event_key, match_video):
     global trusted_auth
     set_auth_id(token)
     set_auth_sig(secret, event_key, match_video)
-    url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
+    url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
+    #url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         raise Exception("""An auth ID and/or auth secret required.
             Please use set_auth_id() and/or set_auth_secret() to set them""")
@@ -271,8 +272,7 @@ def get_events_of_the_week():
 	ongoing_events = []
 	for day in xrange(now.day, now.day+7):
 		days.append(str(now.year) + "-" + str(now.month) + "-" + str(day))
-	url_str = "http://tba.lopreiato.me/api/v2/events/%s" % str(now.year)
-	#url_str = "http://www.thebluealliance.com/api/v2/events/%s" % str(now.year)
+	url_str = "http://www.thebluealliance.com/api/v2/events/%s" % str(now.year)
 	r = s.get(url_str, headers=app_id)
 	events = json.loads(r.text)
 	for event in events:

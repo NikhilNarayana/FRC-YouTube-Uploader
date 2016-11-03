@@ -39,7 +39,7 @@ dataform = form.Form(
 	form.Textbox("web", description="Website Link", size=41),
 	form.Textbox("ename", description="Event Name", size=41),
 	form.Textbox("ecode", description="Event Code (ex. 2016arc)"),
-	form.Textbox("ext", description="File Extension", size=41),
+	form.Textbox("ext", description="File Extension (ex. .mp4)", size=41),
 	form.Textbox("pID",
 		form.regexp("^PL", "Must be a playlist ID, all of which start with 'PL'"),
 		form.regexp("^\s*\S+\s*$", "Can not contain spaces."),
@@ -108,7 +108,7 @@ class index(threading.Thread):
 							16: form.tba,
 							17: form.end,
 						}
-						if i == 15 or i == 16 or i == 0:
+						if i == 15 or i == 16:
 							if value == "True": switcher[i].set_value(True)
 							if value == "False": switcher[i].set_value(False)
 						else : switcher[i].set_value(value)
