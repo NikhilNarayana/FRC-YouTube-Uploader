@@ -208,11 +208,11 @@ def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3
 
 		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 	if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
-		return options.description % (options.ename, options.prodteam, options.twit, options.fb, options.web) + credits
+		return options.description % (options.ename, options.prodteam, options.twit, options.fb, options.weblink) + credits
 	try:
 		return options.description % (options.ename, get_event_type(options.ecode), options.prodteam,
 			red1, red2, red3, redScore, blue1, blue2, blue3, blueScore,
-			options.ecode, options.twit, options.fb, options.web) + credits
+			options.ecode, options.twit, options.fb, options.weblink) + credits
 	except TypeError, e:
 		return description
 
@@ -244,6 +244,8 @@ def upload_multiple_videos(youtube, spreadsheet, options):
 	print "All matches have been uploaded"
 
 def init(args): #intializng all the variables where necessary and parsing data to create proper namespace fields
+	print args.tbaSecret
+	sys.exit(0)
 	args.tags = DEFAULT_TAGS
 	args.privacyStatus = 0
 	args.category = DEFAULT_VIDEO_CATEGORY

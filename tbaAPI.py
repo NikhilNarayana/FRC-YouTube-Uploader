@@ -252,8 +252,8 @@ def post_video(token, secret, event_key, match_video):
     global trusted_auth
     set_auth_id(token)
     set_auth_sig(secret, event_key, match_video)
-    url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key
-    #url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
+    #url_str = "http://tba.lopreiato.me/api/trusted/v1/event/%s/match_videos/add" % event_key #TESTING PARAMETER, COMMENT OUT BEFORE COMMITING TO MASTER
+    url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         raise Exception("""An auth ID and/or auth secret required.
             Please use set_auth_id() and/or set_auth_secret() to set them""")

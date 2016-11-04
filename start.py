@@ -36,7 +36,7 @@ dataform = form.Form(
 	form.Textbox("prodteam", description="Production Team", size=41),
 	form.Textbox("twit", description="Twitter Handle", size=41),
 	form.Textbox("fb", description="Facebook Name", size=41),
-	form.Textbox("web", description="Website Link", size=41),
+	form.Textbox("weblink", description="Website Link", size=41),
 	form.Textbox("ename", description="Event Name", size=41),
 	form.Textbox("ecode", description="Event Code (ex. 2016arc)"),
 	form.Textbox("ext", description="File Extension (ex. .mp4)", size=41),
@@ -81,6 +81,7 @@ class index(threading.Thread):
 
 	def GET(self):
 		form = dataform()
+		formdata = web.input()
 		version = compare_version()
 		with open('form_values.csv', 'rb') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',', quotechar='|')
@@ -94,7 +95,7 @@ class index(threading.Thread):
 							2: form.prodteam,
 							3: form.twit,
 							4: form.fb,
-							5: form.web,
+							5: form.weblink,
 							6: form.ename,
 							7: form.ecode,
 							8: form.ext,
@@ -109,8 +110,14 @@ class index(threading.Thread):
 							17: form.end,
 						}
 						if i == 15 or i == 16:
-							if value == "True": switcher[i].set_value(True)
-							if value == "False": switcher[i].set_value(False)
+							if str(value) == "True": 
+								print "reach"
+								switcher[i].set_value(True)
+							if str(value) == "False": 
+								print "reach f"
+								switcher[i].set_value(False)
+							print formdata.has_key('tba')
+							print formdata.has_key('tiebreak')
 						else : switcher[i].set_value(value)
 					i = i + 1
 				break
@@ -139,7 +146,7 @@ class index(threading.Thread):
 			args.prodteam = row[2] = form.d.prodteam
 			args.twit = row[3] = form.d.twit
 			args.fb = row[4] = form.d.fb
-			args.web = row[5] = form.d.web
+			args.weblink = row[5] = form.d.weblink
 			args.ename = row[6] = form.d.ename
 			args.ecode = row[7] = form.d.ecode
 			args.ext = row[8] = form.d.ext
