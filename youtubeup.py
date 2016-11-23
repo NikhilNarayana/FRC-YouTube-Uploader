@@ -244,8 +244,6 @@ def upload_multiple_videos(youtube, spreadsheet, options):
 	print "All matches have been uploaded"
 
 def init(args): #intializng all the variables where necessary and parsing data to create proper namespace fields
-	print args.tbaSecret
-	sys.exit(0)
 	args.tags = DEFAULT_TAGS
 	args.privacyStatus = 0
 	args.category = DEFAULT_VIDEO_CATEGORY
