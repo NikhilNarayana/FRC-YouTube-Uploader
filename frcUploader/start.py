@@ -109,7 +109,7 @@ class index(threading.Thread):
 							15: form.tba,
 							16: form.end,
 						}
-						if i == 15 or i == 14:
+						if i == 15 or i == 14: #FOR TBA and Tiebreak
 							if str(value) == "True":
 								switcher[i].set_value(True)
 							if str(value) == "False":
@@ -206,6 +206,14 @@ class index(threading.Thread):
 						i = i + 1
 					break
 			return render.forms(form, version)
+
+def run():
+	web.internalerror = web.debugerror #if an error give debug values
+	t = index() #create index object, which is a thread
+	t.daemon = True
+	t.start()
+	while True:
+		sleep(100) #allow exiting the thread with ctrl + C
 
 if __name__=="__main__":
 	web.internalerror = web.debugerror #if an error give debug values
