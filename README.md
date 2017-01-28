@@ -14,12 +14,12 @@ A YouTube Uploader with FRC Matches in mind.
 
 
 ## How to Setup
-1. Install Python 2.7 for your OS with the PATH added and make sure there are no other versions of python.
-2. Clone this repository into the folder that will contain the videos
-3. Install the requirements for the script with `pip install -r /path/to/requirements.txt`
+1. Install Python 2.7 for your OS with the PATH added and make sure there are no other versions of python 2.7.
+2. Clone this repository into a subfolder of the folder that will contain the videos
+3. Install the requirements for the script with `pip install -r /path/to/requirements.txt`, or `make` if supported by your OS
 4. Add the thumbnail to the same folder as `thumbnail.png`
 5. Make your recording program follow this naming scheme: [EVENT_NAME] - [MATCH TYPE] ex. 2016 Indiana State Championship - Qualification Match 1. Also use the Tiebreaker scheme when necessary.
-5. Start the program by running `start.py` and navigating to `localhost:8080` in your browser
+5. Start the program by running `python frcUploader` and navigating to `localhost:8080` in your browser
 6. Add in the necessary info.
 7. Hit submit everytime a match finishes. No need to update Match Number unless you are entering eliminations.
 8. Enjoy not having to deal with YouTube's front end 🎉
@@ -33,7 +33,7 @@ I focused on simplicty and usability. All the necessary details fit into one sma
 You can now pick whether the match files  are in the same folder as the scripts or the one above. Default is one above.
 
 ##### Production Team/Facebook Name/Twitter Handle/Website Link
-Constants that used to be in the script it self, you can now edit them as you see fit without going into the code.
+Constants that used to be in the script itself, you can now edit them as you see fit without going into the code.
 
 ##### Event Name
 You can name this as you wish, but it should also be used at the start of every video filename. Generally includes [YEAR] [NAME OF EVENT]
@@ -54,7 +54,7 @@ The description used in the program is fairly lengthy, but adds a lot of info th
 Fairly self-explanatory, just remember to reset the value when you go into each stage of playoffs. This value will increment each time you press "Submit" so you can forget about updating it after every match.
 
 ##### Last Match Number
-If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number inclusive will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
+If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number, inclusive, will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
 
 If you are still in need of assistance, feel free to contact me.
 
