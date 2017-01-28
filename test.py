@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 import unittest
-import tbaAPI
-import youtubeAuthenticate
-import TBA
+from frcUploader import TBA, youtubeAuthenticate, tbaAPI
 import argparse
-import youtubeup  as yup
+from frcUploader import youtubeup  as yup
 import simplejson as json
+
 
 
 class MyTests(unittest.TestCase):
@@ -57,7 +56,7 @@ class MyTests(unittest.TestCase):
 	def test_description(self):
 		parser = argparse.ArgumentParser(description='argparse for testing')
 		args = parser.parse_args()
-		args.ename, args.ecode, args.prodteam, args.twit, args.fb, args.web, args.mnum, args.mcode = "2016 Indiana State Championship", "2016incmp", "IndianaFIRST AV", "IndianaFIRST", "IndianaFIRST", "www.IndianaFIRST.org", 1, "qm"
+		args.ename, args.ecode, args.prodteam, args.twit, args.fb, args.weblink, args.mnum, args.mcode = "2016 Indiana State Championship", "2016incmp", "IndianaFIRST AV", "IndianaFIRST", "IndianaFIRST", "www.IndianaFIRST.org", 1, "qm"
 		blue_data, red_data, mcode = yup.tba_results(args)
 		args.ddescription = True
 		args.description = """Footage of the %s Event is courtesy of the %s.
