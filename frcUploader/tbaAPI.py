@@ -7,12 +7,12 @@ import re
 from datetime import *
 
 from cachecontrol import CacheControl
-from cachecontrol.heuristics import LastModified
+from cachecontrol.heuristics import ExpiresAfter
 
 app_id = {'X-TBA-App-Id': "Nikki-Narayana:FRC-YouTube-Uploader:2.4"}
 trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
 
-s = CacheControl(requests.Session(), heuristic=LastModified())
+s = CacheControl(requests.Session(), heuristic=ExpiresAfter(minutes=5))
 s.headers.update(app_id)
 
 
@@ -280,7 +280,7 @@ def get_events_of_the_week():
 			if event['start_date'] == day or event['end_date'] == day:
 				ongoing_events.append(event)
 	return ongoing_events
-	
+
 def is_datafeed_down():
 	url_str = "https://www.thebluealliance.com/api/v2/status"
 	r = s.get(url_str, headers=app_id)
