@@ -18,19 +18,23 @@ def get_match_results(event_key, match_key):
 	return blue_data, red_data
 
 def parse_data(match_data):
-	blue = match_data['alliances']['blue']['teams']
-	red = match_data['alliances']['red']['teams']
-	blue1 = blue[0][3:]
-	blue2 = blue[1][3:]
-	blue3 = blue[2][3:]
-	red1 = red[0][3:]
-	red2 = red[1][3:]
-	red3 = red[2][3:]
-	blue_score = match_data['alliances']['blue']['score']
-	red_score = match_data['alliances']['red']['score']
-	blue_data = [blue_score, blue1, blue2, blue3]
-	red_data = [red_score, red1, red2, red3]
-	return blue_data, red_data
+	if (tba.is_datafeed_down()):
+		blue_data, red_data = [-1]*4, [-1]*4
+		return blue_data, red_data
+	else:
+		blue = match_data['alliances']['blue']['teams']
+		red = match_data['alliances']['red']['teams']
+		blue1 = blue[0][3:]
+		blue2 = blue[1][3:]
+		blue3 = blue[2][3:]
+		red1 = red[0][3:]
+		red2 = red[1][3:]
+		red3 = red[2][3:]
+		blue_score = match_data['alliances']['blue']['score']
+		red_score = match_data['alliances']['red']['score']
+		blue_data = [blue_score, blue1, blue2, blue3]
+		red_data = [red_score, red1, red2, red3]
+		return blue_data, red_data
 
 
 def post_video(token, secret, request_body, event_key):

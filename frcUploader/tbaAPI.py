@@ -265,7 +265,7 @@ def post_video(token, secret, event_key, match_video):
 def get_event_hashtag(event_key):
     return "frc" + re.search('\D+', event_key).group()
 
-#Until TBA API v3 is released, this is the best way to get the info on all current events
+#Until TBA API v3 is released, this is my way of getting the info on all current events
 def get_events_of_the_week():
 	now = datetime.now()
 	days = []
@@ -280,4 +280,10 @@ def get_events_of_the_week():
 			if event['start_date'] == day or event['end_date'] == day:
 				ongoing_events.append(event)
 	return ongoing_events
+	
+def is_datafeed_down():
+	url_str = "https://www.thebluealliance.com/api/v2/status"
+	r = s.get(url_str, headers=app_id)
+	status = json.loads(r.text)
+	return status['is_datafeed_down']
 ### END ###

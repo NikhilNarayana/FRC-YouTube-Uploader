@@ -230,6 +230,7 @@ def upload_multiple_videos(youtube, spreadsheet, options):
 			thr1 = threading.Thread(target=initialize_upload, args=(youtube, spreadsheet, options))
 			options.mnum = int(options.mnum) + 1
 			thr2 = threading.Thread(target=initialize_upload, args=(youtube, spreadsheet, options))
+			options.mnum = int(options.mnum) + 1
 			thr1.daemon = True
 			thr2.daemon = True
 			thr1.start()
