@@ -12,7 +12,7 @@ import urllib2
 from BeautifulSoup import BeautifulSoup
 from tidylib import tidy_document
 
-CURRENT_VERSION = "2.4.2"
+CURRENT_VERSION = "2.4.1"
 
 render = web.template.render('webpage/')
 
@@ -83,7 +83,7 @@ class index(threading.Thread):
 		form = dataform()
 		formdata = web.input()
 		version = compare_version()
-		with open('form_values.csv', 'wb') as csvfile:
+		with open('form_values.csv', 'r+b') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',', quotechar='|')
 			i = 0
 			# read the file for values that can be updated in the form before loading
