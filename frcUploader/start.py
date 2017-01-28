@@ -83,7 +83,7 @@ class index(threading.Thread):
 		form = dataform()
 		formdata = web.input()
 		version = compare_version()
-		with open('form_values.csv', 'rb') as csvfile:
+		with open('form_values.csv', 'wb') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',', quotechar='|')
 			i = 0
 			# read the file for values that can be updated in the form before loading
