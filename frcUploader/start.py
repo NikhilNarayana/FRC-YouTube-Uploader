@@ -159,9 +159,9 @@ class index(threading.Thread):
             args.tiebreak, row[14] = formdata.has_key('tiebreak'), str(formdata.has_key('tiebreak'))
             args.tba, row[15] = formdata.has_key('tba'), str(formdata.has_key('tba'))
             args.end = row[16] = form.d.end
-            # thr = threading.Thread(target=yup.init, args=(args,)) #Thread yup.init to prevent blocking
-            # thr.daemon = True #allow thread to run in background
-            # thr.start() #start yup.init
+            thr = threading.Thread(target=yup.init, args=(args,)) #Thread yup.init to prevent blocking
+            thr.daemon = True #allow thread to run in background
+            thr.start() #start yup.init
             if form.d.end == "Only for batch uploads":
                 form.mnum.set_value(str(int(form.d.mnum) + 1))
             else:
@@ -171,45 +171,6 @@ class index(threading.Thread):
             row[13] = int(form.d.mnum)  # Update these values
             writer = csv.writer(open('form_values.csv', 'w'))
             writer.writerow(row)  # write the list of values to the row
-            with open('form_values.csv', 'rb') as csvfile:
-                import pdb
-                pdb.set_trace()
-                reader = csv.reader(csvfile, delimiter=',', quotechar='|')
-                i = 0
-                # read the file for values that can be updated in the form before loading
-                for row in reader:
-                    for value in row:
-                        if value is not "":
-                            switcher = {
-                                0: form.where,
-                                1: form.prodteam,
-                                2: form.twit,
-                                3: form.fb,
-                                4: form.weblink,
-                                5: form.ename,
-                                6: form.ecode,
-                                7: form.ext,
-                                8: form.pID,
-                                9: form.tbaID,
-                                10: form.tbaSecret,
-                                11: form.description,
-                                12: form.mnum,
-                                13: form.mcode,
-                                14: form.tiebreak,
-                                15: form.tba,
-                                16: form.end,
-                            }
-                            if i == 15 or i == 14:
-                                if str(value) == "True":
-                                    print "reach"
-                                    switcher[i].set_value(True)
-                                if str(value) == "False":
-                                    print "reach f"
-                                    switcher[i].set_value(False)
-                            else:
-                                switcher[i].set_value(value)
-                        i = i + 1
-                    break
             return render.forms(form, version)
 
 
