@@ -3,23 +3,22 @@
 import os
 import random
 import sys
-import time as ntime
+import time
 import argparse
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
-from TBA import *
+import TBA
 from tbaAPI import *
 from addtoplaylist import add_video_to_playlist
 from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import *
-from datetime import *
-import threading
+import datetime as dt
 
 # Default Variables
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
-DEFAULT_TAGS = """%s, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST STEAMworksf"""
+DEFAULT_TAGS = """%s, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST STEAMworks"""
 QUAL = "Qualification Match %s"
 QUARTER = "Quarterfinal Match %s"
 QUARTERT = "Quarterfinal Tiebreaker %s"
@@ -27,10 +26,14 @@ SEMI = "Semifinal Match %s"
 SEMIT = "Semifinal Tiebreaker %s"
 FINALS = "Final Match %s"
 FINALST = "Final Tiebreaker"
+EXTENSION = ".mp4"
+DEFAULT_TITLE = "%s" + " - " + QUAL
+DEFAULT_FILE = "%s" + " - " + QUAL + EXTENSION
+MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = """Footage of the %s %s Event is courtesy of the %s.
 
 Red Alliance (%s, %s, %s) - %s
-Blue Alliance (%s, %s, %s) - %s
+Blue Alliances (%s, %s, %s) - %s
 
 To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/%s
 
@@ -38,7 +41,9 @@ Follow us on Twitter (@%s) and Facebook (%s).
 
 For more information and future event schedules, visit our website: %s
 
-Thanks for watching!"""
+Thanks for watching!
+
+Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
 
 NO_TBA_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
 
@@ -46,13 +51,15 @@ Follow us on Twitter (@%s) and Facebook (%s).
 
 For more information and future event schedules, visit our website: %s
 
-Thanks for watching!"""
+Thanks for watching!
+
+Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
 def quals_yt_title(options):
-	return options.ename + " - " + QUAL % options.mnum
+	return options.title % options.mnum
 
 def quarters_yt_title(options):
 	if options.mnum <= 8 and options.mnum >= 1:
@@ -96,36 +103,36 @@ def create_title(options):
 	return switcher[options.mcode](options)
 
 def quals_filename(options):
-	return options.ename + " - " + QUAL % options.mnum + options.ext
+	return options.file % options.mnum
 
 def quarters_filename(options):
 	if options.mnum <= 8 and options.mnum >= 1:
-		filename = options.ename + " - " + QUARTER % options.mnum + options.ext
+		filename = options.ename + " - " + QUARTER % options.mnum + EXTENSION
 		return str(filename)
 	elif options.mnum >= 9 and options.mnum <= 12:
 		mnum = int(options.mnum) - 8
-		filename = options.ename + " - " + QUARTERT % str(mnum) + options.ext
+		filename = options.ename + " - " + QUARTERT % str(mnum) + EXTENSION
 		return str(filename)
 	else:
 		raise ValueError("mnum must be between 1 and 12")
 
 def semis_filename(options):
 	if options.mnum <= 4 and options.mnum >= 1:
-		filename = options.ename + " - " + SEMI % options.mnum + options.ext
+		filename = options.ename + " - " + SEMI % options.mnum + EXTENSION
 		return str(filename)
 	elif options.mnum >= 5 and options.mnum <= 6:
 		mnum = int(options.mnum) - 4
-		filename = options.ename + " - " + SEMIT % str(mnum) + options.ext
+		filename = options.ename + " - " + SEMIT % str(mnum) + EXTENSION
 		return str(filename)
 	else:
 		raise ValueError("mnum must be between 1 and 6")
 
 def finals_filename(options):
 	if options.mnum <= 2 and options.mnum >= 1:
-		filename = options.ename + " - " + FINALS % options.mnum + options.ext
+		filename = options.ename + " - " + FINALS % options.mnum + EXTENSION
 		return str(filename)
 	elif options.mnum == 3:
-		filename = options.ename + " - " + FINALST + options.ext
+		filename = options.ename + " - " + FINALST + EXTENSION
 		return str(filename)
 	else:
 		raise ValueError("mnum must be between 1 and 3")
@@ -198,23 +205,19 @@ def get_match_code(mcode, mnum):
 
 def tba_results(options):
 	mcode = get_match_code(options.mcode, int(options.mnum))
-	blue_data, red_data = get_match_results(options.ecode, mcode)
+	blue_data, red_data = TBA.get_match_results(options.ecode, mcode)
 	return blue_data, red_data, mcode
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
-	if options.ddescription == False:
-		return options.description
-	credits = """
-
-		Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 	if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
-		return options.description % (options.ename, options.prodteam, options.twit, options.fb, options.weblink) + credits
+		return options.description % (options.ename, options.prodteam, options.twit, options.fb, options.web)
 	try:
-		return options.description % (options.ename, get_event_type(options.ecode), options.prodteam,
-			red1, red2, red3, redScore, blue1, blue2, blue3, blueScore,
-			options.ecode, options.twit, options.fb, options.weblink) + credits
+		return options.description % (str(options.ename), str(TBA.get_event_type(options.ecode)), str(options.prodteam),
+			str(red1), str(red2), str(red3), str(redScore), str(blue1), str(blue2), str(blue3), str(blueScore),
+			str(options.ecode), str(options.twit), str(options.fb), str(options.web))
 	except TypeError, e:
-		return description
+                print e
+		return options.description
 
 def tiebreak_mnum(mnum, mcode):
 	switcher = {
@@ -224,63 +227,51 @@ def tiebreak_mnum(mnum, mcode):
 	}
 	return switcher[mcode]
 
-def upload_multiple_videos(youtube, spreadsheet, options):
+def upload_multiple_videos(youtube, options):
 	while int(options.mnum) <= int(options.end):
 		try:
-			thr1 = threading.Thread(target=initialize_upload, args=(youtube, spreadsheet, options))
-			options.mnum = int(options.mnum) + 1
-			thr2 = threading.Thread(target=initialize_upload, args=(youtube, spreadsheet, options))
-			options.mnum = int(options.mnum) + 1
-			thr1.daemon = True
-			thr2.daemon = True
-			thr1.start()
-			ntime.sleep(20)
-			thr2.start()
-			thr1.join()
-			thr2.join()
+			initialize_upload(youtube, options)
 		except HttpError, e:
 			print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 		print ""
 		options.mnum = int(options.mnum) + 1
 	print "All matches have been uploaded"
 
-def init(args): #intializng all the variables where necessary and parsing data to create proper namespace fields
+def init(args):
 	args.tags = DEFAULT_TAGS
 	args.privacyStatus = 0
 	args.category = DEFAULT_VIDEO_CATEGORY
-	if args.tba is True: #Specific changes for if using TBA
+	args.title = args.ename + " - " + QUAL
+	args.file = args.ename + " - " + QUAL + EXTENSION
+	if args.mcode == "f":
+		args.mcode = "f1m"
+	if args.description == "Add alternate description here.":
+                args.description = DEFAULT_DESCRIPTION
+        args.tba = int(args.tba)
+	if args.tba:
 		TBA_ID = args.tbaID
 		TBA_SECRET = args.tbaSecret
-		if args.description == "Add alternate description here.":
-			args.ddescription = True
-			args.description = DEFAULT_DESCRIPTION
-	if args.tba is False: #Specific changes for if not using TBA
+	if not args.tba:
 		TBA_ID = -1
 		TBA_SECRET = -1
-		if args.description == "Add alternate description here.":
-			args.ddescription = True
-			args.description = NO_TBA_DESCRIPTION
+		args.description = NO_TBA_DESCRIPTION
 	args.dtags = True if args.tags == DEFAULT_TAGS else False
 	if args.dtags:
 		args.tags = args.tags % args.ecode
-	if args.tiebreak is True:
+	if args.tiebreak is 1:
 		args.mnum = tiebreak_mnum(args.mnum, args.mcode)
 
 	youtube = get_youtube_service()
 	spreadsheet = get_spreadsheet_service()
 
-	args.file = create_filename(args)
-	args.title = create_title(args)
-	if os.path.isfile(args.file): #Check to make sure the file exists before continuing
-		if type(args.end) is int: #if args.end is a string you can run this
-			if int(args.end) > int(args.mnum):
-				upload_multiple_videos(youtube, spreadsheet, args)
-		else:
-			try:
-				initialize_upload(youtube, spreadsheet, args)
-			except HttpError, e:
-				print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
-	else: raise ValueError("The file doesn't exist, please check the name schema for more info")
+	if type(args.end) is int:
+		if int(args.end) > int(args.mnum):
+			upload_multiple_videos(youtube, args)
+	else:
+		try:
+			initialize_upload(youtube, spreadsheet, args)
+		except HttpError, e:
+			print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
 def initialize_upload(youtube, spreadsheet, options):
 	print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
@@ -300,7 +291,7 @@ def initialize_upload(youtube, spreadsheet, options):
 
 		body = dict(
 			snippet=dict(
-				title=options.title,
+				title=create_title(options),
 				description=create_description(options, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
 												   red_data[1], red_data[2], red_data[3], red_data[0]),
 				tags=tags,
@@ -319,7 +310,7 @@ def initialize_upload(youtube, spreadsheet, options):
 
 		body = dict(
 			snippet=dict(
-				title=options.title,
+				title=create_title(options),
 				description=create_description(options, -1, -1, -1, -1, -1, -1, -1, -1),
 				tags=tags,
 				categoryId=options.category
@@ -355,14 +346,14 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 				add_video_to_playlist(
 					youtube, response['id'], options.pID)
 				request_body = json.dumps({mcode: response['id']})
-				if options.tba is True:
-					post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
-				totalTime = datetime.now() - options.then
+				if options.tba:
+					TBA.post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
+				totalTime = dt.datetime.now() - options.then
 				spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
 				rowRange = "Data!A1:F1"
 				if type(options.end) is int: wasBatch = "True"
 				else: wasBatch = "False"
-				values = [[str(datetime.now()),str(totalTime)[1:],"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, wasBatch]]
+				values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, wasBatch]]
 				body = {'values': values}
 				appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="RAW", body=body).execute()
 			else:
@@ -386,4 +377,10 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 			max_sleep = 2 ** retry
 			sleep_seconds = random.random() * max_sleep
 			print "Sleeping %f seconds and then retrying..." % sleep_seconds
-			ntime.sleep(sleep_seconds)
+			time.sleep(sleep_seconds)
+
+if __name__ == '__main__':
+	# COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE CODE REWRITES
+	print "COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE A CODE REWRITE"
+	print "Use 'python start.py' instead"
+	sys.exit(0)
