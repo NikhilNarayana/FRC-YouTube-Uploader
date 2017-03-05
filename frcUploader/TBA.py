@@ -3,6 +3,7 @@
 import urllib2
 import tbaAPI as tba
 import requests
+import time
 import simplejson as json
 
 def get_event_type(event_key):
@@ -17,6 +18,11 @@ def get_match_results(event_key, match_key):
 	if match_data is None:
 		raise ValueError("""Match %s%s does not exist. Please use a match that exists""" % (event_key, match_key))
 	blue_data, red_data = parse_data(match_data)
+	while (blue_data[0] == -1 or red_data[0] == -1):
+                print "Waiting 1 minute for TBA to update scores"
+                time.sleep(60)
+                match_data = tba.event_get(event_key).get_match(match_key)
+                blue_data, red_data = parse_data(match_data)
 	return blue_data, red_data
 
 def parse_data(match_data):

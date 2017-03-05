@@ -6,13 +6,13 @@ import hashlib
 import re
 
 from cachecontrol import CacheControl
-from cachecontrol.heuristics import LastModified
+from cachecontrol.heuristics import ExpiresAfter
 
 app_id = {'X-TBA-App-Id': ""}
 trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
 
 s = requests.Session()
-s = CacheControl(s, heuristic=LastModified())
+s = CacheControl(s, heuristic=ExpiresAfter(minutes=1))
 s.headers.update(app_id)
 
 
@@ -258,7 +258,10 @@ def post_video(token, secret, event_key, match_video):
             Please use set_auth_id() and/or set_auth_secret() to set them""")
 
     r = s.post(url_str, data=match_video, headers=trusted_auth)
-    print r
+    while "405" in r.content:
+        print "Failed to POST to TBA"
+        print "Attempting to POST to TBA again"
+        r = s.post(url_str, data=match_video, headers=trusted_auth)
     if "Error" in r.content:
         raise Exception(r.content)
 
