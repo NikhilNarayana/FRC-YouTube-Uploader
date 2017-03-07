@@ -382,5 +382,5 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 if __name__ == '__main__':
 	# COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE CODE REWRITES
 	print "COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE A CODE REWRITE"
-	print "Use 'python start.py' instead"
+	print "Use 'python frcUploader/' instead"
 	sys.exit(0)

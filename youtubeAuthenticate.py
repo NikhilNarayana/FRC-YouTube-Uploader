@@ -49,7 +49,7 @@ def get_youtube_service():
 								   scope=YOUTUBE_UPLOAD_SCOPE,
 								   message=MISSING_CLIENT_SECRETS_MESSAGE)
 
-	storage = Storage("%s-oauth2.json" % sys.argv[0])
+	storage = Storage("youtube-oauth2.json")
 	credentials = storage.get()
 
 	flags = argparser.parse_args(args=[])
@@ -65,7 +65,7 @@ def get_spreadsheet_service():
 	flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=SPREADSHEETS_SCOPE)
 	flow.user_agent = "FRC YouTube Uploader"
 
-	storage = Storage("%s-oauth2-spreadsheet.json" % sys.argv[0])
+	storage = Storage("oauth2-spreadsheet.json")
 	credentials = storage.get()
 
 	flags = argparser.parse_args(args=[])

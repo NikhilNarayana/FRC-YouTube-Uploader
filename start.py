@@ -6,6 +6,8 @@ import youtubeup as yup
 import argparse
 import csv
 from datetime import datetime
+import time
+import sys
 
 render = web.template.render('webpage/')
 
@@ -29,11 +31,11 @@ dataform = form.Form(
 		size=41),
 	form.Textbox("tbaID",
 		description="TBA Event ID",
-		value="Contact 'contact@thebluealliance.com to get keys",
+		value="Contact 'contact@thebluealliance.com' to get keys",
 		size=41),
 	form.Textbox("tbaSecret",
 		description="TBA Event Secret",
-		value="Contact 'contact@thebluealliance.com to get keys",
+		value="Contact 'contact@thebluealliance.com' to get keys",
 		size=41),
 	form.Textarea("description",
 		description="Video description",
@@ -46,8 +48,8 @@ dataform = form.Form(
 	form.Dropdown("mcode",
 		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f", "Finals")],
 		description="Match Type"),
-	form.Dropdown("tiebreak",[(0,"False"),(1,"True")]),
-        form.Dropdown("tba",[(1,"True"),(0,"False")]),
+	form.Dropdown("tiebreak",[(0,"False"),(1,"True")],description="Tiebreaker"),
+    form.Dropdown("tba",[(1,"True"),(0,"False")],description="Update TBA"),
 	form.Textbox("end", 
 		description="Last Match Number", 
 		value="Only for batch uploads"),
@@ -55,7 +57,7 @@ dataform = form.Form(
 		lambda i: i.end == "Only for batch uploads" or int(i.end) > int(i.mnum))]
 	)
 
-class index:
+class index():
 	def GET(self):
 		form = dataform()
 		with open('form_values.csv', 'rb') as csvfile:
@@ -94,7 +96,13 @@ class index:
 		else:
 			then = datetime.now()
 			reader = csv.reader(open('form_values.csv'))
-			row = next(reader)
+			try:
+				row = next(reader)
+			except StopIteration:
+				with open("form_values.csv", "wb") as csvf:
+					csvf.write(''.join(str(x) for x in [","]*20))
+					csvf.close()
+					row = next(reader)
 			parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
 			args = parser.parse_args()
 			formdata = web.input()
@@ -127,7 +135,10 @@ class index:
 			writer = csv.writer(open('form_values.csv', 'w'))
 			writer.writerow(row)
 			return render.forms(form)
-
-if __name__=="__main__":
+			
+def main():
 	web.internalerror = web.debugerror
 	app.run()
+
+if __name__=="__main__":
+	main()
