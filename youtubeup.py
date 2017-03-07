@@ -210,11 +210,11 @@ def tba_results(options):
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
 	if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
-		return options.description % (options.ename, options.prodteam, options.twit, options.fb, options.web)
+		return options.description % (options.ename, options.prodteam, options.twit, options.fb, options.weblink)
 	try:
 		return options.description % (str(options.ename), str(TBA.get_event_type(options.ecode)), str(options.prodteam),
 			str(red1), str(red2), str(red3), str(redScore), str(blue1), str(blue2), str(blue3), str(blueScore),
-			str(options.ecode), str(options.twit), str(options.fb), str(options.web))
+			str(options.ecode), str(options.twit), str(options.fb), str(options.weblink))
 	except TypeError, e:
                 print e
 		return options.description

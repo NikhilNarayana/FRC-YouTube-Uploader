@@ -21,7 +21,7 @@ dataform = form.Form(
 	form.Textbox("prodteam", description="Production Team", size=41),
 	form.Textbox("twit", description="Twitter Handle", size=41),
 	form.Textbox("fb", description="Facebook Name", size=41),
-	form.Textbox("web", description="Website Link", size=41),
+	form.Textbox("weblink", description="Website Link", size=41),
 	form.Textbox("ename", description="Event Name", size=41),
 	form.Textbox("ecode", description="Event Code (ex. 2016arc)"),
 	form.Textbox("pID",
@@ -71,7 +71,7 @@ class index():
 							1: form.prodteam,
 							2: form.twit,
 							3: form.fb,
-							4: form.web,
+							4: form.weblink,
 							5: form.ename,
 							6: form.ecode,
 							7: form.pID,
@@ -112,7 +112,7 @@ class index():
 			args.prodteam = row[1] = form.d.prodteam
 			args.twit = row[2] = form.d.twit
 			args.fb = row[3] = form.d.fb
-			args.web = row[4] = form.d.web
+			args.weblink = row[4] = form.d.weblink
 			args.ename = row[5] = form.d.ename
 			args.ecode = row[6] = form.d.ecode
 			args.pID = row[7] = form.d.pID
