@@ -63,6 +63,7 @@ If you are still in need of assistance, feel free to contact me.
 * Google - Authentication and Video Uploading
 * Phil Lopreiato - TBA Integration
 * Wes Jordan - Python TBA API Layer (https://github.com/Thing342/pyTBA)
+* Josh Klar - Bug Fixes during an Event
 * Stack Exchange - Bug Fixes
 
 
