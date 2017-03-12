@@ -46,10 +46,11 @@ dataform = form.Form(
 		form.Validator("Must be more than 0", lambda x:int(x)>0),
 		description="Match Number"),
 	form.Dropdown("mcode",
-		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f", "Finals")],
+		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
 		description="Match Type"),
 	form.Dropdown("tiebreak",[(0,"False"),(1,"True")],description="Tiebreaker"),
     form.Dropdown("tba",[(1,"True"),(0,"False")],description="Update TBA"),
+    form.Dropdown("ceremonies",[(0,"None"),(1,"Opening Ceremonies"),(2,"Alliance Selection"),(3,"Closing Ceremonies")],description="Ceremonies"),
 	form.Textbox("end", 
 		description="Last Match Number", 
 		value="Only for batch uploads"),
@@ -82,7 +83,8 @@ class index():
 							12: form.mcode,
 							13: form.tiebreak,
 							14: form.tba,
-							15: form.end,
+							15: form.ceremonies,
+							16: form.end,
 						}
 						switcher[i].set_value(value)
 					i = i + 1
@@ -100,7 +102,7 @@ class index():
 				row = next(reader)
 			except StopIteration:
 				with open("form_values.csv", "wb") as csvf:
-					csvf.write(''.join(str(x) for x in [","]*20))
+					csvf.write(''.join(str(x) for x in [","]*30))
 					csvf.close()
 					row = next(reader)
 			parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
@@ -123,15 +125,17 @@ class index():
 			args.mcode = row[12] = form.d.mcode
 			args.tiebreak = row[13] = form.d.tiebreak
 			args.tba = row[14] = form.d.tba
-			args.end = row[15] = form.d.end
+			args.ceremonies = row[15] = form.d.ceremonies
+			args.end = row[16] = form.d.end
 			yup.init(args)
-			if form.d.end == "Only for batch uploads":
-				form.mnum.set_value(str(int(form.d.mnum) + 1))
-			else:
-				form.mnum.set_value(str(int(form.d.end) + 1))
-				form.end.set_value("Only for batch uploads")
+			if int(form.d.ceremonies) == 0:
+                                if form.d.end == "Only for batch uploads":
+                                        form.mnum.set_value(str(int(form.d.mnum) + 1))
+                                else:
+                                        form.mnum.set_value(str(int(form.d.end) + 1))
+                                        form.end.set_value("Only for batch uploads")
 			row[11] = int(form.d.mnum)
-			row[15] = form.d.end
+			row[16] = form.d.end
 			writer = csv.writer(open('form_values.csv', 'w'))
 			writer.writerow(row)
 			return render.forms(form)
