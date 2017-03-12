@@ -290,7 +290,6 @@ def init(args):
         TBA_ID = -1
         TBA_SECRET = -1
         args.description = NO_TBA_DESCRIPTION
-    args.dtags = True if args.tags == DEFAULT_TAGS else False
     if int(args.tiebreak) == 1:
         args.mnum = tiebreak_mnum(args.mnum, args.mcode)
 
