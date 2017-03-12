@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import unittest
-from frcUploader import TBA, youtubeAuthenticate, tbaAPI
+import TBA, youtubeAuthenticate, tbaAPI
 import argparse
-from frcUploader import youtubeup  as yup
+import youtubeup  as yup
 import simplejson as json
 
 

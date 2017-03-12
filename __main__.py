@@ -2,8 +2,9 @@ import start, addTBAToDescription, addtoplaylist, TBA, tbaAPI, updatePlaylistThu
     youtubeAuthenticate, youtubeup, socket
 
 
-def internet(host="8.8.8.8", port=53, timeout=3):
+def internet(host="www.google.com", port=80, timeout=4):
     try:
+    	host = socket.gethostbyname(host)
         socket.setdefaulttimeout(timeout)
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         return True
@@ -12,4 +13,5 @@ def internet(host="8.8.8.8", port=53, timeout=3):
         return False
 
 
-if internet(): start.run()
+if internet():
+	start.main()
