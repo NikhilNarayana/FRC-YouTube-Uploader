@@ -203,7 +203,7 @@ def quarters_match_code(mcode, mnum):
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
     else:
-        raise ValueError("mnum can't be larger than 12")
+        raise ValueError("Match Number can't be larger than 12")
 
 def semis_match_code(mcode, mnum):
     match_set = mnum % 2
@@ -222,11 +222,11 @@ def semis_match_code(mcode, mnum):
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
     else:
-        raise ValueError("mnum can't be larger than 6")
+        raise ValueError("Match Number can't be larger than 6")
 
 def finals_match_code(mcode, mnum):
     if mnum > 3:
-        raise ValueError("mnum can't be larger than 3")
+        raise ValueError("Match Number can't be larger than 3")
     match_code = str(mcode) + str(mnum)
     return match_code
 
@@ -236,7 +236,7 @@ def get_match_code(mcode, mnum):
             "qf": quarters_match_code,
             "sf": semis_match_code,
             "f1m": finals_match_code,
-            }
+    }
     return switcher[mcode](mcode, mnum)
 
 def tba_results(options):
@@ -260,7 +260,7 @@ def tiebreak_mnum(mnum, mcode):
             "qf": int(mnum) + 8,
             "sf": int(mnum) + 4,
             "f1m": 3,
-            }
+    }
     return switcher[mcode]
 
 def upload_multiple_videos(youtube, options):
@@ -268,9 +268,8 @@ def upload_multiple_videos(youtube, options):
         try:
             initialize_upload(youtube, options)
         except HttpError, e:
-            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
-            print ""
-            options.mnum = int(options.mnum) + 1
+            print "An HTTP error %d occurred:\n%s\n" % (e.resp.status, e.content)
+        options.mnum = int(options.mnum) + 1
         print "All matches have been uploaded"
 
 def init(args):
@@ -292,7 +291,7 @@ def init(args):
         TBA_SECRET = -1
         args.description = NO_TBA_DESCRIPTION
     args.dtags = True if args.tags == DEFAULT_TAGS else False
-    if args.tiebreak is 1:
+    if int(args.tiebreak) == 1:
         args.mnum = tiebreak_mnum(args.mnum, args.mcode)
 
     youtube = get_youtube_service()
@@ -413,9 +412,3 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             sleep_seconds = random.random() * max_sleep
             print "Sleeping %f seconds and then retrying..." % sleep_seconds
             time.sleep(sleep_seconds)
-
-if __name__ == '__main__':
-    # COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE CODE REWRITES
-        print "COMMAND LINE USE IS DEPRECATED. USING IT WILL CAUSE ERRORS THAT REQUIRE A CODE REWRITE"
-        print "Use 'python frcUploader/' instead"
-        sys.exit(0)
