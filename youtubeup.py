@@ -296,10 +296,10 @@ def init(args):
     youtube = get_youtube_service()
     spreadsheet = get_spreadsheet_service()
 
-    if type(args.end) is int:
+    try:
         if int(args.end) > int(args.mnum):
             upload_multiple_videos(youtube, args)
-    else:
+    except ValueError:
         try:
             initialize_upload(youtube, spreadsheet, args)
         except HttpError, e:
