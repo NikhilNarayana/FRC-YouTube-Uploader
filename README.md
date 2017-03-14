@@ -1,7 +1,7 @@
 # FRC-CLI-YouTube-Uploader
 [![Build Status](https://travis-ci.org/NikhilNarayana/FRC-YouTube-Uploader.svg?branch=master)](https://travis-ci.org/NikhilNarayana/FRC-YouTube-Uploader)
 
-A YouTube Uploader with FRC Matches in mind.
+A YouTube Uploader for FRC Events.
 
 
 ## Current Feature Set:
@@ -19,10 +19,10 @@ A YouTube Uploader with FRC Matches in mind.
 3. Install the requirements for the script with `pip install -r /path/to/requirements.txt`, or `make` if supported by your OS
 4. Add the thumbnail to the same folder as `thumbnail.png`
 5. Make your recording program follow this naming scheme: [EVENT_NAME] - [MATCH TYPE] ex. 2016 Indiana State Championship - Qualification Match 1. Also use the Tiebreaker scheme when necessary.
-5. Start the program by running `python frcUploader` and navigating to `localhost:8080` in your browser
+5. Start the program by running `python frcUploader` and navigating to `localhost:8080` in your browser or by using the .bat file for Windows or .sh file for Linux/macOS
 6. Add in the necessary info.
-7. Hit submit everytime a match finishes. No need to update Match Number unless you are entering eliminations.
-8. Enjoy not having to deal with YouTube's front end 🎉
+7. Hit submit everytime a match finishes. No need to update any values unless you are entering eliminations or doing ceremonies.
+8. Enjoy not having to deal with YouTube's front end 
 
 ### Web UI Breakdown
 ![alt text](http://i.imgur.com/z9PxgCP.png)
@@ -30,7 +30,7 @@ A YouTube Uploader with FRC Matches in mind.
 I focused on simplicty and usability. All the necessary details fit into one small space allowing you to easily place this anywhere on your screen without needing to see all of it.
 
 ##### Match File Locations
-You can now pick whether the match files  are in the same folder as the scripts or the one above. Default is one above.
+You can now pick whether the match files  are in the same folder as the scripts or the one above. Default is the one above (parent folder).
 
 ##### Production Team/Facebook Name/Twitter Handle/Website Link
 Constants that used to be in the script itself, you can now edit them as you see fit without going into the code.
@@ -48,10 +48,10 @@ You can find the playlist ID on the playlist page's web address. Every playlist 
 Both of these must be obtained by contacting TBA at contact@thebluealliance.com for the keys to your event. If your event is not on TBA I suggest you just uncheck the `Use The Blue Alliance` checkbox and not worry.
 
 ##### Video Description
-The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. The usual description is found in `youtubeup.py`
+The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. The usual description is found in `youtubeup.py`. If you would rather not use that description feel free to input your own.
 
 ##### Match Number
-Fairly self-explanatory, just remember to reset the value when you go into each stage of playoffs. This value will increment each time you press "Submit" so you can forget about updating it after every match.
+Fairly self-explanatory, just remember to reset the value when you go into each stage of eliminations. This value will increment each time you press "Submit".
 
 ##### Last Match Number
 If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number, inclusive, will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
@@ -63,7 +63,7 @@ If you are still in need of assistance, feel free to contact me.
 * Google - Authentication and Video Uploading
 * Phil Lopreiato - TBA Integration
 * Wes Jordan - Python TBA API Layer (https://github.com/Thing342/pyTBA)
-* Josh Klar - Bug Fixes during an Event
+* Josh Klar - Bug Fixes during 2017 St. Joseph District
 * Stack Exchange - Bug Fixes
 
 
