@@ -122,36 +122,57 @@ def create_title(options):
         return ceremonies_title(options)
 
 def quals_filename(options):
-    return options.file % options.mnum
+    for f in options.files:
+        if options.mnum and options.ename and "Qualification" in f:
+            print "Found %s to upload" % f
+            return str(f)
+    raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
 
 def quarters_filename(options):
     if options.mnum <= 8 and options.mnum >= 1:
-        filename = options.ename + " - " + QUARTER % options.mnum + EXTENSION
-        return str(filename)
+        for f in options.files:
+            if options.mnum and options.ename and "Quarterfinal" in f:
+                print "Found %s to upload" % f
+                return str(f)
     elif options.mnum >= 9 and options.mnum <= 12:
         mnum = int(options.mnum) - 8
-        filename = options.ename + " - " + QUARTERT % str(mnum) + EXTENSION
+        for f in options.files:
+            if mnum and options.ename and "Quarterfinal" and "Tiebreaker" in f:
+                print "Found %s to upload" % f
+                return str(f)
         return str(filename)
     else:
         raise ValueError("mnum must be between 1 and 12")
 
 def semis_filename(options):
-    if options.mnum <= 4 and options.mnum >= 1:
-        filename = options.ename + " - " + SEMI % options.mnum + EXTENSION
+    if options.mnum <= 4 and options.mnum >= 1: 
+        for f in options.files:
+            if options.mnum and options.ename and "Semifinal" in f:
+                print "Found %s to upload" % f
+                return str(f)
         return str(filename)
     elif options.mnum >= 5 and options.mnum <= 6:
         mnum = int(options.mnum) - 4
-        filename = options.ename + " - " + SEMIT % str(mnum) + EXTENSION
+        for f in options.files:
+            if mnum and options.ename and "Semifinal" and "Tiebreaker" in f:
+                print "Found %s to upload" % f
+                return str(f)
         return str(filename)
     else:
         raise ValueError("mnum must be between 1 and 6")
 
 def finals_filename(options):
     if options.mnum <= 2 and options.mnum >= 1:
-        filename = options.ename + " - " + FINALS % options.mnum + EXTENSION
+        for f in options.files:
+            if mnum and options.ename and "Final" in f:
+                print "Found %s to upload" % f
+                return str(f)
         return str(filename)
     elif options.mnum == 3:
-        filename = options.ename + " - " + FINALST + EXTENSION
+        for f in options.files:
+            if mnum and options.ename and "Final" and "Tiebreaker" in f:
+                print "Found %s to upload" % f
+                return str(f)
         return str(filename)
     else:
         raise ValueError("mnum must be between 1 and 3")
@@ -273,6 +294,7 @@ def upload_multiple_videos(youtube, options):
         print "All matches have been uploaded"
 
 def init(args):
+    args.files = [f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]
     args.tags = DEFAULT_TAGS % args.ecode
     args.privacyStatus = 0
     args.category = DEFAULT_VIDEO_CATEGORY
