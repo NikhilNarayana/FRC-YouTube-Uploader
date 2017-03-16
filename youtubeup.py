@@ -117,7 +117,6 @@ def create_title(options):
             return switcher[options.mcode](options)
         except KeyError:
             print options.mcode
-            print "you fucked up"
     else:
         return ceremonies_title(options)
 
@@ -140,7 +139,6 @@ def quarters_filename(options):
             if mnum and options.ename and "Quarterfinal" and "Tiebreaker" in f:
                 print "Found %s to upload" % f
                 return str(f)
-        return str(filename)
     else:
         raise ValueError("mnum must be between 1 and 12")
 
@@ -150,14 +148,12 @@ def semis_filename(options):
             if options.mnum and options.ename and "Semifinal" in f:
                 print "Found %s to upload" % f
                 return str(f)
-        return str(filename)
     elif options.mnum >= 5 and options.mnum <= 6:
         mnum = int(options.mnum) - 4
         for f in options.files:
             if mnum and options.ename and "Semifinal" and "Tiebreaker" in f:
                 print "Found %s to upload" % f
                 return str(f)
-        return str(filename)
     else:
         raise ValueError("mnum must be between 1 and 6")
 
@@ -167,13 +163,11 @@ def finals_filename(options):
             if mnum and options.ename and "Final" in f:
                 print "Found %s to upload" % f
                 return str(f)
-        return str(filename)
     elif options.mnum == 3:
         for f in options.files:
             if mnum and options.ename and "Final" and "Tiebreaker" in f:
                 print "Found %s to upload" % f
                 return str(f)
-        return str(filename)
     else:
         raise ValueError("mnum must be between 1 and 3")
 
@@ -182,15 +176,18 @@ def ceremonies_filename(options):
     if cerem is 1:
         for f in options.files:
             if dt.datetime.now().strftime("%A") and "Opening Ceremonies" in f:
-                return f
+                print "Found %s to upload" % f
+                return str(f)
     if cerem is 2:
         for f in options.files:
             if "Alliance Selection" in f:
-                return f
+                print "Found %s to upload" % f
+                return str(f)
     if cerem is 3:
         for f in options.files:
             if "Closing Ceremonies" in f:
-                return f
+                print "Found %s to upload" % f
+                return str(f)
 
 def create_filename(options):
     if options.ceremonies is 0:
@@ -204,7 +201,6 @@ def create_filename(options):
             return switcher[options.mcode](options)
         except KeyError:
             print options.mcode
-            print "you fucked up"
     else:
         return ceremonies_filename(options)
 def quals_match_code(mcode, mnum):
