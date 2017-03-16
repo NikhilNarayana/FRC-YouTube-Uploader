@@ -337,12 +337,8 @@ def initialize_upload(youtube, spreadsheet, options):
     if options.tba == 1:
         blue_data, red_data, mcode = tba_results(options)
         tags = options.tags.split(",")
-        tags.append("frc" + str(blue_data[1]))
-        tags.append("frc" + str(blue_data[2]))
-        tags.append("frc" + str(blue_data[3]))
-        tags.append("frc" + str(red_data[1]))
-        tags.append("frc" + str(red_data[2]))
-        tags.append("frc" + str(red_data[3]))
+        tags.extend(["frc" + str(blue_data[1]), "frc" + str(blue_data[2]), "frc" + str(blue_data[3])])
+        tags.extend(["frc" + str(red_data[1]), "frc" + str(red_data[2]), "frc" + str(red_data[3])])
         tags.append(get_event_hashtag(options.ecode))
 
         body = dict(
