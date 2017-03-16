@@ -62,10 +62,10 @@ def quals_yt_title(options):
     return options.title % options.mnum
 
 def quarters_yt_title(options):
-    if options.mnum <= 8 and options.mnum >= 1:
+    if 1 <= options.mnum <= 8:
         title = options.ename + " - " + QUARTER % options.mnum
         return title
-    elif options.mnum >= 9 and options.mnum <= 12:
+    elif 9 <= options.mnum <= 12:
         mnum = int(options.mnum) - 8
         title = options.ename + " - " + QUARTERT % str(mnum)
         return title
@@ -73,10 +73,10 @@ def quarters_yt_title(options):
         raise ValueError("options.mnum must be within 1 and 12")
 
 def semis_yt_title(options):
-    if options.mnum <= 4 and options.mnum >= 1:
+    if 1 <= options.mnum <= 4:
         title = options.ename + " - " + SEMI % options.mnum
         return title
-    elif options.mnum >= 5 and options.mnum <= 6:
+    elif 5 <= options.mnum <= 6:
         mnum = int(options.mnum) - 4
         title = options.ename + " - " + SEMIT % str(mnum)
         return title
@@ -84,7 +84,7 @@ def semis_yt_title(options):
         raise ValueError("options.mnum must be within 1 and 6")
 
 def finals_yt_title(options):
-    if options.mnum <= 2 and options.mnum >= 1:
+    if 1 <= options.mnum <= 2:
         title = options.ename + " - " + FINALS % options.mnum
         return title
     elif options.mnum == 3:
@@ -128,12 +128,12 @@ def quals_filename(options):
     raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
 
 def quarters_filename(options):
-    if options.mnum <= 8 and options.mnum >= 1:
+    if 1 <= options.mnum <= 8:
         for f in options.files:
             if options.mnum and options.ename and "Quarterfinal" in f:
                 print "Found %s to upload" % f
                 return str(f)
-    elif options.mnum >= 9 and options.mnum <= 12:
+    elif 9 <= options.mnum <= 12:
         mnum = int(options.mnum) - 8
         for f in options.files:
             if mnum and options.ename and "Quarterfinal" and "Tiebreaker" in f:
@@ -143,12 +143,12 @@ def quarters_filename(options):
         raise ValueError("mnum must be between 1 and 12")
 
 def semis_filename(options):
-    if options.mnum <= 4 and options.mnum >= 1: 
+    if 1 <= options.mnum <= 4: 
         for f in options.files:
             if options.mnum and options.ename and "Semifinal" in f:
                 print "Found %s to upload" % f
                 return str(f)
-    elif options.mnum >= 5 and options.mnum <= 6:
+    elif 5 <= options.mnum <= 6:
         mnum = int(options.mnum) - 4
         for f in options.files:
             if mnum and options.ename and "Semifinal" and "Tiebreaker" in f:
@@ -158,7 +158,7 @@ def semis_filename(options):
         raise ValueError("mnum must be between 1 and 6")
 
 def finals_filename(options):
-    if options.mnum <= 2 and options.mnum >= 1:
+    if 1 <= options.mnum <= 2:
         for f in options.files:
             if mnum and options.ename and "Final" in f:
                 print "Found %s to upload" % f
@@ -215,11 +215,11 @@ def quarters_match_code(mcode, mnum):
         match = 1
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
-    elif mnum > 4 and mnum <= 8:
+    elif 5 <= mnum <= 8:
         match = 2
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
-    elif mnum > 8 and mnum <= 12:
+    elif 9 <= mnum <= 12:
         match = 3
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
@@ -234,11 +234,11 @@ def semis_match_code(mcode, mnum):
         match = 1
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
-    elif mnum > 2 and mnum <= 4:
+    elif 3 <= mnum <= 4:
         match = 2
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
-    elif mnum > 4 and mnum <= 6:
+    elif 5 <= mnum <= 6:
         match = 3
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
