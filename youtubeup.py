@@ -403,9 +403,9 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                 totalTime = dt.datetime.now() - options.then
                 spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
                 rowRange = "Data!A1:F1"
-                if type(options.end) is int: wasBatch = "True"
-                else: wasBatch = "False"
-                values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v=%s" % response['id'], str(options.tba), options.ename, wasBatch]]
+                wasBatch = "True" if type(options.end) is int else "False"
+                usedTBA = "True" if int(options.tba) == 1 else "False"
+                values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v=%s" % response['id'], usedTBA, options.ename, wasBatch]]
                 body = {'values': values}
                 appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="RAW", body=body).execute()
             else:
