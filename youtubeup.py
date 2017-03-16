@@ -62,10 +62,10 @@ def quals_yt_title(options):
     return options.title % options.mnum
 
 def quarters_yt_title(options):
-    if options.mnum <= 8 and options.mnum >= 1:
+    if 1 <= options.mnum <= 8:
         title = options.ename + " - " + QUARTER % options.mnum
         return title
-    elif options.mnum >= 9 and options.mnum <= 12:
+    elif 9 <= options.mnum <= 12:
         mnum = int(options.mnum) - 8
         title = options.ename + " - " + QUARTERT % str(mnum)
         return title
@@ -73,10 +73,10 @@ def quarters_yt_title(options):
         raise ValueError("options.mnum must be within 1 and 12")
 
 def semis_yt_title(options):
-    if options.mnum <= 4 and options.mnum >= 1:
+    if 1 <= options.mnum <= 4:
         title = options.ename + " - " + SEMI % options.mnum
         return title
-    elif options.mnum >= 5 and options.mnum <= 6:
+    elif 5 <= options.mnum <= 6:
         mnum = int(options.mnum) - 4
         title = options.ename + " - " + SEMIT % str(mnum)
         return title
@@ -84,7 +84,7 @@ def semis_yt_title(options):
         raise ValueError("options.mnum must be within 1 and 6")
 
 def finals_yt_title(options):
-    if options.mnum <= 2 and options.mnum >= 1:
+    if 1 <= options.mnum <= 2:
         title = options.ename + " - " + FINALS % options.mnum
         return title
     elif options.mnum == 3:
@@ -94,7 +94,7 @@ def finals_yt_title(options):
         raise ValueError("options.mnum must be within 1 and 3")
 
 def ceremonies_title(options):
-    cerem = int(options.ceremonies)
+    cerem = options.ceremonies
     title = ""
     if cerem is 1:
         title = options.ename + " - " + "%s Opening Ceremonies" % dt.datetime.now().strftime("%A")
@@ -105,7 +105,7 @@ def ceremonies_title(options):
     return title
 
 def create_title(options):
-    cerem = int(options.ceremonies)
+    cerem = options.ceremonies
     if cerem is 0:
         switcher = {
                 "qm": quals_yt_title,
@@ -117,58 +117,80 @@ def create_title(options):
             return switcher[options.mcode](options)
         except KeyError:
             print options.mcode
-            print "you fucked up"
     else:
         return ceremonies_title(options)
 
 def quals_filename(options):
-    return options.file % options.mnum
+    for f in options.files:
+        if options.mnum and options.ename and "Qualification" in f:
+            print "Found %s to upload" % f
+            return str(f)
+    raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
 
 def quarters_filename(options):
-    if options.mnum <= 8 and options.mnum >= 1:
-        filename = options.ename + " - " + QUARTER % options.mnum + EXTENSION
-        return str(filename)
-    elif options.mnum >= 9 and options.mnum <= 12:
+    if 1 <= options.mnum <= 8:
+        for f in options.files:
+            if options.mnum and options.ename and "Quarterfinal" in f:
+                print "Found %s to upload" % f
+                return str(f)
+    elif 9 <= options.mnum <= 12:
         mnum = int(options.mnum) - 8
-        filename = options.ename + " - " + QUARTERT % str(mnum) + EXTENSION
-        return str(filename)
+        for f in options.files:
+            if mnum and options.ename and "Quarterfinal" and "Tiebreaker" in f:
+                print "Found %s to upload" % f
+                return str(f)
     else:
         raise ValueError("mnum must be between 1 and 12")
 
 def semis_filename(options):
-    if options.mnum <= 4 and options.mnum >= 1:
-        filename = options.ename + " - " + SEMI % options.mnum + EXTENSION
-        return str(filename)
-    elif options.mnum >= 5 and options.mnum <= 6:
+    if 1 <= options.mnum <= 4: 
+        for f in options.files:
+            if options.mnum and options.ename and "Semifinal" in f:
+                print "Found %s to upload" % f
+                return str(f)
+    elif 5 <= options.mnum <= 6:
         mnum = int(options.mnum) - 4
-        filename = options.ename + " - " + SEMIT % str(mnum) + EXTENSION
-        return str(filename)
+        for f in options.files:
+            if mnum and options.ename and "Semifinal" and "Tiebreaker" in f:
+                print "Found %s to upload" % f
+                return str(f)
     else:
         raise ValueError("mnum must be between 1 and 6")
 
 def finals_filename(options):
-    if options.mnum <= 2 and options.mnum >= 1:
-        filename = options.ename + " - " + FINALS % options.mnum + EXTENSION
-        return str(filename)
+    if 1 <= options.mnum <= 2:
+        for f in options.files:
+            if mnum and options.ename and "Final" in f:
+                print "Found %s to upload" % f
+                return str(f)
     elif options.mnum == 3:
-        filename = options.ename + " - " + FINALST + EXTENSION
-        return str(filename)
+        for f in options.files:
+            if mnum and options.ename and "Final" and "Tiebreaker" in f:
+                print "Found %s to upload" % f
+                return str(f)
     else:
         raise ValueError("mnum must be between 1 and 3")
 
 def ceremonies_filename(options):
-    cerem = int(options.ceremonies)
-    title = ""
+    cerem = options.ceremonies
     if cerem is 1:
-        title = options.ename + " - " + "%s Opening Ceremonies" % dt.datetime.now().strftime("%A") + EXTENSION
+        for f in options.files:
+            if dt.datetime.now().strftime("%A") and "Opening Ceremonies" in f:
+                print "Found %s to upload" % f
+                return str(f)
     if cerem is 2:
-        title = options.ename + " - " + "Alliance Selection" + EXTENSION
+        for f in options.files:
+            if "Alliance Selection" in f:
+                print "Found %s to upload" % f
+                return str(f)
     if cerem is 3:
-        title = options.ename + " - " + "Closing Ceremonies" + EXTENSION
-    return title
+        for f in options.files:
+            if "Closing Ceremonies" in f:
+                print "Found %s to upload" % f
+                return str(f)
 
 def create_filename(options):
-    if int(options.ceremonies) is 0:
+    if options.ceremonies is 0:
         switcher = {
                 "qm": quals_filename,
                 "qf": quarters_filename,
@@ -179,7 +201,6 @@ def create_filename(options):
             return switcher[options.mcode](options)
         except KeyError:
             print options.mcode
-            print "you fucked up"
     else:
         return ceremonies_filename(options)
 def quals_match_code(mcode, mnum):
@@ -194,11 +215,11 @@ def quarters_match_code(mcode, mnum):
         match = 1
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
-    elif mnum > 4 and mnum <= 8:
+    elif 5 <= mnum <= 8:
         match = 2
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
-    elif mnum > 8 and mnum <= 12:
+    elif 9 <= mnum <= 12:
         match = 3
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
@@ -213,11 +234,11 @@ def semis_match_code(mcode, mnum):
         match = 1
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
-    elif mnum > 2 and mnum <= 4:
+    elif 3 <= mnum <= 4:
         match = 2
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
-    elif mnum > 4 and mnum <= 6:
+    elif 5 <= mnum <= 6:
         match = 3
         match_code = mcode + str(match_set) + "m" + str(match)
         return match_code
@@ -273,8 +294,10 @@ def upload_multiple_videos(youtube, options):
         print "All matches have been uploaded"
 
 def init(args):
+    args.files = [f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]
     args.tags = DEFAULT_TAGS % args.ecode
     args.privacyStatus = 0
+    options.ceremonies = int(options.ceremonies)
     args.category = DEFAULT_VIDEO_CATEGORY
     args.title = args.ename + " - " + QUAL
     args.file = args.ename + " - " + QUAL + EXTENSION
@@ -306,20 +329,16 @@ def init(args):
             print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
 def initialize_upload(youtube, spreadsheet, options):
-    if int(options.ceremonies) == 0:
+    if options.ceremonies == 0:
         print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
     else:
-        print "Initializing upload for ceremony: {}".format(ceremonies_title(options))
+        print "Initializing upload for: %s" % ceremonies_title(options)
     tags = None
     if options.tba == 1:
         blue_data, red_data, mcode = tba_results(options)
         tags = options.tags.split(",")
-        tags.append("frc" + str(blue_data[1]))
-        tags.append("frc" + str(blue_data[2]))
-        tags.append("frc" + str(blue_data[3]))
-        tags.append("frc" + str(red_data[1]))
-        tags.append("frc" + str(red_data[2]))
-        tags.append("frc" + str(red_data[3]))
+        tags.extend(["frc" + str(blue_data[1]), "frc" + str(blue_data[2]), "frc" + str(blue_data[3])])
+        tags.extend(["frc" + str(red_data[1]), "frc" + str(red_data[2]), "frc" + str(red_data[3])])
         tags.append(get_event_hashtag(options.ecode))
 
         body = dict(
