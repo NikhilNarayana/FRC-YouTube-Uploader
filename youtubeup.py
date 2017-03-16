@@ -94,7 +94,7 @@ def finals_yt_title(options):
         raise ValueError("options.mnum must be within 1 and 3")
 
 def ceremonies_title(options):
-    cerem = int(options.ceremonies)
+    cerem = options.ceremonies
     title = ""
     if cerem is 1:
         title = options.ename + " - " + "%s Opening Ceremonies" % dt.datetime.now().strftime("%A")
@@ -105,7 +105,7 @@ def ceremonies_title(options):
     return title
 
 def create_title(options):
-    cerem = int(options.ceremonies)
+    cerem = options.ceremonies
     if cerem is 0:
         switcher = {
                 "qm": quals_yt_title,
@@ -178,18 +178,22 @@ def finals_filename(options):
         raise ValueError("mnum must be between 1 and 3")
 
 def ceremonies_filename(options):
-    cerem = int(options.ceremonies)
-    title = ""
+    cerem = options.ceremonies
     if cerem is 1:
-        title = options.ename + " - " + "%s Opening Ceremonies" % dt.datetime.now().strftime("%A") + EXTENSION
+        for f in options.files:
+            if dt.datetime.now().strftime("%A") and "Opening Ceremonies" in f:
+                return f
     if cerem is 2:
-        title = options.ename + " - " + "Alliance Selection" + EXTENSION
+        for f in options.files:
+            if "Alliance Selection" in f:
+                return f
     if cerem is 3:
-        title = options.ename + " - " + "Closing Ceremonies" + EXTENSION
-    return title
+        for f in options.files:
+            if "Closing Ceremonies" in f:
+                return f
 
 def create_filename(options):
-    if int(options.ceremonies) is 0:
+    if options.ceremonies is 0:
         switcher = {
                 "qm": quals_filename,
                 "qf": quarters_filename,
@@ -297,6 +301,7 @@ def init(args):
     args.files = [f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]
     args.tags = DEFAULT_TAGS % args.ecode
     args.privacyStatus = 0
+    options.ceremonies = int(options.ceremonies)
     args.category = DEFAULT_VIDEO_CATEGORY
     args.title = args.ename + " - " + QUAL
     args.file = args.ename + " - " + QUAL + EXTENSION
@@ -328,10 +333,10 @@ def init(args):
             print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
 def initialize_upload(youtube, spreadsheet, options):
-    if int(options.ceremonies) == 0:
+    if options.ceremonies == 0:
         print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
     else:
-        print "Initializing upload for ceremony: {}".format(ceremonies_title(options))
+        print "Initializing upload for: %s" % ceremonies_title(options)
     tags = None
     if options.tba == 1:
         blue_data, red_data, mcode = tba_results(options)
