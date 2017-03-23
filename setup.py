@@ -10,6 +10,6 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 2.7',
     ],
-    version='2.4',
-    packages=['frcUploader'],
+    version='2.5',
+    packages=['start','addTBAToDescription','updatePlaylistThumbnails'],
 )

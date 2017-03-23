@@ -11,7 +11,6 @@ from apiclient.http import MediaFileUpload
 import TBA
 from tbaAPI import *
 from addtoplaylist import add_video_to_playlist
-from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import *
 import datetime as dt
 
@@ -293,6 +292,13 @@ def upload_multiple_videos(youtube, options):
         options.mnum = int(options.mnum) + 1
         print "All matches have been uploaded"
 
+def update_thumbnail(youtube, video_id, thumbnail):
+    youtube.thumbnails().set(
+        videoId=video_id,
+        media_body=thumbnail
+        ).execute()
+    print "Thumbnail added to video %s" % video_id
+
 def init(args):
     args.files = [f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]
     args.tags = DEFAULT_TAGS % args.ecode
@@ -391,10 +397,8 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             print "Uploading file..."
             status, response = insert_request.next_chunk()
             if 'id' in response:
-                print "Video id '%s' was successfully uploaded." % response['id']
                 print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-                update_thumbnail(youtube, response['id'], "thumbnail.png")
-                print "Video thumbnail added"
+                update_thumbnail(youtube, response['id'])
                 add_video_to_playlist(
                         youtube, response['id'], options.pID)
                 request_body = json.dumps({mcode: response['id']})

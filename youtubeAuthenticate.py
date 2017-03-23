@@ -49,7 +49,7 @@ def get_youtube_service():
 								   scope=YOUTUBE_UPLOAD_SCOPE,
 								   message=MISSING_CLIENT_SECRETS_MESSAGE)
 
-	storage = Storage("youtube-oauth2.json")
+	storage = Storage("oauth2-youtube.json")
 	credentials = storage.get()
 
 	flags = argparser.parse_args(args=[])
