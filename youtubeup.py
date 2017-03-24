@@ -121,7 +121,7 @@ def create_title(options):
 
 def quals_filename(options):
     for f in options.files:
-        if options.mnum and options.ename and "Qualification" in f:
+        if (" "+str(options.mnum)) and options.ename and "Qualification" in f:
             print "Found %s to upload" % f
             return str(f)
     raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
@@ -129,13 +129,13 @@ def quals_filename(options):
 def quarters_filename(options):
     if 1 <= options.mnum <= 8:
         for f in options.files:
-            if options.mnum and options.ename and "Quarterfinal" in f:
+            if (" "+str(options.mnum)) and options.ename and "Quarterfinal" in f:
                 print "Found %s to upload" % f
                 return str(f)
     elif 9 <= options.mnum <= 12:
         mnum = int(options.mnum) - 8
         for f in options.files:
-            if mnum and options.ename and "Quarterfinal" and "Tiebreaker" in f:
+            if (" "+str(mnum)) and options.ename and "Quarterfinal" and "Tiebreaker" in f:
                 print "Found %s to upload" % f
                 return str(f)
     else:
@@ -144,13 +144,13 @@ def quarters_filename(options):
 def semis_filename(options):
     if 1 <= options.mnum <= 4: 
         for f in options.files:
-            if options.mnum and options.ename and "Semifinal" in f:
+            if (" "+str(options.mnum)) and options.ename and "Semifinal" in f:
                 print "Found %s to upload" % f
                 return str(f)
     elif 5 <= options.mnum <= 6:
         mnum = int(options.mnum) - 4
         for f in options.files:
-            if mnum and options.ename and "Semifinal" and "Tiebreaker" in f:
+            if (" "+str(mnum)) and options.ename and "Semifinal" and "Tiebreaker" in f:
                 print "Found %s to upload" % f
                 return str(f)
     else:
@@ -159,12 +159,12 @@ def semis_filename(options):
 def finals_filename(options):
     if 1 <= options.mnum <= 2:
         for f in options.files:
-            if mnum and options.ename and "Final" in f:
+            if (" "+str(mnum)) and options.ename and "Final" in f:
                 print "Found %s to upload" % f
                 return str(f)
     elif options.mnum == 3:
         for f in options.files:
-            if mnum and options.ename and "Final" and "Tiebreaker" in f:
+            if options.ename and "Final" and "Tiebreaker" in f:
                 print "Found %s to upload" % f
                 return str(f)
     else:
