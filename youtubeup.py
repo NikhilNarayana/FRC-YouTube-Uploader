@@ -299,38 +299,38 @@ def update_thumbnail(youtube, video_id, thumbnail):
         ).execute()
     print "Thumbnail added to video %s" % video_id
 
-def init(args):
-    args.files = [f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]
-    args.tags = DEFAULT_TAGS % args.ecode
-    args.privacyStatus = 0
+def init(options):
+    options.files = [f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]
+    options.tags = DEFAULT_TAGS % options.ecode
+    options.privacyStatus = 0
     options.ceremonies = int(options.ceremonies)
-    args.category = DEFAULT_VIDEO_CATEGORY
-    args.title = args.ename + " - " + QUAL
-    args.file = args.ename + " - " + QUAL + EXTENSION
-    if args.description == "Add alternate description here.":
-        args.description = DEFAULT_DESCRIPTION
-    args.tba = int(args.tba)
-    if args.tba:
-        TBA_ID = args.tbaID
-        TBA_SECRET = args.tbaSecret
-    if int(args.ceremonies) != 0:
-        args.tba = 0
-    if not args.tba:
+    options.category = DEFAULT_VIDEO_CATEGORY
+    options.title = options.ename + " - " + QUAL
+    options.file = options.ename + " - " + QUAL + EXTENSION
+    if options.description == "Add alternate description here.":
+        options.description = DEFAULT_DESCRIPTION
+    options.tba = int(options.tba)
+    if options.tba:
+        TBA_ID = options.tbaID
+        TBA_SECRET = options.tbaSecret
+    if int(options.ceremonies) != 0:
+        options.tba = 0
+    if not options.tba:
         TBA_ID = -1
         TBA_SECRET = -1
-        args.description = NO_TBA_DESCRIPTION
-    if int(args.tiebreak) == 1:
-        args.mnum = tiebreak_mnum(args.mnum, args.mcode)
+        options.description = NO_TBA_DESCRIPTION
+    if int(options.tiebreak) == 1:
+        options.mnum = tiebreak_mnum(options.mnum, options.mcode)
 
     youtube = get_youtube_service()
     spreadsheet = get_spreadsheet_service()
 
     try:
-        if int(args.end) > int(args.mnum):
-            upload_multiple_videos(youtube, args)
+        if int(options.end) > int(options.mnum):
+            upload_multiple_videos(youtube, options)
     except ValueError:
         try:
-            initialize_upload(youtube, spreadsheet, args)
+            initialize_upload(youtube, spreadsheet, options)
         except HttpError, e:
             print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
