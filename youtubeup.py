@@ -121,7 +121,7 @@ def create_title(options):
 
 def quals_filename(options):
     for f in options.files:
-        if (" "+str(options.mnum)) and options.ename and "Qualification" in f:
+        if ((" "+str(options.mnum)) and options.ename and "Qualification") in f:
             print "Found %s to upload" % f
             return str(f)
     raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
@@ -129,42 +129,49 @@ def quals_filename(options):
 def quarters_filename(options):
     if 1 <= options.mnum <= 8:
         for f in options.files:
-            if (" "+str(options.mnum)) and options.ename and "Quarterfinal" in f:
-                print "Found %s to upload" % f
-                return str(f)
+            if "Quarter" in f:
+                if (" "+str(options.mnum)) in f:
+                    print "Found %s to upload" % f
+                    return str(f)
     elif 9 <= options.mnum <= 12:
         mnum = int(options.mnum) - 8
         for f in options.files:
-            if (" "+str(mnum)) and options.ename and "Quarterfinal" and "Tiebreaker" in f:
-                print "Found %s to upload" % f
-                return str(f)
+            if "Quarter" in f:
+                if "Tiebreak" in f:
+                    if (" "+str(mnum)) in f:
+                        print "Found %s to upload" % f
+                        return str(f)
     else:
         raise ValueError("mnum must be between 1 and 12")
 
 def semis_filename(options):
-    if 1 <= options.mnum <= 4: 
+    if 1 <= options.mnum <= 4:
         for f in options.files:
-            if (" "+str(options.mnum)) and options.ename and "Semifinal" in f:
-                print "Found %s to upload" % f
-                return str(f)
+            if "Semifinal" in f:
+                if (" "+str(options.mnum)) in f:
+                    print "Found %s to upload" % f
+                    return str(f)
     elif 5 <= options.mnum <= 6:
         mnum = int(options.mnum) - 4
         for f in options.files:
-            if (" "+str(mnum)) and options.ename and "Semifinal" and "Tiebreaker" in f:
-                print "Found %s to upload" % f
-                return str(f)
+            if "Semifinal" in f:
+                if "Tiebreak" in f:
+                    if (" "+str(mnum)) in f:
+                        print "Found %s to upload" % f
+                        return str(f)
     else:
         raise ValueError("mnum must be between 1 and 6")
 
 def finals_filename(options):
     if 1 <= options.mnum <= 2:
         for f in options.files:
-            if (" "+str(mnum)) and options.ename and "Final" in f:
-                print "Found %s to upload" % f
-                return str(f)
+            if "Final" in f:
+                if (" "+str(options.mnum)) in f:
+                    print "Found %s to upload" % f
+                    return str(f)
     elif options.mnum == 3:
         for f in options.files:
-            if options.ename and "Final" and "Tiebreaker" in f:
+            if "Final" and "Tiebreak" in f:
                 print "Found %s to upload" % f
                 return str(f)
     else:
@@ -283,10 +290,10 @@ def tiebreak_mnum(mnum, mcode):
     }
     return switcher[mcode]
 
-def upload_multiple_videos(youtube, options):
+def upload_multiple_videos(youtube, spreadsheet, options):
     while int(options.mnum) <= int(options.end):
         try:
-            initialize_upload(youtube, options)
+            initialize_upload(youtube, spreadsheet, options)
         except HttpError, e:
             print "An HTTP error %d occurred:\n%s\n" % (e.resp.status, e.content)
         options.mnum = int(options.mnum) + 1
@@ -327,7 +334,7 @@ def init(options):
 
     try:
         if int(options.end) > int(options.mnum):
-            upload_multiple_videos(youtube, options)
+            upload_multiple_videos(youtube, spreadsheet, options)
     except ValueError:
         try:
             initialize_upload(youtube, spreadsheet, options)
@@ -398,7 +405,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-                update_thumbnail(youtube, response['id'])
+                update_thumbnail(youtube, response['id'], "thumbnail.png")
                 add_video_to_playlist(
                         youtube, response['id'], options.pID)
                 request_body = json.dumps({mcode: response['id']})

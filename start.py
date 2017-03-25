@@ -49,8 +49,8 @@ dataform = form.Form(
 		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
 		description="Match Type"),
 	form.Dropdown("tiebreak",[(0,"False"),(1,"True")],description="Tiebreaker"),
-    form.Dropdown("tba",[(1,"True"),(0,"False")],description="Update TBA"),
-    form.Dropdown("ceremonies",[(0,"None"),(1,"Opening Ceremonies"),(2,"Alliance Selection"),(3,"Closing Ceremonies")],description="Ceremonies"),
+        form.Dropdown("tba",[(1,"True"),(0,"False")],description="Update TBA"),
+        form.Dropdown("ceremonies",[(0,"None"),(1,"Opening Ceremonies"),(2,"Alliance Selection"),(3,"Closing Ceremonies")],description="Ceremonies"),
 	form.Textbox("end", 
 		description="Last Match Number", 
 		value="Only for batch uploads"),
@@ -60,7 +60,7 @@ dataform = form.Form(
 
 class index():
 	def GET(self):
-		form = dataform()
+		myform = dataform()
 		with open('form_values.csv', 'rb') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',', quotechar='|')
 			i = 0
@@ -68,33 +68,35 @@ class index():
 				for value in row:
 					if value is not "":
 						switcher = {
-							0: form.where,
-							1: form.prodteam,
-							2: form.twit,
-							3: form.fb,
-							4: form.weblink,
-							5: form.ename,
-							6: form.ecode,
-							7: form.pID,
-							8: form.tbaID,
-							9: form.tbaSecret,
-							10: form.description,
-							11: form.mnum,
-							12: form.mcode,
-							13: form.tiebreak,
-							14: form.tba,
-							15: form.ceremonies,
-							16: form.end,
+							0: myform.where,
+							1: myform.prodteam,
+							2: myform.twit,
+							3: myform.fb,
+							4: myform.weblink,
+							5: myform.ename,
+							6: myform.ecode,
+							7: myform.pID,
+							8: myform.tbaID,
+							9: myform.tbaSecret,
+							10: myform.description,
+							11: myform.mnum,
+							12: myform.mcode,
+							13: myform.tiebreak,
+							14: myform.tba,
+							15: myform.ceremonies,
+							16: myform.end,
 						}
+						if (12 <= i <= 15):
+                                                        switcher
 						switcher[i].set_value(value)
 					i = i + 1
 				break
-		return render.forms(form)
+		return render.forms(myform)
 
 	def POST(self):
-		form = dataform()
-		if not form.validates():
-			return render.forms(form)
+		myform = dataform()
+		if not myform.validates():
+			return render.forms(myform)
 		else:
 			then = datetime.now()
 			reader = csv.reader(open('form_values.csv'))
@@ -110,35 +112,35 @@ class index():
 			formdata = web.input()
 			args.then = then
 			args.gui = True
-			args.where = row[0] = form.d.where
-			args.prodteam = row[1] = form.d.prodteam
-			args.twit = row[2] = form.d.twit
-			args.fb = row[3] = form.d.fb
-			args.weblink = row[4] = form.d.weblink
-			args.ename = row[5] = form.d.ename
-			args.ecode = row[6] = form.d.ecode
-			args.pID = row[7] = form.d.pID
-			args.tbaID = row[8] = form.d.tbaID
-			args.tbaSecret = row[9] = form.d.tbaSecret
-			args.description = row[10] = form.d.description
-			args.mnum = row[11] = int(form.d.mnum)
-			args.mcode = row[12] = form.d.mcode
-			args.tiebreak = row[13] = form.d.tiebreak
-			args.tba = row[14] = form.d.tba
-			args.ceremonies = row[15] = form.d.ceremonies
-			args.end = row[16] = form.d.end
+			args.where = row[0] = myform.d.where
+			args.prodteam = row[1] = myform.d.prodteam
+			args.twit = row[2] = myform.d.twit
+			args.fb = row[3] = myform.d.fb
+			args.weblink = row[4] = myform.d.weblink
+			args.ename = row[5] = myform.d.ename
+			args.ecode = row[6] = myform.d.ecode
+			args.pID = row[7] = myform.d.pID
+			args.tbaID = row[8] = myform.d.tbaID
+			args.tbaSecret = row[9] = myform.d.tbaSecret
+			args.description = row[10] = myform.d.description
+			args.mnum = row[11] = int(myform.d.mnum)
+			args.mcode = row[12] = myform.d.mcode
+			args.tiebreak = row[13] = myform.d.tiebreak
+			args.tba = row[14] = myform.d.tba
+			args.ceremonies = row[15] = myform.d.ceremonies
+			args.end = row[16] = myform.d.end
 			yup.init(args)
-			if int(form.d.ceremonies) == 0:
-                                if form.d.end == "Only for batch uploads":
-                                        form.mnum.set_value(str(int(form.d.mnum) + 1))
+			if int(myform.d.ceremonies) == 0:
+                                if myform.d.end == "Only for batch uploads":
+                                        myform.mnum.set_value(str(int(form.d.mnum) + 1))
                                 else:
-                                        form.mnum.set_value(str(int(form.d.end) + 1))
-                                        form.end.set_value("Only for batch uploads")
-			row[11] = int(form.d.mnum)
-			row[16] = form.d.end
+                                        myform.mnum.set_value(str(int(form.d.end) + 1))
+                                        myform.end.set_value("Only for batch uploads")
+			row[11] = int(myform.d.mnum)
+			row[16] = myform.d.end
 			writer = csv.writer(open('form_values.csv', 'w'))
 			writer.writerow(row)
-			return render.forms(form)
+			return render.forms(myform)
 			
 def main():
 	web.internalerror = web.debugerror
