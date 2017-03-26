@@ -25,7 +25,7 @@ A YouTube Uploader for FRC Events.
 8. Enjoy not having to deal with YouTube's front end 
 
 ### Web UI Breakdown
-![alt text](http://i.imgur.com/z9PxgCP.png)
+![alt text](http://i.imgur.com/IYaJSex.png?1)
 
 I focused on simplicty and usability. All the necessary details fit into one small space allowing you to easily place this anywhere on your screen without needing to see all of it.
 
