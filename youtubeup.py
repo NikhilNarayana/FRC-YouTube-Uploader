@@ -121,7 +121,8 @@ def create_title(options):
 
 def quals_filename(options):
     for f in options.files:
-        if ((" "+str(options.mnum)) and options.ename and "Qualification") in f:
+        fl = f.lower()
+        if all(k in fl for k in ("qual", " "+str(options.mnum), options.ename)):
             print "Found %s to upload" % f
             return str(f)
     raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
@@ -129,69 +130,71 @@ def quals_filename(options):
 def quarters_filename(options):
     if 1 <= options.mnum <= 8:
         for f in options.files:
-            if "Quarter" in f:
-                if (" "+str(options.mnum)) in f:
-                    print "Found %s to upload" % f
-                    return str(f)
+            fl = f.lower()
+            if all(k in fl for k in ("quarter", "final", " "+str(options.mnum), options.ename.lower())):
+                print "Found %s to upload" % f
+                return str(f)
     elif 9 <= options.mnum <= 12:
         mnum = int(options.mnum) - 8
         for f in options.files:
-            if "Quarter" in f:
-                if "Tiebreak" in f:
-                    if (" "+str(mnum)) in f:
-                        print "Found %s to upload" % f
-                        return str(f)
+            fl = f.lower()
+            if all(k in fl for k in ("quarter", "tiebreak", "final"," "+str(options.mnum), options.ename.lower())):
+                print "Found %s to upload" % f
+                return str(f)
     else:
         raise ValueError("mnum must be between 1 and 12")
 
 def semis_filename(options):
     if 1 <= options.mnum <= 4:
         for f in options.files:
-            if "Semifinal" in f:
-                if (" "+str(options.mnum)) in f:
-                    print "Found %s to upload" % f
-                    return str(f)
+            fl = f.lower()
+            if all(k in fl for k in ("semi", "final", " "+str(options.mnum), options.ename.lower())):
+                print "Found %s to upload" % f
+                return str(f)
     elif 5 <= options.mnum <= 6:
         mnum = int(options.mnum) - 4
         for f in options.files:
-            if "Semifinal" in f:
-                if "Tiebreak" in f:
-                    if (" "+str(mnum)) in f:
-                        print "Found %s to upload" % f
-                        return str(f)
+            fl = f.lower()
+            if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(options.mnum), options.ename.lower())):
+                print "Found %s to upload" % f
+                return str(f)
     else:
         raise ValueError("mnum must be between 1 and 6")
 
 def finals_filename(options):
     if 1 <= options.mnum <= 2:
         for f in options.files:
-            if "Final" in f:
-                if (" "+str(options.mnum)) in f:
+            fl = f.lower()
+            if all(k in fl for k in ("final"," "+str(options.mnum), options.ename.lower())):
+                if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
                     return str(f)
     elif options.mnum == 3:
         for f in options.files:
-            if "Final" and "Tiebreak" in f:
-                print "Found %s to upload" % f
-                return str(f)
+            if all(k in fl for k in ("tiebreak", "final"," "+str(options.mnum), options.ename.lower())):
+                if all(k not in fl for k in ("quarter","semi")):
+                    print "Found %s to upload" % f
+                    return str(f)
     else:
         raise ValueError("mnum must be between 1 and 3")
 
 def ceremonies_filename(options):
-    cerem = options.ceremonies
-    if cerem is 1:
+    if options.ceremonies is 1:
         for f in options.files:
-            if dt.datetime.now().strftime("%A") and "Opening Ceremonies" in f:
+            fl = f.lower()
+            if all(k in fl for k in (dt.datetime.now().strftime("%A").lower(), "opening", "ceremonies")) in f:
                 print "Found %s to upload" % f
                 return str(f)
-    if cerem is 2:
+    if options.ceremonies is 2:
         for f in options.files:
-            if "Alliance Selection" in f:
+            fl = f.lower()
+            if "alliance selection" in fl:
                 print "Found %s to upload" % f
                 return str(f)
-    if cerem is 3:
+    if options.ceremonies is 3:
         for f in options.files:
-            if "Closing Ceremonies" in f:
+            fl = f.lower()
+            if "closing" in fl or "awards" in fl and "ceremonies" in fl:
                 print "Found %s to upload" % f
                 return str(f)
 
@@ -284,6 +287,7 @@ def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3
 
 def tiebreak_mnum(mnum, mcode):
     switcher = {
+            "qm": int(mnum),
             "qf": int(mnum) + 8,
             "sf": int(mnum) + 4,
             "f1m": 3,

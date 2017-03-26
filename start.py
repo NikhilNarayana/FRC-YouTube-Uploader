@@ -48,8 +48,8 @@ dataform = form.Form(
 	form.Dropdown("mcode",
 		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
 		description="Match Type"),
-	form.Dropdown("tiebreak",[(0,"False"),(1,"True")],description="Tiebreaker"),
-        form.Dropdown("tba",[(1,"True"),(0,"False")],description="Update TBA"),
+	form.Dropdown("tiebreak",[("no","False"),("yes","True")],description="Tiebreaker"),
+        form.Dropdown("tba",[("yes","True"),("no","False")],description="Update TBA"),
         form.Dropdown("ceremonies",[(0,"None"),(1,"Opening Ceremonies"),(2,"Alliance Selection"),(3,"Closing Ceremonies")],description="Ceremonies"),
 	form.Textbox("end", 
 		description="Last Match Number", 
@@ -86,8 +86,6 @@ class index():
 							15: myform.ceremonies,
 							16: myform.end,
 						}
-						if (12 <= i <= 15):
-                                                        switcher
 						switcher[i].set_value(value)
 					i = i + 1
 				break
@@ -125,17 +123,24 @@ class index():
 			args.description = row[10] = myform.d.description
 			args.mnum = row[11] = int(myform.d.mnum)
 			args.mcode = row[12] = myform.d.mcode
-			args.tiebreak = row[13] = myform.d.tiebreak
-			args.tba = row[14] = myform.d.tba
+			args.tiebreak = 0 if myform.d.tiebreak == "no" else 1
+			row[13] = myform.d.tiebreak
+			args.tba = 0 if myform.d.tba == "no" else 1
+			row[14] = myform.d.tba
 			args.ceremonies = row[15] = myform.d.ceremonies
 			args.end = row[16] = myform.d.end
 			yup.init(args)
 			if int(myform.d.ceremonies) == 0:
-                                if myform.d.end == "Only for batch uploads":
-                                        myform.mnum.set_value(str(int(form.d.mnum) + 1))
-                                else:
-                                        myform.mnum.set_value(str(int(form.d.end) + 1))
-                                        myform.end.set_value("Only for batch uploads")
+				if myform.d.end == "Only for batch uploads":
+					myform.mnum.set_value(str(int(myform.d.mnum) + 1))
+				else:
+					myform.mnum.set_value(str(int(myform.d.end) + 1))
+					myform.end.set_value("Only for batch uploads")
+			elif int(myform.d.ceremonies) == 2:
+				myform.mnum.set_value("1")
+				myform.mcode.set_value("qf")
+			if myform.d.mcode == "qm" and myform.d.tiebreak == "yes":
+				myform.tiebreak.set_value("no")
 			row[11] = int(myform.d.mnum)
 			row[16] = myform.d.end
 			writer = csv.writer(open('form_values.csv', 'w'))
