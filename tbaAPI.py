@@ -1,6 +1,5 @@
 # Written by Wes Jordan and found here: Python TBA API Layer (https://github.com/Thing342/pyTBA)
 import simplejson as json
-import numpy
 import requests
 import hashlib
 import re
@@ -87,64 +86,6 @@ class Event:
 
 	def get_playoff_matches(self):
 		return list(filter(lambda match: match['comp_level'] != 'qm', self.matches))
-
-	def match_matrix(self):
-		match_list = []
-		for match in filter(lambda match: match['comp_level'] == 'qm',self.matches):
-			matchRow = []
-			for team in self.teams:
-				matchRow.append(1 if team['key'] in match['alliances']['red']['teams'] else 0)
-			match_list.append(matchRow)
-			matchRow = []
-			for team in self.teams:
-				matchRow.append(1 if team['key'] in match['alliances']['blue']['teams'] else 0)
-			match_list.append(matchRow)
-
-		mat = numpy.array(match_list)
-		return mat[:, numpy.apply_along_axis(numpy.count_nonzero, 0, mat) > 8]
-
-	def opr(self, **kwargs):
-		match_scores = []
-		kwargs['total'] = lambda m, a: match['alliances'][a]['score']
-		for match in filter(lambda match: match['comp_level'] == 'qm',self.matches):
-			score = []
-			for key in kwargs.keys():
-				item = kwargs[key]
-				if callable(item):
-					score.append(item(match, 'red'))
-				else:
-					score.append(match['score_breakdown']['red'][item])
-			match_scores.append(score)
-			score = []
-			for key in kwargs.keys():
-				item = kwargs[key]
-				if callable(item):
-					score.append(item(match, 'blue'))
-				else:
-					score.append(match['score_breakdown']['red'][item])
-			match_scores.append(score)
-
-		match_matrix = self.match_matrix()
-		score_matrix = numpy.array(match_scores)
-		opr_dict = {}
-		mat = numpy.transpose(match_matrix).dot(match_matrix)
-
-		for team in self.teams:
-			opr_dict[team['key']] = {}
-
-		col = 0
-		for key in kwargs:
-			"""Solving  A'Ax = A'b with A being the match matrix, and b being the score column we're solving for"""
-			score_comp = score_matrix[:,col]
-			opr = numpy.linalg.solve(mat, numpy.transpose(match_matrix).dot(score_comp))
-			assert len(opr) == len(self.teams)
-			row = 0
-			for team in self.teams:
-				opr_dict[team['key']][key] = opr[row]
-				row += 1
-			col += 1
-
-		return opr_dict
 
 
 def match_sort_key(match):
@@ -248,7 +189,7 @@ def set_auth_sig(secret, event_key, request_body):
 	trusted_auth['X-TBA-Auth-Sig'] = str(md5)
 	return request_path
 
-def post_video(token, secret, event_key, match_video):
+def post_video(token, secret, match_video, event_key):
     global trusted_auth
     set_auth_id(token)
     set_auth_sig(secret, event_key, match_video)
@@ -264,6 +205,37 @@ def post_video(token, secret, event_key, match_video):
         r = s.post(url_str, data=match_video, headers=trusted_auth)
     if "Error" in r.content:
         raise Exception(r.content)
+    else:
+    	print "Successfully added to TBA"
+
+def get_match_results(event_key, match_key):
+	tba.set_api_key("Nikki-Narayana","FRC-Match-Uploader","2.5.2")
+	event = tba.event_get(event_key)
+	match_data = event.get_match(match_key)
+	if match_data is None:
+		raise ValueError("""Match %s%s does not exist. Please use a match that exists""" % (event_key, match_key))
+	blue_data, red_data = parse_data(match_data)
+	while (blue_data[0] == -1 or red_data[0] == -1):
+                print "Waiting 1 minute for TBA to update scores"
+                time.sleep(60)
+                match_data = tba.event_get(event_key).get_match(match_key)
+                blue_data, red_data = parse_data(match_data)
+	return blue_data, red_data
+
+def parse_data(match_data):
+	blue = match_data['alliances']['blue']['teams']
+	red = match_data['alliances']['red']['teams']
+	blue1 = blue[0][3:]
+	blue2 = blue[1][3:]
+	blue3 = blue[2][3:]
+	red1 = red[0][3:]
+	red2 = red[1][3:]
+	red3 = red[2][3:]
+	blue_score = match_data['alliances']['blue']['score']
+	red_score = match_data['alliances']['red']['score']
+	blue_data = [blue_score, blue1, blue2, blue3]
+	red_data = [red_score, red1, red2, red3]
+	return blue_data, red_data
 
 def get_event_hashtag(event_key):
     return "frc" + re.search('\D+', event_key).group()

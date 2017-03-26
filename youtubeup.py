@@ -10,7 +10,6 @@ from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 import TBA
 from tbaAPI import *
-from addtoplaylist import add_video_to_playlist
 from youtubeAuthenticate import *
 import datetime as dt
 
@@ -194,7 +193,7 @@ def ceremonies_filename(options):
     if options.ceremonies is 3:
         for f in options.files:
             fl = f.lower()
-            if "closing" in fl or "awards" in fl and "ceremonies" in fl:
+            if "closing" in fl or "award" in fl and "ceremonies" in fl:
                 print "Found %s to upload" % f
                 return str(f)
 
@@ -310,6 +309,25 @@ def update_thumbnail(youtube, video_id, thumbnail):
         ).execute()
     print "Thumbnail added to video %s" % video_id
 
+def add_to_playlist(youtube,videoID,playlistID):
+    if type(videoID) is list: # Recursively add videos if videoID is list
+        for vid in videoID:
+            add_video_to_playlist(youtube,vid,playlistID)
+    else:
+        add_video_request=youtube.playlistItems().insert(
+        part="snippet",
+        body={
+            'snippet': {
+                'playlistId': playlistID, 
+                'resourceId': {
+                        'kind': 'youtube#video',
+                    'videoId': videoID
+                }
+            }
+        }
+    ).execute()
+        print "Added to playlist"
+
 def init(options):
     options.files = [f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]
     options.tags = DEFAULT_TAGS % options.ecode
@@ -410,8 +428,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             if 'id' in response:
                 print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
                 update_thumbnail(youtube, response['id'], "thumbnail.png")
-                add_video_to_playlist(
-                        youtube, response['id'], options.pID)
+                add_to_playlist(youtube, response['id'], options.pID)
                 request_body = json.dumps({mcode: response['id']})
                 if options.tba:
                     TBA.post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)

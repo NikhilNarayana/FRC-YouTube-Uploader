@@ -8,6 +8,7 @@ import csv
 from datetime import datetime
 import time
 import sys
+import socket
 
 render = web.template.render('webpage/')
 
@@ -146,10 +147,23 @@ class index():
 			writer = csv.writer(open('form_values.csv', 'w'))
 			writer.writerow(row)
 			return render.forms(myform)
+
+def internet(host="www.google.com", port=80, timeout=4):
+    try:
+    	host = socket.gethostbyname(host)
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        return True
+    except Exception:
+        print "No internet!"
+        return False
 			
 def main():
 	web.internalerror = web.debugerror
-	app.run()
+	if internet():
+		app.run()
+	else:
+		return
 
 if __name__=="__main__":
 	main()
