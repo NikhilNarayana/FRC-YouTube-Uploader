@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
-import TBA, youtubeAuthenticate, tbaAPI
+import youtubeAuthenticate, tbaAPI
 import argparse
 import youtubeup  as yup
 import simplejson as json
@@ -14,7 +14,7 @@ class MyTests(unittest.TestCase):
     def test_parse_data(self):
         blue_data = [132, "999", "180", "3166"]
         red_data = [230, "5050", "1986", "1501"]
-        self.assertEqual(TBA.get_match_results("2016arc", "f1m1"), (blue_data, red_data))
+        self.assertEqual(tbaAPI.get_match_results("2016arc", "f1m1"), (blue_data, red_data))
 
     def test_create_title(self):
         parser = argparse.ArgumentParser(description='argparse for testing')

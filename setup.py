@@ -20,6 +20,6 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 2.7',
     ],
-    version='2.5',
+    version='2.5.1',
     packages=find_packages(),
 )

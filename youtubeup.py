@@ -8,7 +8,6 @@ import argparse
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
-import TBA
 from tbaAPI import *
 from youtubeAuthenticate import *
 import datetime as dt
@@ -270,7 +269,7 @@ def get_match_code(mcode, mnum):
 
 def tba_results(options):
     mcode = get_match_code(options.mcode, int(options.mnum))
-    blue_data, red_data = TBA.get_match_results(options.ecode, mcode)
+    blue_data, red_data = get_match_results(options.ecode, mcode)
     return blue_data, red_data, mcode
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
@@ -431,7 +430,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                 add_to_playlist(youtube, response['id'], options.pID)
                 request_body = json.dumps({mcode: response['id']})
                 if options.tba:
-                    TBA.post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
+                    post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
                 totalTime = dt.datetime.now() - options.then
                 spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
                 rowRange = "Data!A1:F1"

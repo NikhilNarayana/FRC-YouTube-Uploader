@@ -209,11 +209,10 @@ def post_video(token, secret, match_video, event_key):
     	print "Successfully added to TBA"
 
 def get_match_results(event_key, match_key):
-	tba.set_api_key("Nikki-Narayana","FRC-Match-Uploader","2.5.2")
-	event = tba.event_get(event_key)
-	match_data = event.get_match(match_key)
+	set_api_key("Nikki-Narayana","FRC-Match-Uploader","2.5.1")
+	match_data = event_get(event_key).get_match(match_key)
 	if match_data is None:
-		raise ValueError("""Match %s%s does not exist. Please use a match that exists""" % (event_key, match_key))
+		raise ValueError("""%s %s does not exist on TBA. Please use a match that exists""" % (event_key, match_key))
 	blue_data, red_data = parse_data(match_data)
 	while (blue_data[0] == -1 or red_data[0] == -1):
                 print "Waiting 1 minute for TBA to update scores"
