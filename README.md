@@ -45,10 +45,10 @@ Find this at TheBlueAlliance in the address bar of the event page. It generally 
 You can find the playlist ID on the playlist page's web address. Every playlist ID starts with PL making them easy to identify.
 
 ##### TBA Event ID/Secret
-Both of these must be obtained by contacting TBA at contact@thebluealliance.com for the keys to your event. If your event is not on TBA I suggest you just uncheck the `Use The Blue Alliance` checkbox and not worry.
+Both of these must be obtained by requesting them from www.thebluealliance.com/request/apiwrite for the keys to your event. If your event is not on TBA I suggest you just set `Update TBA` to False.
 
 ##### Video Description
-The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. The usual description is found in `youtubeup.py`. If you would rather not use that description feel free to input your own.
+The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. The usual description is found in `youtubeup.py`. If you would rather not use that description feel free to input your own or ask me to create a specific description just for you.
 
 ##### Match Number
 Fairly self-explanatory, just remember to reset the value when you go into each stage of eliminations. This value will increment each time you press "Submit".
