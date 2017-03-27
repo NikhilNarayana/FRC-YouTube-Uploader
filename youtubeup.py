@@ -270,7 +270,7 @@ def finals_match_code(mcode, mnum):
 def get_match_code(mcode, mnum):
     switcher = {
             "qm": quals_match_code,
-            "ef": eigths_match_code,
+            "ef": eights_match_code,
             "qf": quarters_match_code,
             "sf": semis_match_code,
             "f1m": finals_match_code,
@@ -296,7 +296,7 @@ def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3
 def tiebreak_mnum(mnum, mcode):
     switcher = {
             "qm": int(mnum),
-            "ef": int(mnum) + 16
+            "ef": int(mnum) + 16,
             "qf": int(mnum) + 8,
             "sf": int(mnum) + 4,
             "f1m": 3,
