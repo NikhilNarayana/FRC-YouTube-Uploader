@@ -106,6 +106,7 @@ def create_title(options):
     if cerem is 0:
         switcher = {
                 "qm": quals_yt_title,
+                "ef": eights_yt_title,
                 "qf": quarters_yt_title,
                 "sf": semis_yt_title,
                 "f1m": finals_yt_title,
@@ -120,7 +121,7 @@ def create_title(options):
 def quals_filename(options):
     for f in options.files:
         fl = f.lower()
-        if all(k in fl for k in ("qual", " "+str(options.mnum), options.ename)):
+        if all(k in fl for k in ("qual", " "+str(options.mnum), options.ename.lower())):
             print "Found %s to upload" % f
             return str(f)
     raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
@@ -214,43 +215,51 @@ def quals_match_code(mcode, mnum):
     match_code = str(mcode) + str(mnum)
     return match_code
 
+def eights_match_code(mcode, mnum):
+    match_set = str(mnum % 8)
+    match_code = None
+    if match_set == "0":
+        match_set = "8"
+    if mnum <= 8:
+        match_code = mcode + match_set + "m1"
+    elif mnum <= 16:
+        match_code = mcode + match_set + "m2"
+    elif mnum <= 24:
+        match_code = mcode + match_set + "m3"
+    else:
+        raise ValueError("Match Number can't be larger than 24")
+    return match_code
+
+
 def quarters_match_code(mcode, mnum):
-    match_set = mnum % 4
-    if match_set == 0:
-        match_set = 4
+    match_set = str(mnum % 4)
+    match_code = None
+    if match_set == "0":
+        match_set = "4"
     if mnum <= 4:
-        match = 1
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return match_code
+        match_code = mcode + match_set + "m1"
     elif 5 <= mnum <= 8:
-        match = 2
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return match_code
+        match_code = mcode + match_set + "m2"
     elif 9 <= mnum <= 12:
-        match = 3
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return match_code
+        match_code = mcode + match_set + "m3"
     else:
         raise ValueError("Match Number can't be larger than 12")
+    return match_code
 
 def semis_match_code(mcode, mnum):
-    match_set = mnum % 2
-    if match_set == 0:
-        match_set = 2
+    match_set = str(mnum % 2)
+    match_code = None
+    if match_set == "0":
+        match_set = "2"
     if mnum <= 2:
-        match = 1
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return match_code
+        match_code = mcode + match_set + "m1"
     elif 3 <= mnum <= 4:
-        match = 2
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return match_code
+        match_code = mcode + match_set + "m2"
     elif 5 <= mnum <= 6:
-        match = 3
-        match_code = mcode + str(match_set) + "m" + str(match)
-        return match_code
+        match_code = mcode + match_set + "m3"
     else:
         raise ValueError("Match Number can't be larger than 6")
+    return match_code
 
 def finals_match_code(mcode, mnum):
     if mnum > 3:
@@ -261,6 +270,7 @@ def finals_match_code(mcode, mnum):
 def get_match_code(mcode, mnum):
     switcher = {
             "qm": quals_match_code,
+            "ef": eigths_match_code,
             "qf": quarters_match_code,
             "sf": semis_match_code,
             "f1m": finals_match_code,
@@ -286,6 +296,7 @@ def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3
 def tiebreak_mnum(mnum, mcode):
     switcher = {
             "qm": int(mnum),
+            "ef": int(mnum) + 16
             "qf": int(mnum) + 8,
             "sf": int(mnum) + 4,
             "f1m": 3,
@@ -328,6 +339,7 @@ def add_to_playlist(youtube,videoID,playlistID):
         print "Added to playlist"
 
 def init(options):
+    """The program starts here"""
     options.files = [f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]
     options.tags = DEFAULT_TAGS % options.ecode
     options.privacyStatus = 0
