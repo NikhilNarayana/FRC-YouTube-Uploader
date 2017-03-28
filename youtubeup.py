@@ -340,7 +340,7 @@ def add_to_playlist(youtube,videoID,playlistID):
 
 def init(options):
     """The program starts here"""
-    options.files = [f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]
+    options.files = reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))])
     options.tags = DEFAULT_TAGS % options.ecode
     options.privacyStatus = 0
     options.ceremonies = int(options.ceremonies)
