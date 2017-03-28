@@ -6,14 +6,14 @@ import youtubeup as yup
 import argparse
 import csv
 from datetime import datetime
+from time import sleep
 import time
 import sys
 import socket
+import webbrowser
+import threading
 
 render = web.template.render('webpage/')
-
-urls = ('/', 'index')
-app = web.application(urls, globals())
 
 dataform = form.Form(
 	form.Dropdown("where",
@@ -59,7 +59,13 @@ dataform = form.Form(
 		lambda i: i.end == "Only for batch uploads" or int(i.end) > int(i.mnum))]
 	)
 
-class index():
+class index(threading.Thread):
+	def run(self):
+		urls = ('/', 'index')
+		app = web.application(urls, globals())
+		webbrowser.open_new("http://localhost:8080")
+		app.run()
+
 	def GET(self):
 		myform = dataform()
 		with open('form_values.csv', 'rb') as csvfile:
@@ -130,7 +136,9 @@ class index():
 			row[14] = myform.d.tba
 			args.ceremonies = row[15] = myform.d.ceremonies
 			args.end = row[16] = myform.d.end
-			yup.init(args)
+			thr = threading.Thread(target=yup.init, args=(args,))
+			thr.daemon = True
+			thr.start()
 			if int(myform.d.ceremonies) == 0:
 				if myform.d.end == "Only for batch uploads":
 					myform.mnum.set_value(str(int(myform.d.mnum) + 1))
@@ -161,7 +169,15 @@ def internet(host="www.google.com", port=80, timeout=4):
 def main():
 	web.internalerror = web.debugerror
 	if internet():
-		app.run()
+		t = index()
+		t.daemon = True
+		t.start()
+		while True:
+			try:
+				sleep(100)
+			except KeyboardInterrupt:
+				print "\nQuitting Program"
+				return
 	else:
 		return
 

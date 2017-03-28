@@ -23,6 +23,7 @@ $def with (form)
 		</p>
 		<form name="main" method="post"> 
 			$if not form.valid: <p class="error">Try again</p>
+			<input type="submit" style="margin-left: 45%">
 			$:form.render()
 			<input type="submit" style="margin-left: 45%">
 		</form>
