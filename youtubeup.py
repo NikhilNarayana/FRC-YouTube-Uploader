@@ -386,6 +386,7 @@ def initialize_upload(youtube, spreadsheet, options):
         tags.extend(["frc" + str(blue_data[1]), "frc" + str(blue_data[2]), "frc" + str(blue_data[3])])
         tags.extend(["frc" + str(red_data[1]), "frc" + str(red_data[2]), "frc" + str(red_data[3])])
         tags.append(get_event_hashtag(options.ecode))
+        tags.extend(options.ename.split(" "))
 
         body = dict(
                 snippet=dict(
