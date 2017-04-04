@@ -91,19 +91,17 @@ def finals_yt_title(options):
         raise ValueError("options.mnum must be within 1 and 3")
 
 def ceremonies_title(options):
-    cerem = options.ceremonies
-    title = ""
-    if cerem is 1:
+    title = None 
+    if options.ceremonies is 1:
         title = options.ename + " - " + "%s Opening Ceremonies" % dt.datetime.now().strftime("%A")
-    if cerem is 2:
+    if options.ceremonies is 2:
         title = options.ename + " - " + "Alliance Selection"
-    if cerem is 3:
+    if options.ceremonies is 3:
         title = options.ename + " - " + "Closing Ceremonies"
     return title
 
 def create_title(options):
-    cerem = options.ceremonies
-    if cerem is 0:
+    if options.ceremonies is 0:
         switcher = {
                 "qm": quals_yt_title,
                 "ef": eights_yt_title,
@@ -439,7 +437,10 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-                update_thumbnail(youtube, response['id'], "thumbnail.png")
+                if "thumbnail" in options.files:
+                    update_thumbnail(youtube, response['id'], "thumbnail.png")
+                else:
+                    print "thumbnail.png does not exist"
                 add_to_playlist(youtube, response['id'], options.pID)
                 request_body = json.dumps({mcode: response['id']})
                 if options.tba:
