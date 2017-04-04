@@ -437,7 +437,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-                if "thumbnail" in options.files:
+                if any("thumbnail" in file for file in options.file):
                     update_thumbnail(youtube, response['id'], "thumbnail.png")
                 else:
                     print "thumbnail.png does not exist"
