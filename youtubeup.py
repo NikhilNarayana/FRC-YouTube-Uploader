@@ -119,7 +119,7 @@ def create_title(options):
 def quals_filename(options):
     for f in options.files:
         fl = f.lower()
-        if all(k in fl for k in ("qual", " "+str(options.mnum), options.ename.lower())):
+        if all(k in fl for k in ("qual", " "+str(options.mnum))):
             print "Found %s to upload" % f
             return str(f)
     raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
@@ -128,14 +128,14 @@ def quarters_filename(options):
     if 1 <= options.mnum <= 8:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("quarter", "final", " "+str(options.mnum), options.ename.lower())):
+            if all(k in fl for k in ("quarter", "final", " "+str(options.mnum))):
                 print "Found %s to upload" % f
                 return str(f)
     elif 9 <= options.mnum <= 12:
         mnum = int(options.mnum) - 8
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("quarter", "tiebreak", "final"," "+str(options.mnum), options.ename.lower())):
+            if all(k in fl for k in ("quarter", "tiebreak", "final"," "+str(options.mnum))):
                 print "Found %s to upload" % f
                 return str(f)
     else:
@@ -145,14 +145,14 @@ def semis_filename(options):
     if 1 <= options.mnum <= 4:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("semi", "final", " "+str(options.mnum), options.ename.lower())):
+            if all(k in fl for k in ("semi", "final", " "+str(options.mnum))):
                 print "Found %s to upload" % f
                 return str(f)
     elif 5 <= options.mnum <= 6:
         mnum = int(options.mnum) - 4
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(options.mnum), options.ename.lower())):
+            if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(options.mnum))):
                 print "Found %s to upload" % f
                 return str(f)
     else:
@@ -162,13 +162,13 @@ def finals_filename(options):
     if 1 <= options.mnum <= 2:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("final"," "+str(options.mnum), options.ename.lower())):
+            if all(k in fl for k in ("final"," "+str(options.mnum))):
                 if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
                     return str(f)
     elif options.mnum == 3:
         for f in options.files:
-            if all(k in fl for k in ("tiebreak", "final"," "+str(options.mnum), options.ename.lower())):
+            if all(k in fl for k in ("tiebreak", "final"," "+str(options.mnum))):
                 if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
                     return str(f)
@@ -179,19 +179,19 @@ def ceremonies_filename(options):
     if options.ceremonies is 1:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in (dt.datetime.now().strftime("%A").lower(), "opening", "ceremonies")) in f:
+            if all(k in fl for k in (dt.datetime.now().strftime("%A").lower(), "opening", "ceremonies")):
                 print "Found %s to upload" % f
                 return str(f)
     if options.ceremonies is 2:
         for f in options.files:
             fl = f.lower()
-            if "alliance selection" in fl:
+            if all(k in fl for k in ("alliance", "selection")):
                 print "Found %s to upload" % f
                 return str(f)
     if options.ceremonies is 3:
         for f in options.files:
             fl = f.lower()
-            if "closing" in fl or "award" in fl and "ceremonies" in fl:
+            if any(k in fl for k in ("closing", "award", "ceremonies")):
                 print "Found %s to upload" % f
                 return str(f)
 
@@ -437,7 +437,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-                if "thumbnail" in options.files:
+                if any("thumbnail" in file for file in options.file):
                     update_thumbnail(youtube, response['id'], "thumbnail.png")
                 else:
                     print "thumbnail.png does not exist"
