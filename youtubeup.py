@@ -58,6 +58,8 @@ VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 def quals_yt_title(options):
     return options.title % options.mnum
 
+def eights_yt_title(options):
+    return None
 def quarters_yt_title(options):
     if 1 <= options.mnum <= 8:
         title = options.ename + " - " + QUARTER % options.mnum
@@ -135,7 +137,7 @@ def quarters_filename(options):
         mnum = int(options.mnum) - 8
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("quarter", "tiebreak", "final"," "+str(options.mnum))):
+            if all(k in fl for k in ("quarter", "tiebreak", "final"," "+str(mnum))):
                 print "Found %s to upload" % f
                 return str(f)
     else:
@@ -152,7 +154,7 @@ def semis_filename(options):
         mnum = int(options.mnum) - 4
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(options.mnum))):
+            if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(mnum))):
                 print "Found %s to upload" % f
                 return str(f)
     else:
@@ -341,7 +343,6 @@ def init(options):
     """The program starts here"""
     options.files = reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))])
     options.tags = DEFAULT_TAGS % options.ecode
-    options.privacyStatus = 0
     options.ceremonies = int(options.ceremonies)
     options.category = DEFAULT_VIDEO_CATEGORY
     options.title = options.ename + " - " + QUAL
@@ -349,15 +350,8 @@ def init(options):
     if options.description == "Add alternate description here.":
         options.description = DEFAULT_DESCRIPTION
     options.tba = int(options.tba)
-    if options.tba:
-        TBA_ID = options.tbaID
-        TBA_SECRET = options.tbaSecret
     if int(options.ceremonies) != 0:
         options.tba = 0
-    if not options.tba:
-        TBA_ID = -1
-        TBA_SECRET = -1
-        options.description = NO_TBA_DESCRIPTION
     if int(options.tiebreak) == 1:
         options.mnum = tiebreak_mnum(options.mnum, options.mcode)
 
@@ -374,12 +368,12 @@ def init(options):
             print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
 def initialize_upload(youtube, spreadsheet, options):
-    if options.ceremonies == 0:
+    if not options.ceremonies:
         print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
     else:
         print "Initializing upload for: %s" % ceremonies_title(options)
     tags = None
-    if options.tba == 1:
+    if not options.tba:
         blue_data, red_data, mcode = tba_results(options)
         tags = options.tags.split(",")
         tags.extend(["frc" + str(blue_data[1]), "frc" + str(blue_data[2]), "frc" + str(blue_data[3])])
@@ -396,7 +390,7 @@ def initialize_upload(youtube, spreadsheet, options):
                     categoryId=options.category
                     ),
                 status=dict(
-                    privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
+                    privacyStatus=VALID_PRIVACY_STATUSES[0]
                     )
                 )
     else:
@@ -413,7 +407,7 @@ def initialize_upload(youtube, spreadsheet, options):
                     categoryId=options.category
                     ),
                 status=dict(
-                    privacyStatus=VALID_PRIVACY_STATUSES[options.privacyStatus]
+                    privacyStatus=VALID_PRIVACY_STATUSES[0]
                     )
                 )
 
@@ -438,7 +432,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
-                if any("thumbnail" in file for file in options.file):
+                if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):
                     update_thumbnail(youtube, response['id'], "thumbnail.png")
                 else:
                     print "thumbnail.png does not exist"
