@@ -373,7 +373,7 @@ def initialize_upload(youtube, spreadsheet, options):
     else:
         print "Initializing upload for: %s" % ceremonies_title(options)
     tags = None
-    if not options.tba:
+    if options.tba:
         blue_data, red_data, mcode = tba_results(options)
         tags = options.tags.split(",")
         tags.extend(["frc" + str(blue_data[1]), "frc" + str(blue_data[2]), "frc" + str(blue_data[3])])
