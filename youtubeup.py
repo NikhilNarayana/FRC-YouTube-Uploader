@@ -155,6 +155,7 @@ def semis_filename(options):
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(mnum))):
+
                 print "Found %s to upload" % f
                 return str(f)
     else:
