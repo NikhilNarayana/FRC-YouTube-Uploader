@@ -61,6 +61,9 @@ If you want to batch upload a number of files you can do so with this. Every mat
 
 If you are still in need of assistance, feel free to contact me.
 
+### Stats
+Stats are collected on each match uploaded and can be found here: https://docs.google.com/spreadsheets/d/18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk/edit?usp=sharing
+All the information collected is very simple and lacks sensetive data. If you want to opt out let me know and I will finally build that button into the form
 
 ### Credits
 * Google - Authentication and Video Uploading
