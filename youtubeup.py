@@ -121,7 +121,7 @@ def create_title(options):
 def quals_filename(options):
     for f in options.files:
         fl = f.lower()
-        if all(k in fl for k in ("qual", " "+str(options.mnum))):
+        if all(k in fl for k in ("qual", " "+str(options.mnum)+".")):
             print "Found %s to upload" % f
             return str(f)
     raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
@@ -130,14 +130,14 @@ def quarters_filename(options):
     if 1 <= options.mnum <= 8:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("quarter", "final", " "+str(options.mnum))):
+            if all(k in fl for k in ("quarter", "final", " "+str(options.mnum)+".")):
                 print "Found %s to upload" % f
                 return str(f)
     elif 9 <= options.mnum <= 12:
         mnum = int(options.mnum) - 8
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("quarter", "tiebreak", "final"," "+str(mnum))):
+            if all(k in fl for k in ("quarter", "tiebreak", "final"," "+str(mnum)+".")):
                 print "Found %s to upload" % f
                 return str(f)
     else:
@@ -147,14 +147,14 @@ def semis_filename(options):
     if 1 <= options.mnum <= 4:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("semi", "final", " "+str(options.mnum))):
+            if all(k in fl for k in ("semi", "final", " "+str(options.mnum)+".")):
                 print "Found %s to upload" % f
                 return str(f)
     elif 5 <= options.mnum <= 6:
         mnum = int(options.mnum) - 4
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(mnum))):
+            if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(mnum)+".")):
 
                 print "Found %s to upload" % f
                 return str(f)
@@ -165,7 +165,7 @@ def finals_filename(options):
     if 1 <= options.mnum <= 2:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("final"," "+str(options.mnum))):
+            if all(k in fl for k in ("final"," "+str(options.mnum)+".")):
                 if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
                     return str(f)
@@ -286,7 +286,7 @@ def tba_results(options):
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
     if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
-        return options.description % (options.ename, options.prodteam, options.twit, options.fb, options.weblink)
+        return NO_TBA_DESCRIPTION % (options.ename, options.prodteam, options.twit, options.fb, options.weblink)
     try:
         return options.description % (str(options.ename), str(options.prodteam),
                 str(red1), str(red2), str(red3), str(redScore), str(blue1), str(blue2), str(blue3), str(blueScore),
@@ -449,6 +449,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                 values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v=%s" % response['id'], usedTBA, options.ename, wasBatch]]
                 body = {'values': values}
                 appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="RAW", body=body).execute()
+                print "DONE"
             else:
                 exit("The upload failed with an unexpected response: %s" %
                         response)
