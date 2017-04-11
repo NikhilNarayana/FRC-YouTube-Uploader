@@ -12,6 +12,7 @@ import sys
 import socket
 import webbrowser
 import threading
+import youtubeAuthenticate as YA
 
 render = web.template.render('webpage/')
 
@@ -167,6 +168,8 @@ def internet(host="www.google.com", port=80, timeout=4):
         return False
 			
 def main():
+	YA.get_youtube_service()
+	YA.get_spreadsheet_service()
 	web.internalerror = web.debugerror
 	if internet():
 		t = index()
