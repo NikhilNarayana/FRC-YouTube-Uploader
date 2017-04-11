@@ -3,6 +3,7 @@ import simplejson as json
 import requests
 import hashlib
 import re
+import time
 
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import ExpiresAfter
@@ -217,7 +218,7 @@ def get_match_results(event_key, match_key):
 	while (blue_data[0] == -1 or red_data[0] == -1):
                 print "Waiting 1 minute for TBA to update scores"
                 time.sleep(60)
-                match_data = tba.event_get(event_key).get_match(match_key)
+                match_data = event_get(event_key).get_match(match_key)
                 blue_data, red_data = parse_data(match_data)
 	return blue_data, red_data
 
