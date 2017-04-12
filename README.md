@@ -14,14 +14,14 @@ A YouTube Uploader for FRC Events.
 
 
 ## How to Setup
-1. Install Python 2.7 for your OS with the PATH added and make sure there are no other versions of python 2.7.
-2. Clone this repository into a subfolder of the folder that will contain the videos
+1. Install Python 2.7 for your OS with the PATH added and make sure there are no other versions of python 2.7
+2. Download this repository into a subfolder to the folder that will contain the videos, make sure every event is in seperate folders
 3. Install the requirements for the script with `pip install -r /path/to/requirements.txt`, or `make` if supported by your OS
 4. Add the thumbnail to the same folder as `thumbnail.png`
-5. Make your recording program follow this naming scheme: [EVENT_NAME] - [MATCH TYPE] ex. 2016 Indiana State Championship - Qualification Match 1. Also use the Tiebreaker scheme when necessary.
-5. Start the program by running `python frcUploader` and navigating to `localhost:8080` in your browser or by using the .bat file for Windows or .sh file for Linux/macOS
-6. Add in the necessary info.
-7. Hit submit everytime a match finishes. No need to update any values unless you are entering eliminations or doing ceremonies.
+5. Make your recording program follow this naming scheme: [MATCH TYPE] [MATCH NUM].[EXTENSION] ex. Qualification Match 1.mp4 Also use the Tiebreaker scheme when necessary
+5. Start the program by executing the .bat file for Windows or .sh file for Linux/macOS or by running `python start.py`
+6. Add in the necessary info
+7. Hit submit everytime a match finishes. No need to update any values unless you are entering eliminations or doing ceremonies
 8. Enjoy not having to deal with YouTube's front end 
 
 ### Web UI Breakdown
@@ -57,6 +57,8 @@ Fairly self-explanatory, just remember to reset the value when you go into each 
 All the non-default options in this dropdown will tell the program to ignore various parameters like `Match Number`. Uploading Alliance Selection will then update all the necessary form fields for entering elimination matches
 
 ##### Last Match Number
+###### Possibly broken
+A few tests have shown that this isn't working consistently. You may see it work for a certain number of matches and then randomly fail. I will be looking into the problem soon.
 If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number, inclusive, will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
 
 If you are still in need of assistance, feel free to contact me.
