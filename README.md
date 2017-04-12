@@ -1,11 +1,11 @@
 # FRC-CLI-YouTube-Uploader
 [![Build Status](https://travis-ci.org/NikhilNarayana/FRC-YouTube-Uploader.svg?branch=master)](https://travis-ci.org/NikhilNarayana/FRC-YouTube-Uploader)
 
-A YouTube Uploader for FRC Events.
+A YouTube Uploader for FRC Events
 
 
 ## Current Feature Set:
-* Asynchronous Upload Videos (single or batch uploads possible)
+* Asynchronously Upload Videos (single or batch uploads possible)
 * Add to a YouTube Playlist
 * Include match results from TBA in description
 * Add videos links to The Blue Alliance automatically
@@ -23,6 +23,13 @@ A YouTube Uploader for FRC Events.
 6. Add in the necessary info
 7. Hit submit everytime a match finishes. No need to update any values unless you are entering eliminations or doing ceremonies
 8. Enjoy not having to deal with YouTube's front end 
+
+### File Name Examples
+QM15 = `Qualification Match 15.mp4` or `Qual 15.mp4`
+SF2M3 = `Semifinal Tiebreaker 2.mp4` or `semi final tiebreak 2.mp4`
+Opening Ceremonies = `Friday Opening Ceremonies.mp4` or `Day 1 Opening Ceremony.mp4`
+Closing Ceremonies = `Awards Ceremony.mp4` or `Closing Ceremonies.mp4`
+Alliance Selection = `Alliance Selection.mp4` or `alliance selection.mp4`
 
 ### Web UI Breakdown
 ![alt text](http://i.imgur.com/IYaJSex.png?1)
@@ -51,10 +58,14 @@ Both of these must be obtained by requesting them from www.thebluealliance.com/r
 The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. The usual description is found in `youtubeup.py`. If you would rather not use that description feel free to input your own or ask me to create a specific description just for you.
 
 ##### Match Number
-Fairly self-explanatory, just remember to reset the value when you go into each stage of eliminations. This value will increment each time you press "Submit".
+Fairly self-explanatory, just remember to reset the value when you go into each stage of eliminations. This value will increment each time you press "Submit". Get the value from the FMS display during tiebreakers.
 
 ##### Ceremonies
-All the non-default options in this dropdown will tell the program to ignore various parameters like `Match Number`. Uploading Alliance Selection will then update all the necessary form fields for entering elimination matches
+All the non-default options in this dropdown will tell the program to ignore various parameters like `Match Number`. Uploading Alliance Selection will then update all the necessary form fields for entering elimination matches.
+For Opening Ceremonies you need to have `Day X` or put the current day of the week (eg. `Friday`) in the file name.
+For Closing Ceremonies you need to just have `Closing` or `Award` in the file name.
+For Alliance Selection you need to have the words `Alliance` and `Selection` in the file name.
+All terms are matched in a substring so `Award` will match with `Awards` and same for others.
 
 ##### Last Match Number
 ###### Possibly broken
@@ -72,6 +83,7 @@ All the information collected is very simple and lacks sensetive data. If you wa
 * Phil Lopreiato - TBA Integration
 * Wes Jordan - Python TBA API Layer (https://github.com/Thing342/pyTBA)
 * Josh Klar - Bug Fixes during 2017 St. Joseph District
+* Matthew Zacune - Testing
 * Stack Exchange - Bug Fixes
 
 
