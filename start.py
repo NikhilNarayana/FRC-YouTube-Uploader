@@ -47,10 +47,14 @@ dataform = form.Form(
 	form.Textarea("description",
 		description="Video description",
 		value="Add alternate description here."),
+	form.Textbox("mcode",
+		form.Validator("Must be 0 if not used properly", lambda x: any(k in x for k in ("qm","qf","sf","f1m")) or x == "0"),
+		value="0",
+		description="Match Code"),
 	form.Textbox("mnum",
 		form.notnull,
 		form.regexp("\d+", "Cannot contain letters"),
-		form.Validator("Must be more than 0", lambda x:int(x)>0),
+		form.Validator("Must be more than 0", lambda x: int(x)>0),
 		description="Match Number"),
 	form.Dropdown("mcode",
 		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
@@ -92,12 +96,13 @@ class index(threading.Thread):
 							8: myform.tbaID,
 							9: myform.tbaSecret,
 							10: myform.description,
-							11: myform.mnum,
-							12: myform.mcode,
-							13: myform.tiebreak,
-							14: myform.tba,
-							15: myform.ceremonies,
-							16: myform.end,
+							11: myform.mcode,
+							12: myform.mnum,
+							13: myform.mcode,
+							14: myform.tiebreak,
+							15: myform.tba,
+							16: myform.ceremonies,
+							17: myform.end,
 						}
 						switcher[i].set_value(value)
 					i = i + 1
@@ -118,8 +123,7 @@ class index(threading.Thread):
 					csvf.write(''.join(str(x) for x in [","]*30))
 					csvf.close()
 					row = next(reader)
-			parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
-			args = parser.parse_args()
+			args = argparse.ArgumentParser().parse_args()
 			formdata = web.input()
 			args.then = then
 			args.gui = True
@@ -134,14 +138,15 @@ class index(threading.Thread):
 			args.tbaID = row[8] = myform.d.tbaID
 			args.tbaSecret = row[9] = myform.d.tbaSecret
 			args.description = row[10] = myform.d.description
-			args.mnum = row[11] = int(myform.d.mnum)
-			args.mcode = row[12] = myform.d.mcode
+			args.mcode = row[11] = myform.d.mcode
+			args.mnum = row[12] = int(myform.d.mnum)
+			args.mcode = row[13] = myform.d.mcode
 			args.tiebreak = 0 if myform.d.tiebreak == "no" else 1
-			row[13] = myform.d.tiebreak
+			row[14] = myform.d.tiebreak
 			args.tba = 0 if myform.d.tba == "no" else 1
-			row[14] = myform.d.tba
-			args.ceremonies = row[15] = myform.d.ceremonies
-			args.end = row[16] = myform.d.end
+			row[15] = myform.d.tba
+			args.ceremonies = row[16] = myform.d.ceremonies
+			args.end = row[17] = myform.d.end
 			thr = threading.Thread(target=yup.init, args=(args,))
 			thr.daemon = True
 			thr.start()

@@ -259,14 +259,16 @@ def finals_match_code(mcode, mnum):
     return match_code
 
 def get_match_code(mcode, mnum):
-    switcher = {
-            "qm": quals_match_code,
-            "ef": eights_match_code,
-            "qf": quarters_match_code,
-            "sf": semis_match_code,
-            "f1m": finals_match_code,
-    }
-    return switcher[mcode](mcode, mnum)
+    if any(k == mcode for k in ("","0")):
+        switcher = {
+                "qm": quals_match_code,
+                "ef": eights_match_code,
+                "qf": quarters_match_code,
+                "sf": semis_match_code,
+                "f1m": finals_match_code,
+        }
+        return switcher[mcode](mcode, mnum)
+    return mcode
 
 def tba_results(options):
     mcode = get_match_code(options.mcode, options.mnum)
