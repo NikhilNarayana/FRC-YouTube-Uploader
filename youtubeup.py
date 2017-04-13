@@ -108,9 +108,9 @@ def create_title(options):
                 "f1m": finals_yt_title,
                 }
         try:
-            return switcher[options.mcode](options)
+            return switcher[options.mtype](options)
         except KeyError:
-            print options.mcode
+            print options.mtype
     else:
         return ceremonies_title(options)
 
@@ -199,9 +199,9 @@ def create_filename(options):
                 "f1m": finals_filename,
                 }
         try:
-            return switcher[options.mcode](options)
+            return switcher[options.mtype](options)
         except KeyError:
-            print options.mcode
+            print options.mtype
     else:
         return ceremonies_filename(options)
 def quals_match_code(mcode, mnum):
@@ -258,7 +258,7 @@ def finals_match_code(mcode, mnum):
     match_code = str(mcode) + str(mnum)
     return match_code
 
-def get_match_code(mcode, mnum):
+def get_match_code(mtype, mnum, mcode):
     if any(k == mcode for k in ("","0")):
         switcher = {
                 "qm": quals_match_code,
@@ -267,11 +267,11 @@ def get_match_code(mcode, mnum):
                 "sf": semis_match_code,
                 "f1m": finals_match_code,
         }
-        return switcher[mcode](mcode, mnum)
+        return switcher[mtype](mtype, mnum)
     return mcode
 
 def tba_results(options):
-    mcode = get_match_code(options.mcode, options.mnum)
+    mcode = get_match_code(options.mtype, options.mnum, options.mcode)
     blue_data, red_data = get_match_results(options.ecode, mcode)
     return blue_data, red_data, mcode
 
@@ -351,7 +351,7 @@ def init(options):
     if options.ceremonies != 0:
         options.tba = 0
     if options.tiebreak == 1:
-        options.mnum = tiebreak_mnum(options.mnum, options.mcode)
+        options.mnum = tiebreak_mnum(options.mnum, options.mtype)
 
     youtube = get_youtube_service()
     spreadsheet = get_spreadsheet_service()
@@ -368,7 +368,7 @@ def init(options):
 
 def initialize_upload(youtube, spreadsheet, options):
     if not options.ceremonies:
-        print "Initializing upload for %s match %s" % (options.mcode, options.mnum)
+        print "Initializing upload for %s match %s" % (options.mtype, options.mnum)
     else:
         print "Initializing upload for: %s" % ceremonies_title(options)
     tags = None
@@ -393,7 +393,7 @@ def initialize_upload(youtube, spreadsheet, options):
                     )
                 )
     else:
-        mcode = get_match_code(options.mcode, options.mnum)
+        mcode = get_match_code(options.mtype, options.mnum, options.mcode)
 
         tags = options.tags.split(",")
         tags.append(get_event_hashtag(options.ecode))

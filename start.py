@@ -56,7 +56,7 @@ dataform = form.Form(
 		form.regexp("\d+", "Cannot contain letters"),
 		form.Validator("Must be more than 0", lambda x: int(x)>0),
 		description="Match Number"),
-	form.Dropdown("mcode",
+	form.Dropdown("mtype",
 		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
 		description="Match Type"),
 	form.Dropdown("tiebreak",[("no","False"),("yes","True")],description="Tiebreaker"),
@@ -98,7 +98,7 @@ class index(threading.Thread):
 							10: myform.description,
 							11: myform.mcode,
 							12: myform.mnum,
-							13: myform.mcode,
+							13: myform.mtype,
 							14: myform.tiebreak,
 							15: myform.tba,
 							16: myform.ceremonies,
@@ -140,7 +140,7 @@ class index(threading.Thread):
 			args.description = row[10] = myform.d.description
 			args.mcode = row[11] = myform.d.mcode
 			args.mnum = row[12] = int(myform.d.mnum)
-			args.mcode = row[13] = myform.d.mcode
+			args.mtype = row[13] = myform.d.mtype
 			args.tiebreak = 0 if myform.d.tiebreak == "no" else 1
 			row[14] = myform.d.tiebreak
 			args.tba = 0 if myform.d.tba == "no" else 1
