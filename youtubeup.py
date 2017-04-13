@@ -16,12 +16,12 @@ import datetime as dt
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_TAGS = """%s, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST STEAMworks"""
-QUAL = "Qualification Match %s"
-QUARTER = "Quarterfinal Match %s"
-QUARTERT = "Quarterfinal Tiebreaker %s"
-SEMI = "Semifinal Match %s"
-SEMIT = "Semifinal Tiebreaker %s"
-FINALS = "Final Match %s"
+QUAL = "Qualification Match {}"
+QUARTER = "Quarterfinal Match {}"
+QUARTERT = "Quarterfinal Tiebreaker {}"
+SEMI = "Semifinal Match {}"
+SEMIT = "Semifinal Tiebreaker {}"
+FINALS = "Final Match {}"
 FINALST = "Final Tiebreaker"
 EXTENSION = ".mp4"
 DEFAULT_TITLE = "%s" + " - " + QUAL
@@ -56,34 +56,36 @@ VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
 def quals_yt_title(options):
-    return options.title % options.mnum
+    return options.title.format(options.mnum)
 
 def eights_yt_title(options):
     return None
 def quarters_yt_title(options):
+    mnum = options.mnum
     if 1 <= options.mnum <= 8:
-        title = options.ename + " - " + QUARTER % options.mnum
+        title = options.ename + " - " + QUARTER.format(mnum)
         return title
     elif 9 <= options.mnum <= 12:
-        mnum = int(options.mnum) - 8
-        title = options.ename + " - " + QUARTERT % str(mnum)
+        mnum = options.mnum - 8
+        title = options.ename + " - " + QUARTERT.format(mnum)
         return title
     else:
         raise ValueError("options.mnum must be within 1 and 12")
 
 def semis_yt_title(options):
+    mnum = options.mnum
     if 1 <= options.mnum <= 4:
-        title = options.ename + " - " + SEMI % options.mnum
+        title = options.ename + " - " + SEMI.format(mnum)
         return title
     elif 5 <= options.mnum <= 6:
-        mnum = int(options.mnum) - 4
-        title = options.ename + " - " + SEMIT % str(mnum)
+        mnum = options.mnum - 4
+        title = options.ename + " - " + SEMIT.format(mnum)
         return title
     else:
         raise ValueError("options.mnum must be within 1 and 6")
 
 def finals_yt_title(options):
-    title = options.ename + " - " + FINALS % options.mnum
+    title = options.ename + " - " + FINALS.format(options.mnum)
     return title
 
 def ceremonies_title(options):
