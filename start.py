@@ -58,10 +58,10 @@ dataform = form.Form(
 	form.Dropdown("tiebreak",[("no","False"),("yes","True")],description="Tiebreaker"),
         form.Dropdown("tba",[("yes","True"),("no","False")],description="Update TBA"),
         form.Dropdown("ceremonies",[(0,"None"),(1,"Opening Ceremonies"),(2,"Alliance Selection"),(3,"Closing Ceremonies")],description="Ceremonies"),
-	form.Textbox("end", 
+	form.Textbox("end",
 		description="Last Match Number", 
 		value="Only for batch uploads"),
-		validators = [form.Validator("Last Match Number must be greater than Match Number", 
+	validators = [form.Validator("Last Match Number must be greater than Match Number", 
 		lambda i: i.end == "Only for batch uploads" or int(i.end) > int(i.mnum))]
 	)
 
@@ -105,16 +105,16 @@ class index(threading.Thread):
 		return render.forms(myform)
 
 	def POST(self):
+		then = datetime.now() #tracking for the time delta
 		myform = dataform()
 		if not myform.validates():
 			return render.forms(myform)
 		else:
-			then = datetime.now()
 			reader = csv.reader(open('form_values.csv'))
 			try:
 				row = next(reader)
 			except StopIteration:
-				with open("form_values.csv", "wb") as csvf:
+				with open("form_values.csv", "wb") as csvf: #if the file doesn't exist
 					csvf.write(''.join(str(x) for x in [","]*30))
 					csvf.close()
 					row = next(reader)
@@ -173,6 +173,9 @@ def internet(host="www.google.com", port=80, timeout=4):
         return False
 			
 def main():
+	if os.geteuid() != 0 and "linux" in sys.platform: #root needed for writing files
+		print("Need root for writing files")
+		subprocess.call(['sudo', 'python', sys.argv[0]])
 	YA.get_youtube_service()
 	YA.get_spreadsheet_service()
 	web.internalerror = web.debugerror
