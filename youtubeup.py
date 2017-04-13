@@ -117,9 +117,9 @@ def create_title(options):
 def quals_filename(options):
     for f in options.files:
         fl = f.lower()
-        if all(k in fl for k in ("qual", " "+str(options.mnum)+".")):
+        if all(k in fl for k in ("qualification", " "+str(options.mnum)+".")):
             print "Found %s to upload" % f
-            return str(f)
+            return f
     raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
 
 def quarters_filename(options):
@@ -128,16 +128,14 @@ def quarters_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("quarter", "final", " "+str(options.mnum)+".")):
                 print "Found %s to upload" % f
-                return str(f)
+                return f
     elif 9 <= options.mnum <= 12:
-        mnum = int(options.mnum) - 8
+        mnum = options.mnum - 8
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("quarter", "tiebreak", "final"," "+str(mnum)+".")):
                 print "Found %s to upload" % f
-                return str(f)
-    else:
-        raise ValueError("mnum must be between 1 and 12")
+                return f
 
 def semis_filename(options):
     if 1 <= options.mnum <= 4:
@@ -145,17 +143,15 @@ def semis_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("semi", "final", " "+str(options.mnum)+".")):
                 print "Found %s to upload" % f
-                return str(f)
+                return f
     elif 5 <= options.mnum <= 6:
-        mnum = int(options.mnum) - 4
+        mnum = options.mnum - 4
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(mnum)+".")):
 
                 print "Found %s to upload" % f
-                return str(f)
-    else:
-        raise ValueError("mnum must be between 1 and 6")
+                return f
 
 def finals_filename(options):
     if 1 <= options.mnum <= 2:
@@ -164,36 +160,35 @@ def finals_filename(options):
             if all(k in fl for k in ("final"," "+str(options.mnum)+".")):
                 if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
-                    return str(f)
+                    return f
     elif options.mnum == 3:
         for f in options.files:
             fl = f.lower()
             if all("final" in fl and any(k in fl for k in ("tiebreak","3"))):
                 if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
-                    return str(f)
-    else:
-        raise ValueError("mnum must be between 1 and 3")
+                    return f
 
 def ceremonies_filename(options):
     if options.ceremonies is 1:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in (dt.datetime.now().strftime("%A").lower(), "opening", "ceremonies")):
-                print "Found %s to upload" % f
-                return str(f)
+            if all(k in fl for k in ("opening", "ceremon")):
+                if any(k in fl for k in (options.day, "day 1", "day 2")):
+                    print "Found %s to upload" % f
+                    return f
     if options.ceremonies is 2:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("alliance", "selection")):
                 print "Found %s to upload" % f
-                return str(f)
+                return f
     if options.ceremonies is 3:
         for f in options.files:
             fl = f.lower()
-            if any(k in fl for k in ("closing", "award", "ceremonies")):
+            if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
                 print "Found %s to upload" % f
-                return str(f)
+                return f
 
 def create_filename(options):
     if options.ceremonies is 0:
@@ -236,9 +231,9 @@ def quarters_match_code(mcode, mnum):
         match_set = "4"
     if mnum <= 4:
         match_code = mcode + match_set + "m1"
-    elif 5 <= mnum <= 8:
+    elif mnum <= 8:
         match_code = mcode + match_set + "m2"
-    elif 9 <= mnum <= 12:
+    elif mnum <= 12:
         match_code = mcode + match_set + "m3"
     else:
         raise ValueError("Match Number can't be larger than 12")
@@ -251,17 +246,15 @@ def semis_match_code(mcode, mnum):
         match_set = "2"
     if mnum <= 2:
         match_code = mcode + match_set + "m1"
-    elif 3 <= mnum <= 4:
+    elif mnum <= 4:
         match_code = mcode + match_set + "m2"
-    elif 5 <= mnum <= 6:
+    elif mnum <= 6:
         match_code = mcode + match_set + "m3"
     else:
         raise ValueError("Match Number can't be larger than 6")
     return match_code
 
 def finals_match_code(mcode, mnum):
-    if mnum > 3:
-        raise ValueError("Match Number can't be larger than 3")
     match_code = str(mcode) + str(mnum)
     return match_code
 
@@ -276,7 +269,7 @@ def get_match_code(mcode, mnum):
     return switcher[mcode](mcode, mnum)
 
 def tba_results(options):
-    mcode = get_match_code(options.mcode, int(options.mnum))
+    mcode = get_match_code(options.mcode, options.mnum)
     blue_data, red_data = get_match_results(options.ecode, mcode)
     return blue_data, red_data, mcode
 
@@ -293,22 +286,22 @@ def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3
 
 def tiebreak_mnum(mnum, mcode):
     switcher = {
-            "qm": int(mnum),
-            "ef": int(mnum) + 16,
-            "qf": int(mnum) + 8,
-            "sf": int(mnum) + 4,
+            "qm": mnum,
+            "ef": mnum + 16,
+            "qf": mnum + 8,
+            "sf": mnum + 4,
             "f1m": 3,
     }
     return switcher[mcode]
 
 def upload_multiple_videos(youtube, spreadsheet, options):
-    while int(options.mnum) <= int(options.end):
+    while options.mnum <= options.end:
         try:
-            initialize_upload(youtube, spreadsheet, options)
+            print initialize_upload(youtube, spreadsheet, options)
         except HttpError, e:
             print "An HTTP error %d occurred:\n%s\n" % (e.resp.status, e.content)
-        options.mnum = int(options.mnum) + 1
-        print "All matches have been uploaded"
+        options.mnum = options.mnum + 1
+    print "All matches have been uploaded"
 
 def update_thumbnail(youtube, video_id, thumbnail):
     youtube.thumbnails().set(
@@ -338,29 +331,36 @@ def add_to_playlist(youtube,videoID,playlistID):
 
 def init(options):
     """The program starts here"""
-    options.files = reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))])
+    options.day = dt.datetime.now().strftime("%A").lower()
+    options.files = reversed([f for f in os.listdir(options.where) 
+        if os.path.isfile(os.path.join(options.where, f))])
     options.tags = DEFAULT_TAGS % options.ecode
-    options.ceremonies = int(options.ceremonies)
     options.category = DEFAULT_VIDEO_CATEGORY
     options.title = options.ename + " - " + QUAL
     options.file = options.ename + " - " + QUAL + EXTENSION
-    if options.description == "Add alternate description here.":
+    if any(k == options.description for k in ("Add alternate description here.","")):
         options.description = DEFAULT_DESCRIPTION
+    #fix types
+    options.ceremonies = int(options.ceremonies)
     options.tba = int(options.tba)
-    if int(options.ceremonies) != 0:
+    options.mnum = int(options.mnum)
+    options.tiebreak = int(options.tiebreak)
+
+    if options.ceremonies != 0:
         options.tba = 0
-    if int(options.tiebreak) == 1:
+    if options.tiebreak == 1:
         options.mnum = tiebreak_mnum(options.mnum, options.mcode)
 
     youtube = get_youtube_service()
     spreadsheet = get_spreadsheet_service()
 
     try:
-        if int(options.end) > int(options.mnum):
+        if int(options.end) > options.mnum:
+            options.end = int(options.end)
             upload_multiple_videos(youtube, spreadsheet, options)
     except ValueError:
         try:
-            initialize_upload(youtube, spreadsheet, options)
+            print initialize_upload(youtube, spreadsheet, options)
         except HttpError, e:
             print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
 
@@ -391,7 +391,7 @@ def initialize_upload(youtube, spreadsheet, options):
                     )
                 )
     else:
-        mcode = get_match_code(options.mcode, int(options.mnum))
+        mcode = get_match_code(options.mcode, options.mnum)
 
         tags = options.tags.split(",")
         tags.append(get_event_hashtag(options.ecode))
@@ -408,13 +408,15 @@ def initialize_upload(youtube, spreadsheet, options):
                     )
                 )
 
-    insert_request = youtube.videos().insert(
+        insert_request = youtube.videos().insert(
             part=",".join(body.keys()),
             body=body,
-            media_body=MediaFileUpload(options.where+create_filename(options), chunksize=-1, resumable=True),
+            media_body=MediaFileUpload(options.where+create_filename(options),
+                chunksize=-1, 
+                resumable=True),
             )
 
-    resumable_upload(insert_request, options, mcode, youtube, spreadsheet)
+    return resumable_upload(insert_request, options, mcode, youtube, spreadsheet)
 
 def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     response = None
@@ -440,12 +442,12 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                 totalTime = dt.datetime.now() - options.then
                 spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
                 rowRange = "Data!A1:F1"
-                wasBatch = "True" if type(options.end) is int else "False"
-                usedTBA = "True" if int(options.tba) == 1 else "False"
+                wasBatch = "True" if options.end != "Only for batch uploads" else "False"
+                usedTBA = "True" if options.tba == 1 else "False"
                 values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v=%s" % response['id'], usedTBA, options.ename, wasBatch]]
                 body = {'values': values}
                 appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="RAW", body=body).execute()
-                print "DONE"
+                return "DONE"
             else:
                 exit("The upload failed with an unexpected response: %s" %
                         response)
