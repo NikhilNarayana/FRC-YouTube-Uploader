@@ -83,14 +83,8 @@ def semis_yt_title(options):
         raise ValueError("options.mnum must be within 1 and 6")
 
 def finals_yt_title(options):
-    if 1 <= options.mnum <= 2:
-        title = options.ename + " - " + FINALS % options.mnum
-        return title
-    elif options.mnum == 3:
-        title = options.ename + " - " + FINALST
-        return title
-    else:
-        raise ValueError("options.mnum must be within 1 and 3")
+    title = options.ename + " - " + FINALS % options.mnum
+    return title
 
 def ceremonies_title(options):
     title = None 
@@ -172,7 +166,7 @@ def finals_filename(options):
     elif options.mnum == 3:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("tiebreak", "final")):
+            if all("final" in fl and any(k in fl for k in ("tiebreak","3"))):
                 if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
                     return str(f)
