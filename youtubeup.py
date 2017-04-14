@@ -1,16 +1,18 @@
 #!/usr/bin/python
 
 import os
-import random
 import sys
 import time
+import math
+import random
 import argparse
+import datetime as dt
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
+
 from tbaAPI import *
 from youtubeAuthenticate import *
-import datetime as dt
 
 # Default Variables
 DEFAULT_VIDEO_CATEGORY = 28
@@ -423,6 +425,7 @@ def initialize_upload(youtube, spreadsheet, options):
 def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     response = None
     error = None
+    sleep_minutes = 600
     retry = 0
     retry_status_codes = get_retry_status_codes()
     retry_exceptions = get_retry_exceptions()
@@ -457,6 +460,17 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             if e.resp.status in retry_status_codes:
                 error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
                         e.content)
+            else if any("exceed" in e.content["error"]["errors"][0][value] for value in e.content["error"]["errors"][0]):
+                retry += 1
+                if retry > max_retries:
+                    print "Waiting {} minutes to avoid upload limit".format(sleep_minutes / 60)
+                    time.sleep(sleep_minutes)
+                    for x in xrange(sleep_minutes):
+                        time.sleep(1)
+                        if x % 60 == 0:
+                            print "Minute {} of {}".format(x/60, sleep_minutes/60)
+                    sleep_minutes = math.floor(sleep_minutes * .8) if sleep_minutes > 2 else 0
+                    error = None
             else:
                 raise
         except retry_exceptions as e:
