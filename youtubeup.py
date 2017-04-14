@@ -270,7 +270,7 @@ def get_match_code(mtype, mnum, mcode):
         }
         return switcher[mtype](mtype, mnum)
     print "Uploading as {}".format(mcode)
-    return mcode
+    return mcode.lower()
 
 def tba_results(options):
     mcode = get_match_code(options.mtype, options.mnum, options.mcode)
