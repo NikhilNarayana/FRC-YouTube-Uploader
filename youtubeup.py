@@ -127,8 +127,9 @@ def quarters_filename(options):
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("quarter", "final", " "+str(options.mnum)+".")):
-                print "Found %s to upload" % f
-                return f
+                if "tiebreak" not in fl:
+                    print "Found %s to upload" % f
+                    return f
     elif 9 <= options.mnum <= 12:
         mnum = options.mnum - 8
         for f in options.files:
@@ -142,8 +143,9 @@ def semis_filename(options):
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "final", " "+str(options.mnum)+".")):
-                print "Found %s to upload" % f
-                return f
+                if "tiebreak" not in fl:
+                    print "Found %s to upload" % f
+                    return f
     elif 5 <= options.mnum <= 6:
         mnum = options.mnum - 4
         for f in options.files:
@@ -158,9 +160,10 @@ def finals_filename(options):
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("final"," "+str(options.mnum)+".")):
-                if all(k not in fl for k in ("quarter","semi")):
-                    print "Found %s to upload" % f
-                    return f
+                if all(k not in fl for k in ("quarter","semi")) and "tiebreak" not in fl:
+                    if :
+                        print "Found %s to upload" % f
+                        return f
     elif options.mnum >= 3:
         for f in options.files:
             fl = f.lower()
@@ -268,6 +271,7 @@ def get_match_code(mtype, mnum, mcode):
                 "f1m": finals_match_code,
         }
         return switcher[mtype](mtype, mnum)
+    print "Uploading as {}".format(mcode)
     return mcode
 
 def tba_results(options):
