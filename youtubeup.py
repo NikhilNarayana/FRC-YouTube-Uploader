@@ -25,30 +25,30 @@ FINALS = "Final Match {}"
 FINALST = "Final Tiebreaker"
 EXTENSION = ".mp4"
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
-DEFAULT_DESCRIPTION = """Footage of the %s is courtesy of the %s.
+DEFAULT_DESCRIPTION = """Footage of the {} is courtesy of the {}.
 
-Red Alliance  (%s, %s, %s) - %s
-Blue Alliance (%s, %s, %s) - %s
+Red Alliance  ({}, {}, {}) - {}
+Blue Alliance ({}, {}, {}) - {}
 
-To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/%s
+To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/{}
 
-Follow us on Twitter (@%s) and Facebook (%s).
+Follow us on Twitter (@{}) and Facebook ({}).
 
-For more information and future event schedules, visit our website: %s
-
-Thanks for watching!
-
-Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
-
-NO_TBA_DESCRIPTION = """Footage of the %s Event is courtesy of the %s.
-
-Follow us on Twitter (@%s) and Facebook (%s).
-
-For more information and future event schedules, visit our website: %s
+For more information and future event schedules, visit our website: {}
 
 Thanks for watching!
 
-Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader)"""
+Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
+
+NO_TBA_DESCRIPTION = """Footage of the {} Event is courtesy of the {}.
+
+Follow us on Twitter (@{}) and Facebook ({}).
+
+For more information and future event schedules, visit our website: {}
+
+Thanks for watching!
+
+Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
@@ -278,9 +278,9 @@ def tba_results(options):
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
     if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
-        return NO_TBA_DESCRIPTION % (options.ename, options.prodteam, options.twit, options.fb, options.weblink)
+        return NO_TBA_DESCRIPTION.format(options.ename, options.prodteam, options.twit, options.fb, options.weblink)
     try:
-        return options.description % (str(options.ename), str(options.prodteam),
+        return options.description.format(str(options.ename), str(options.prodteam),
                 str(red1), str(red2), str(red3), str(redScore), str(blue1), str(blue2), str(blue3), str(blueScore),
                 str(options.ecode), str(options.twit), str(options.fb), str(options.weblink))
     except TypeError, e:
