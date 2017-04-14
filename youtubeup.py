@@ -24,13 +24,11 @@ SEMIT = "Semifinal Tiebreaker {}"
 FINALS = "Final Match {}"
 FINALST = "Final Tiebreaker"
 EXTENSION = ".mp4"
-DEFAULT_TITLE = "%s" + " - " + QUAL
-DEFAULT_FILE = "%s" + " - " + QUAL + EXTENSION
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = """Footage of the %s is courtesy of the %s.
 
-Red Alliance (%s, %s, %s) - %s
-Blue Alliances (%s, %s, %s) - %s
+Red Alliance  (%s, %s, %s) - %s
+Blue Alliance (%s, %s, %s) - %s
 
 To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/%s
 
@@ -167,7 +165,7 @@ def finals_filename(options):
     elif options.mnum >= 3:
         for f in options.files:
             fl = f.lower()
-            if all("final" in fl and any(k in fl for k in ("tiebreak",options.mnum))):
+            if all("final" in fl and any(k in fl for k in ("tiebreak", " "+str(options.mnum)+"."))):
                 if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
                     return f
@@ -343,7 +341,6 @@ def init(options):
     options.tags = DEFAULT_TAGS % options.ecode
     options.category = DEFAULT_VIDEO_CATEGORY
     options.title = options.ename + " - " + QUAL
-    options.file = options.ename + " - " + QUAL + EXTENSION
     if any(k == options.description for k in ("Add alternate description here.","")):
         options.description = DEFAULT_DESCRIPTION
     #fix types
