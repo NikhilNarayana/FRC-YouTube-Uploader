@@ -159,7 +159,6 @@ def finals_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("final"," "+str(options.mnum)+".")):
                 if all(k not in fl for k in ("quarter","semi")) and "tiebreak" not in fl:
-                    if :
                         print "Found %s to upload" % f
                         return f
     elif options.mnum >= 3:
