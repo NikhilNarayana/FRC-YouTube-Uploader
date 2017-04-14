@@ -161,10 +161,10 @@ def finals_filename(options):
                 if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
                     return f
-    elif options.mnum == 3:
+    elif options.mnum >= 3:
         for f in options.files:
             fl = f.lower()
-            if all("final" in fl and any(k in fl for k in ("tiebreak","3"))):
+            if all("final" in fl and any(k in fl for k in ("tiebreak",options.mnum))):
                 if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
                     return f
