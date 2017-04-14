@@ -165,7 +165,7 @@ def finals_filename(options):
     elif options.mnum >= 3:
         for f in options.files:
             fl = f.lower()
-            if all("final" in fl and any(k in fl for k in ("tiebreak", " "+str(options.mnum)+"."))):
+            if "final" in fl and any(k in fl for k in ("tiebreak", " "+str(options.mnum)+".")):
                 if all(k not in fl for k in ("quarter","semi")):
                     print "Found %s to upload" % f
                     return f
@@ -373,6 +373,7 @@ def initialize_upload(youtube, spreadsheet, options):
     else:
         print "Initializing upload for: %s" % ceremonies_title(options)
     tags = None
+    mcode = None
     if options.tba:
         blue_data, red_data, mcode = tba_results(options)
         tags = options.tags.split(",")
