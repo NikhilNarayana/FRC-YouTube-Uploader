@@ -8,7 +8,7 @@ import csv
 from urlparse import *
 from youtubeAuthenticate import *
 import simplejson as json
-import TBA
+import tbaAPI as TBA
 
 render = web.template.render('webpage/')
 

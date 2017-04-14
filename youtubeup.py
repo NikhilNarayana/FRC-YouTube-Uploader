@@ -410,13 +410,13 @@ def initialize_upload(youtube, spreadsheet, options):
                     )
                 )
 
-        insert_request = youtube.videos().insert(
-            part=",".join(body.keys()),
-            body=body,
-            media_body=MediaFileUpload(options.where+create_filename(options),
-                chunksize=-1, 
-                resumable=True),
-            )
+    insert_request = youtube.videos().insert(
+        part=",".join(body.keys()),
+        body=body,
+        media_body=MediaFileUpload(options.where+create_filename(options),
+            chunksize=-1, 
+            resumable=True),
+        )
 
     return resumable_upload(insert_request, options, mcode, youtube, spreadsheet)
 
