@@ -26,9 +26,15 @@ A YouTube Uploader for FRC Events
 
 ### File Name Examples
 QM15 = `Qualification Match 15.mp4` or `Qual 15.mp4`
+
 SF2M3 = `Semifinal Tiebreaker 2.mp4` or `semi final tiebreak 2.mp4`
+
+F1M3 = `Final 3.mp4` or `final tiebreaker.mp4` (The FMS shows Final 3, but I allow either tiebreaker or 3 for naming)
+
 Opening Ceremonies = `Friday Opening Ceremonies.mp4` or `Day 1 Opening Ceremony.mp4`
+
 Closing Ceremonies = `Awards Ceremony.mp4` or `Closing Ceremonies.mp4`
+
 Alliance Selection = `Alliance Selection.mp4` or `alliance selection.mp4`
 
 ### Web UI Breakdown
@@ -57,6 +63,9 @@ Both of these must be obtained by requesting them from www.thebluealliance.com/r
 ##### Video Description
 The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. The usual description is found in `youtubeup.py`. If you would rather not use that description feel free to input your own or ask me to create a specific description just for you.
 
+##### Match Code
+This is an overriding function that will push any match you setup here to the correct TBA match and with the right info. This does not affect other parameters, you still need to set them up so it will find the correct match. For example, [2017 PCH Albany](https://www.thebluealliance.com/event/2017gaalb) had 6 matches in Semifinals 2, the matches that counted were matches 4-6 on TBA, but the FMS kept the naming scheme from matches 1-3. To fix this you can input the match info like it was for `SF2M1` and name the file `Semifinal Match 2.mp4`, but then set match code to `SF2M4`. That would get the right scores and then update the right TBA match.
+
 ##### Match Number
 Fairly self-explanatory, just remember to reset the value when you go into each stage of eliminations. This value will increment each time you press "Submit". Get the value from the FMS display during tiebreakers.
 
@@ -70,6 +79,7 @@ All terms are matched in a substring so `Award` will match with `Awards` and sam
 ##### Last Match Number
 ###### Possibly broken
 A few tests have shown that this isn't working consistently. You may see it work for a certain number of matches and then randomly fail. I will be looking into the problem soon.
+
 If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number, inclusive, will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
 
 If you are still in need of assistance, feel free to contact me.
