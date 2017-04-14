@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 
-import web
-from web import form
-import youtubeup as yup
-import argparse
+import os
 import csv
-from datetime import datetime
-from time import sleep
-import time
+import web
 import sys
+import time
 import socket
-import webbrowser
 import threading
+import webbrowser
+import subprocess
+
+import argparse
+from web import form
+from time import sleep
+import youtubeup as yup
+from datetime import datetime
 import youtubeAuthenticate as YA
 
 render = web.template.render('webpage/')
@@ -21,7 +24,9 @@ dataform = form.Form(
 		[("../","Parent Folder to Scripts"),("", "Same Folder as Scripts")],
 		description="Match Files Location"),
 	form.Textbox("prodteam", description="Production Team", size=41),
-	form.Textbox("twit", description="Twitter Handle", size=41),
+	form.Textbox("twit", 
+		form.Validator("Remove @", lambda x: x[0] != "@"),
+		description="Twitter Handle", size=41),
 	form.Textbox("fb", description="Facebook Name", size=41),
 	form.Textbox("weblink", description="Website Link", size=41),
 	form.Textbox("ename", description="Event Name", size=41),
@@ -42,21 +47,25 @@ dataform = form.Form(
 	form.Textarea("description",
 		description="Video description",
 		value="Add alternate description here."),
+	form.Textbox("mcode",
+		form.Validator("Must be 0 if not used properly", lambda x: any(k in x for k in ("qm","qf","sf","f1m")) or x == "0"),
+		value="0",
+		description="Match Code"),
 	form.Textbox("mnum",
 		form.notnull,
 		form.regexp("\d+", "Cannot contain letters"),
-		form.Validator("Must be more than 0", lambda x:int(x)>0),
+		form.Validator("Must be more than 0", lambda x: int(x)>0),
 		description="Match Number"),
-	form.Dropdown("mcode",
+	form.Dropdown("mtype",
 		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
 		description="Match Type"),
 	form.Dropdown("tiebreak",[("no","False"),("yes","True")],description="Tiebreaker"),
         form.Dropdown("tba",[("yes","True"),("no","False")],description="Update TBA"),
         form.Dropdown("ceremonies",[(0,"None"),(1,"Opening Ceremonies"),(2,"Alliance Selection"),(3,"Closing Ceremonies")],description="Ceremonies"),
-	form.Textbox("end", 
+	form.Textbox("end",
 		description="Last Match Number", 
 		value="Only for batch uploads"),
-		validators = [form.Validator("Last Match Number must be greater than Match Number", 
+	validators = [form.Validator("Last Match Number must be greater than Match Number", 
 		lambda i: i.end == "Only for batch uploads" or int(i.end) > int(i.mnum))]
 	)
 
@@ -87,12 +96,13 @@ class index(threading.Thread):
 							8: myform.tbaID,
 							9: myform.tbaSecret,
 							10: myform.description,
-							11: myform.mnum,
-							12: myform.mcode,
-							13: myform.tiebreak,
-							14: myform.tba,
-							15: myform.ceremonies,
-							16: myform.end,
+							11: myform.mcode,
+							12: myform.mnum,
+							13: myform.mtype,
+							14: myform.tiebreak,
+							15: myform.tba,
+							16: myform.ceremonies,
+							17: myform.end,
 						}
 						switcher[i].set_value(value)
 					i = i + 1
@@ -100,21 +110,20 @@ class index(threading.Thread):
 		return render.forms(myform)
 
 	def POST(self):
+		then = datetime.now() #tracking for the time delta
 		myform = dataform()
 		if not myform.validates():
 			return render.forms(myform)
 		else:
-			then = datetime.now()
 			reader = csv.reader(open('form_values.csv'))
 			try:
 				row = next(reader)
 			except StopIteration:
-				with open("form_values.csv", "wb") as csvf:
+				with open("form_values.csv", "wb") as csvf: #if the file doesn't exist
 					csvf.write(''.join(str(x) for x in [","]*30))
 					csvf.close()
 					row = next(reader)
-			parser = argparse.ArgumentParser(description='Upload videos to YouTube for FRC matches')
-			args = parser.parse_args()
+			args = argparse.ArgumentParser().parse_args()
 			formdata = web.input()
 			args.then = then
 			args.gui = True
@@ -129,14 +138,15 @@ class index(threading.Thread):
 			args.tbaID = row[8] = myform.d.tbaID
 			args.tbaSecret = row[9] = myform.d.tbaSecret
 			args.description = row[10] = myform.d.description
-			args.mnum = row[11] = int(myform.d.mnum)
-			args.mcode = row[12] = myform.d.mcode
+			args.mcode = row[11] = myform.d.mcode
+			args.mnum = row[12] = int(myform.d.mnum)
+			args.mtype = row[13] = myform.d.mtype
 			args.tiebreak = 0 if myform.d.tiebreak == "no" else 1
-			row[13] = myform.d.tiebreak
+			row[14] = myform.d.tiebreak
 			args.tba = 0 if myform.d.tba == "no" else 1
-			row[14] = myform.d.tba
-			args.ceremonies = row[15] = myform.d.ceremonies
-			args.end = row[16] = myform.d.end
+			row[15] = myform.d.tba
+			args.ceremonies = row[16] = myform.d.ceremonies
+			args.end = row[17] = myform.d.end
 			thr = threading.Thread(target=yup.init, args=(args,))
 			thr.daemon = True
 			thr.start()
@@ -168,6 +178,9 @@ def internet(host="www.google.com", port=80, timeout=4):
         return False
 			
 def main():
+	if os.geteuid() != 0 and "linux" in sys.platform: #root needed for writing files
+		print("Need root for writing files")
+		subprocess.call(['sudo', 'python', sys.argv[0]])
 	YA.get_youtube_service()
 	YA.get_spreadsheet_service()
 	web.internalerror = web.debugerror
