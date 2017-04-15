@@ -309,6 +309,7 @@ def upload_multiple_videos(youtube, spreadsheet, options):
             print initialize_upload(youtube, spreadsheet, options)
         except HttpError, e:
             print "An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content)
+        options.then = datetime.now()
         options.mnum = options.mnum + 1
     print "All matches have been uploaded"
 
