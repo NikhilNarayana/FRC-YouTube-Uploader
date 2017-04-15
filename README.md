@@ -76,6 +76,9 @@ For Closing Ceremonies you need to just have `Closing` or `Award` in the file na
 For Alliance Selection you need to have the words `Alliance` and `Selection` in the file name.
 All terms are matched in a substring so `Award` will match with `Awards` and same for others.
 
+##### Event Day
+This is in conjunction with the above option. If you are not uploading live this is very important, you need to name the ceremony files with Day 1, 2, or 3 based on when they were in your event. Then select the same value in this dropdown and the program will find the correct one. Only Opening and Closing Ceremonies are affected, there is only one Alliance Selection so it don't change anything for that. If you are uploading live, I suggest you leave this at `Ignore` and just set the file name to include the current day name.
+
 ##### Last Match Number
 If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number, inclusive, will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
 
