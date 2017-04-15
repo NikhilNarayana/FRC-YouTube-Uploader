@@ -431,9 +431,9 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     retry_status_codes = get_retry_status_codes()
     retry_exceptions = get_retry_exceptions()
     max_retries = get_max_retries()
+    print "Uploading {}".format(options.file)
     while response is None:
         try:
-            print "Uploading {}".format(options.file)
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print "Video link is https://www.youtube.com/watch?v={}".format(response['id'])

@@ -38,4 +38,4 @@ if __name__ == '__main__':
 	try:
 		update_thumbnails(youtube,args.pID,args,thumbnail)
 	except HttpError, e:
-		print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+		print "An HTTP error {} occurred:\n{}".format(e.resp.status, e.content)
