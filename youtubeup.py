@@ -432,7 +432,7 @@ def initialize_upload(youtube, spreadsheet, options):
 def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     response = None
     error = None
-    sleep_minutes = 600
+    sleep_minutes = 1200
     retry = 0
     retryforlimit = 0
     retry_status_codes = get_retry_status_codes()
@@ -467,9 +467,9 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             if e.resp.status in retry_status_codes:
                 error = "A retriable HTTP error {} occurred:\n{}".format(e.resp.status,
                         e.content)
-            elif "exceed" in e.content:
+            elif "uploadLimitExceeded" in e.content:
                 retryforlimit += 1
-                if retryforlimit > max_retries:
+                if retryforlimit > max_retries*2:
                     print "Waiting {} minutes to avoid upload limit".format(sleep_minutes / 60)
                     time.sleep(sleep_minutes)
                     for x in xrange(sleep_minutes):
