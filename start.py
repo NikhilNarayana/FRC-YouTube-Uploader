@@ -123,6 +123,8 @@ class index(threading.Thread):
 					csvf.write(''.join(str(x) for x in [","]*30))
 					csvf.close()
 					row = next(reader)
+			if "thebluealliance" in myform.d.mcode:
+				myform.mcode.set_value(myform.d.mcode.split("_")[-1])
 			args = argparse.ArgumentParser().parse_args()
 			formdata = web.input()
 			args.then = then
