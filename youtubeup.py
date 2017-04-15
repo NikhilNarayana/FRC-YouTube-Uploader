@@ -471,7 +471,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                             print "Minute {} of {}".format(x/60, sleep_minutes/60)
                     sleep_minutes = math.floor(sleep_minutes * .9)
                     error = None
-                elif:
+                else:
                     print "Upload limit could not be avoided\n{} was not uploaded".format(options.file)
                     sys.exit(0)
             else:
