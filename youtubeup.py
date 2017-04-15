@@ -89,14 +89,17 @@ def finals_yt_title(options):
     return title
 
 def ceremonies_title(options):
-    title = None 
-    if options.ceremonies is 1:
-        title = options.ename + " - " + "{} Opening Ceremonies".format(dt.datetime.now().strftime("%A"))
+    title = None
+    if options.ceremonies is 1 and not options.eday:
+        title = options.ename + " - " + "{} Opening Ceremonies".format(options.day)
+    else:
+        title = options.ename + " - " + "Day {} Opening Ceremonies".format(options.eday)
     if options.ceremonies is 2:
         title = options.ename + " - " + "Alliance Selection"
-    if options.ceremonies is 3:
+    if options.ceremonies is 3 and not options.eday:
         title = options.ename + " - " + "Closing Ceremonies"
-    return title
+    else:
+        title = options.ename + " - " + "Day {} Closing Ceremonies".format(options.eday)
 
 def create_title(options):
     if options.ceremonies is 0:
@@ -175,7 +178,7 @@ def ceremonies_filename(options):
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("opening", "ceremon")):
-                if any(k in fl for k in (options.day, "day 1", "day 2")):
+                if any(k in fl for k in (options.day, options.eday)):
                     print "Found {} to upload".format(f)
                     return f
     if options.ceremonies is 2:
@@ -188,8 +191,9 @@ def ceremonies_filename(options):
         for f in options.files:
             fl = f.lower()
             if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
-                print "Found {} to upload".format(f)
-                return f
+                if any(k in fl for k in (options.day, options.eday)):
+                    print "Found {} to upload".format(f)
+                    return f
 
 def create_filename(options):
     if options.ceremonies is 0:
@@ -349,6 +353,7 @@ def init(options):
     options.tba = int(options.tba)
     options.mnum = int(options.mnum)
     options.tiebreak = int(options.tiebreak)
+    options.eday = int(options.eday)
 
     if options.ceremonies != 0:
         options.tba = 0

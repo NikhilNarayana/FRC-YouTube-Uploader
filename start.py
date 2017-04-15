@@ -60,8 +60,9 @@ dataform = form.Form(
 		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
 		description="Match Type"),
 	form.Dropdown("tiebreak",[("no","False"),("yes","True")],description="Tiebreaker"),
-        form.Dropdown("tba",[("yes","True"),("no","False")],description="Update TBA"),
-        form.Dropdown("ceremonies",[(0,"None"),(1,"Opening Ceremonies"),(2,"Alliance Selection"),(3,"Closing Ceremonies")],description="Ceremonies"),
+	form.Dropdown("tba",[("yes","True"),("no","False")],description="Update TBA"),
+	form.Dropdown("ceremonies",[(0,"None"),(1,"Opening Ceremonies"),(2,"Alliance Selection"),(3,"Closing Ceremonies")],description="Ceremonies"),
+	form.Dropdown("eday",[(0,"Ignore"),(1,"1"),(2,"2"),(3,"3")], description="Event Day"),
 	form.Textbox("end",
 		description="Last Match Number", 
 		value="Only for batch uploads"),
@@ -102,7 +103,8 @@ class index(threading.Thread):
 							14: myform.tiebreak,
 							15: myform.tba,
 							16: myform.ceremonies,
-							17: myform.end,
+							17: myform.eday,
+							18: myform.end,
 						}
 						switcher[i].set_value(value)
 					i = i + 1
@@ -148,7 +150,8 @@ class index(threading.Thread):
 			args.tba = 0 if myform.d.tba == "no" else 1
 			row[15] = myform.d.tba
 			args.ceremonies = row[16] = myform.d.ceremonies
-			args.end = row[17] = myform.d.end
+			args.eday = row[17] = myform.d.eday
+			args.end = row[18] = myform.d.end
 			thr = threading.Thread(target=yup.init, args=(args,))
 			thr.daemon = True
 			thr.start()
