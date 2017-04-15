@@ -17,7 +17,7 @@ from youtubeAuthenticate import *
 # Default Variables
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
-DEFAULT_TAGS = """%s, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST STEAMworks"""
+DEFAULT_TAGS = """{}, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST STEAMworks"""
 QUAL = "Qualification Match {}"
 QUARTER = "Quarterfinal Match {}"
 QUARTERT = "Quarterfinal Tiebreaker {}"
@@ -91,7 +91,7 @@ def finals_yt_title(options):
 def ceremonies_title(options):
     title = None 
     if options.ceremonies is 1:
-        title = options.ename + " - " + "%s Opening Ceremonies" % dt.datetime.now().strftime("%A")
+        title = options.ename + " - " + "{} Opening Ceremonies".format(dt.datetime.now().strftime("%A"))
     if options.ceremonies is 2:
         title = options.ename + " - " + "Alliance Selection"
     if options.ceremonies is 3:
@@ -118,9 +118,9 @@ def quals_filename(options):
     for f in options.files:
         fl = f.lower()
         if all(k in fl for k in ("qualification", " "+str(options.mnum)+".")):
-            print "Found %s to upload" % f
+            print "Found {} to upload".format(f)
             return f
-    raise Exception("Cannot find Qualification file with match number %s" % options.mnum)
+    raise Exception("Cannot find Qualification file with match number {}".format(options.mnum))
 
 def quarters_filename(options):
     if 1 <= options.mnum <= 8:
@@ -128,14 +128,14 @@ def quarters_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("quarter", "final", " "+str(options.mnum)+".")):
                 if "tiebreak" not in fl:
-                    print "Found %s to upload" % f
+                    print "Found {} to upload".format(f)
                     return f
     elif 9 <= options.mnum <= 12:
         mnum = options.mnum - 8
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("quarter", "tiebreak", "final"," "+str(mnum)+".")):
-                print "Found %s to upload" % f
+                print "Found {} to upload".format(f)
                 return f
 
 def semis_filename(options):
@@ -144,14 +144,14 @@ def semis_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("semi", "final", " "+str(options.mnum)+".")):
                 if "tiebreak" not in fl:
-                    print "Found %s to upload" % f
+                    print "Found {} to upload".format(f)
                     return f
     elif 5 <= options.mnum <= 6:
         mnum = options.mnum - 4
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(mnum)+".")):
-                print "Found %s to upload" % f
+                print "Found {} to upload".format(f)
                 return f
 
 def finals_filename(options):
@@ -160,14 +160,14 @@ def finals_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("final"," "+str(options.mnum)+".")):
                 if all(k not in fl for k in ("quarter","semi")) and "tiebreak" not in fl:
-                        print "Found %s to upload" % f
+                        print "Found {} to upload".format(f)
                         return f
     elif options.mnum >= 3:
         for f in options.files:
             fl = f.lower()
             if "final" in fl and any(k in fl for k in ("tiebreak", " "+str(options.mnum)+".")):
                 if all(k not in fl for k in ("quarter","semi")):
-                    print "Found %s to upload" % f
+                    print "Found {} to upload".format(f)
                     return f
 
 def ceremonies_filename(options):
@@ -176,19 +176,19 @@ def ceremonies_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("opening", "ceremon")):
                 if any(k in fl for k in (options.day, "day 1", "day 2")):
-                    print "Found %s to upload" % f
+                    print "Found {} to upload".format(f)
                     return f
     if options.ceremonies is 2:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("alliance", "selection")):
-                print "Found %s to upload" % f
+                print "Found {} to upload".format(f)
                 return f
     if options.ceremonies is 3:
         for f in options.files:
             fl = f.lower()
             if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
-                print "Found %s to upload" % f
+                print "Found {} to upload".format(f)
                 return f
 
 def create_filename(options):
@@ -303,7 +303,7 @@ def upload_multiple_videos(youtube, spreadsheet, options):
         try:
             print initialize_upload(youtube, spreadsheet, options)
         except HttpError, e:
-            print "An HTTP error %d occurred:\n%s\n" % (e.resp.status, e.content)
+            print "An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content)
         options.mnum = options.mnum + 1
     print "All matches have been uploaded"
 
@@ -312,7 +312,7 @@ def update_thumbnail(youtube, video_id, thumbnail):
         videoId=video_id,
         media_body=thumbnail
         ).execute()
-    print "Thumbnail added to video %s" % video_id
+    print "Thumbnail added to video {}".format(video_id)
 
 def add_to_playlist(youtube,videoID,playlistID):
     if type(videoID) is list: # Recursively add videos if videoID is list
@@ -336,9 +336,9 @@ def add_to_playlist(youtube,videoID,playlistID):
 def init(options):
     """The program starts here"""
     options.day = dt.datetime.now().strftime("%A").lower()
-    options.files = reversed([f for f in os.listdir(options.where) 
-        if os.path.isfile(os.path.join(options.where, f))])
-    options.tags = DEFAULT_TAGS % options.ecode
+    options.files = list(reversed([f for f in os.listdir(options.where) 
+        if os.path.isfile(os.path.join(options.where, f))]))
+    options.tags = DEFAULT_TAGS.format(options.ecode)
     options.category = DEFAULT_VIDEO_CATEGORY
     options.title = options.ename + " - " + QUAL
     if any(k == options.description for k in ("Add alternate description here.","")):
@@ -365,13 +365,13 @@ def init(options):
         try:
             print initialize_upload(youtube, spreadsheet, options)
         except HttpError, e:
-            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+            print "An HTTP error {} occurred:\n{}".format(e.resp.status, e.content)
 
 def initialize_upload(youtube, spreadsheet, options):
     if not options.ceremonies:
-        print "Initializing upload for %s match %s" % (options.mtype, options.mnum)
+        print "Initializing upload for {} match {}".format(options.mtype, options.mnum)
     else:
-        print "Initializing upload for: %s" % ceremonies_title(options)
+        print "Initializing upload for: {}".format(ceremonies_title(options))
     tags = None
     mcode = None
     if options.tba:
@@ -435,7 +435,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             print "Uploading file..."
             status, response = insert_request.next_chunk()
             if 'id' in response:
-                print "Video link is https://www.youtube.com/watch?v=%s" % response['id']
+                print "Video link is https://www.youtube.com/watch?v={}".format(response['id'])
                 if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):
                     update_thumbnail(youtube, response['id'], "thumbnail.png")
                 else:
@@ -449,18 +449,17 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                 rowRange = "Data!A1:F1"
                 wasBatch = "True" if options.end != "Only for batch uploads" else "False"
                 usedTBA = "True" if options.tba == 1 else "False"
-                values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v=%s" % response['id'], usedTBA, options.ename, wasBatch]]
+                values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v={}".format(response['id']), usedTBA, options.ename, wasBatch]]
                 body = {'values': values}
                 appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="RAW", body=body).execute()
                 return "DONE"
             else:
-                exit("The upload failed with an unexpected response: %s" %
-                        response)
+                exit("The upload failed with an unexpected response: {}".format(response))
         except HttpError, e:
             if e.resp.status in retry_status_codes:
-                error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
+                error = "A retriable HTTP error {} occurred:\n{}".format(e.resp.status,
                         e.content)
-            elif any("exceed" in e.content["error"]["errors"][0][value] for value in e.content["error"]["errors"][0]):
+            elif "exceed" in e.content:
                 retry += 1
                 if retry > max_retries:
                     print "Waiting {} minutes to avoid upload limit".format(sleep_minutes / 60)
@@ -474,7 +473,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             else:
                 raise
         except retry_exceptions as e:
-            error = "A retriable error occurred: %s" % e
+            error = "A retriable error occurred: {}".format(e)
 
         if error is not None:
             print error
@@ -484,5 +483,5 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 
             max_sleep = 2 ** retry
             sleep_seconds = random.random() * max_sleep
-            print "Sleeping %f seconds and then retrying..." % sleep_seconds
+            print "Sleeping {} seconds and then retrying...".format(sleep_seconds)
             time.sleep(sleep_seconds)
