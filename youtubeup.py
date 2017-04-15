@@ -200,6 +200,7 @@ def create_filename(options):
                 "f1m": finals_filename,
                 }
         try:
+            options.file = switcher[options.mtype](options)
             return switcher[options.mtype](options)
         except KeyError:
             print options.mtype
@@ -432,7 +433,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     max_retries = get_max_retries()
     while response is None:
         try:
-            print "Uploading file..."
+            print "Uploading {}".format(options.file)
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print "Video link is https://www.youtube.com/watch?v={}".format(response['id'])
@@ -468,7 +469,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                         time.sleep(1)
                         if x % 60 == 0:
                             print "Minute {} of {}".format(x/60, sleep_minutes/60)
-                    sleep_minutes = math.floor(sleep_minutes * .8) if sleep_minutes > 2 else 0
+                    sleep_minutes = math.floor(sleep_minutes * .8)
                     error = None
             else:
                 raise
