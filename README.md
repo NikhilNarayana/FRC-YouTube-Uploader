@@ -77,16 +77,13 @@ For Alliance Selection you need to have the words `Alliance` and `Selection` in 
 All terms are matched in a substring so `Award` will match with `Awards` and same for others.
 
 ##### Last Match Number
-###### Possibly broken
-A few tests have shown that this isn't working consistently. You may see it work for a certain number of matches and then randomly fail. I will be looking into the problem soon.
-
 If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number, inclusive, will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
 
 If you are still in need of assistance, feel free to contact me.
 
 ### Stats
 Stats are collected on each match uploaded and can be found here: https://docs.google.com/spreadsheets/d/18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk/edit?usp=sharing
-All the information collected is very simple and lacks sensetive data. If you want to opt out let me know and I will finally build that button into the form
+All the information collected is very simple and lacks sensetive data. If you want to opt out let me know and I will finally build that button into the form.
 
 ### Credits
 * Google - Authentication and Video Uploading

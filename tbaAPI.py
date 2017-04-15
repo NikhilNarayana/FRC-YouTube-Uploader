@@ -183,7 +183,7 @@ def set_auth_id(token):
 def set_auth_sig(secret, event_key, request_body):
 	global trusted_auth
 	m = hashlib.md5()
-	request_path = "/api/trusted/v1/event/%s/match_videos/add" % event_key
+	request_path = "/api/trusted/v1/event/{}/match_videos/add".format(event_key)
 	concat = secret + request_path + str(request_body)
 	m.update(concat)
 	md5 = m.hexdigest()
@@ -194,7 +194,7 @@ def post_video(token, secret, match_video, event_key):
     global trusted_auth
     set_auth_id(token)
     set_auth_sig(secret, event_key, match_video)
-    url_str = "http://thebluealliance.com/api/trusted/v1/event/%s/match_videos/add" % event_key
+    url_str = "http://thebluealliance.com/api/trusted/v1/event/{}/match_videos/add".format(event_key)
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         raise Exception("""An auth ID and/or auth secret required.
             Please use set_auth_id() and/or set_auth_secret() to set them""")
@@ -213,7 +213,7 @@ def get_match_results(event_key, match_key):
 	set_api_key("Nikki-Narayana","FRC-Match-Uploader","2.5.1")
 	match_data = event_get(event_key).get_match(match_key)
 	if match_data is None:
-		raise ValueError("""%s %s does not exist on TBA. Please use a match that exists""" % (event_key, match_key))
+		raise ValueError("""{} {} does not exist on TBA. Please use a match that exists""".format(event_key, match_key))
 	blue_data, red_data = parse_data(match_data)
 	while (blue_data[0] == -1 or red_data[0] == -1):
                 print "Waiting 1 minute for TBA to update scores"
