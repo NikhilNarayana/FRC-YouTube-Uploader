@@ -48,7 +48,7 @@ dataform = form.Form(
 		description="Video description",
 		value="Add alternate description here."),
 	form.Textbox("mcode",
-		form.Validator("Must be 0 if not used properly", lambda x: any(k in x for k in ("qm","qf","sf","f1m","0",""))),
+		form.Validator("Must be 0 if not used properly", lambda x: any(k in x for k in ("qm","qf","sf","f1m","0")) or x == ""),
 		value="0",
 		description="Match Code"),
 	form.Textbox("mnum",
