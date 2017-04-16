@@ -471,7 +471,6 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                 retryforlimit += 1
                 if retryforlimit < max_retries:
                     print "Waiting {} minutes to avoid upload limit".format(sleep_minutes / 60)
-                    time.sleep(sleep_minutes)
                     for x in xrange(sleep_minutes):
                         time.sleep(1)
                         if x % 60 == 0:
