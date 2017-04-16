@@ -122,82 +122,81 @@ def create_title(options):
         return ceremonies_yt_title(options)
 
 def quals_filename(options):
+    file = None
     for f in options.files:
         fl = f.lower()
         if all(k in fl for k in ("qualification", " "+str(options.mnum)+".")):
-            print "Found {} to upload".format(f)
-            return f
-    raise Exception("Cannot find Qualification file with match number {}".format(options.mnum))
+            file = f
+    return file
 
 def quarters_filename(options):
+    file = None
     if 1 <= options.mnum <= 8:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("quarter", "final", " "+str(options.mnum)+".")):
                 if "tiebreak" not in fl:
-                    print "Found {} to upload".format(f)
-                    return f
+                    file = f
     elif 9 <= options.mnum <= 12:
         mnum = options.mnum - 8
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("quarter", "tiebreak", "final"," "+str(mnum)+".")):
-                print "Found {} to upload".format(f)
-                return f
+                file = f
+    return file
 
 def semis_filename(options):
+    file = None
     if 1 <= options.mnum <= 4:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "final", " "+str(options.mnum)+".")):
                 if "tiebreak" not in fl:
-                    print "Found {} to upload".format(f)
-                    return f
+                    file = f
     elif 5 <= options.mnum <= 6:
         mnum = options.mnum - 4
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "tiebreak", "final"," "+str(mnum)+".")):
-                print "Found {} to upload".format(f)
-                return f
+                file = f
+    return file
 
 def finals_filename(options):
+    file = None
     if 1 <= options.mnum <= 2:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("final"," "+str(options.mnum)+".")):
                 if all(k not in fl for k in ("quarter","semi")) and "tiebreak" not in fl:
-                        print "Found {} to upload".format(f)
-                        return f
+                        file = f
     elif options.mnum >= 3:
         for f in options.files:
             fl = f.lower()
             if "final" in fl and any(k in fl for k in ("tiebreak", " "+str(options.mnum)+".")):
                 if all(k not in fl for k in ("quarter","semi")):
-                    print "Found {} to upload".format(f)
-                    return f
+                    file = f
+    return file
 
 def ceremonies_filename(options):
+    file = None
     if options.ceremonies is 1:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("opening", "ceremon")):
-                if any(k in fl for k in (options.day.lower(), str(options.eday))):
-                    print "Found {} to upload".format(f)
-                    return f
+                if any(k in fl for k in (options.day.lower(), "day {}".format(options.eday))):
+                    file = f
     if options.ceremonies is 2:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("alliance", "selection")):
-                print "Found {} to upload".format(f)
-                return f
+                file = f
     if options.ceremonies is 3:
         for f in options.files:
             fl = f.lower()
             if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
-                if any(k in fl for k in (options.day.lower(), str(options.eday))):
-                    print "Found {} to upload".format(f)
-                    return f
+                if any(k in fl for k in (options.day.lower(), "day {}".format(options.eday))):
+                    file = f
+    return file
 
 def create_filename(options):
     if options.ceremonies is 0:
@@ -208,13 +207,11 @@ def create_filename(options):
                 "f1m": finals_filename,
                 }
         try:
-            options.file = switcher[options.mtype](options)
-            return options.file
+            return switcher[options.mtype](options)
         except KeyError:
             print options.mtype
     else:
-        options.file = ceremonies_filename(options)
-        return options.file
+        return ceremonies_filename(options)
 def quals_match_code(mcode, mnum):
     match_code = str(mcode) + str(mnum)
     return match_code
@@ -313,6 +310,10 @@ def upload_multiple_videos(youtube, spreadsheet, options):
             print "An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content)
         options.then = dt.datetime.now()
         options.mnum = options.mnum + 1
+        options.file = create_filename(options)
+        while options.file is None and options.mnum <= options.end:
+            options.mnum = options.mnum + 1
+            options.file = create_filename(options)
     print "All matches have been uploaded"
 
 def update_thumbnail(youtube, video_id, thumbnail):
@@ -366,15 +367,21 @@ def init(options):
     youtube = get_youtube_service()
     spreadsheet = get_spreadsheet_service()
 
-    try:
-        if int(options.end) > options.mnum:
-            options.end = int(options.end)
-            upload_multiple_videos(youtube, spreadsheet, options)
-    except ValueError:
+    options.file = create_filename(options)
+
+    if options.file is not None:
+        print "Found {} to upload".format(options.file)
         try:
-            print initialize_upload(youtube, spreadsheet, options)
-        except HttpError, e:
-            print "An HTTP error {} occurred:\n{}".format(e.resp.status, e.content)
+            if int(options.end) > options.mnum:
+                options.end = int(options.end)
+                upload_multiple_videos(youtube, spreadsheet, options)
+        except ValueError:
+            try:
+                print initialize_upload(youtube, spreadsheet, options)
+            except HttpError, e:
+                print "An HTTP error {} occurred:\n{}".format(e.resp.status, e.content)
+    else:
+        raise Exception("First match file must exist")
 
 def initialize_upload(youtube, spreadsheet, options):
     if not options.ceremonies:
@@ -424,7 +431,7 @@ def initialize_upload(youtube, spreadsheet, options):
     insert_request = youtube.videos().insert(
         part=",".join(body.keys()),
         body=body,
-        media_body=MediaFileUpload(options.where+create_filename(options),
+        media_body=MediaFileUpload(options.where+options.file,
             chunksize=-1, 
             resumable=True),
         )
