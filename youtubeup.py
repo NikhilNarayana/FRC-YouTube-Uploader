@@ -89,18 +89,21 @@ def finals_yt_title(options):
     title = options.ename + " - " + FINALS.format(options.mnum)
     return title
 
-def ceremonies_title(options):
+def ceremonies_yt_title(options):
     title = None
-    if options.ceremonies is 1 and not options.eday:
-        title = options.ename + " - " + "{} Opening Ceremonies".format(options.day)
-    else:
-        title = options.ename + " - " + "Day {} Opening Ceremonies".format(options.eday)
+    if options.ceremonies is 1:
+        if not options.eday:
+            title = options.ename + " - " + "{} Opening Ceremonies".format(options.day)
+        else:
+            title = options.ename + " - " + "Day {} Opening Ceremonies".format(options.eday)
     if options.ceremonies is 2:
         title = options.ename + " - " + "Alliance Selection"
-    if options.ceremonies is 3 and not options.eday:
-        title = options.ename + " - " + "Closing Ceremonies"
-    else:
-        title = options.ename + " - " + "Day {} Closing Ceremonies".format(options.eday)
+    if options.ceremonies is 3:
+        if not options.eday:
+            title = options.ename + " - " + "Closing Ceremonies"
+        else:
+            title = options.ename + " - " + "Day {} Closing Ceremonies".format(options.eday)
+    return title
 
 def create_title(options):
     if options.ceremonies is 0:
@@ -116,7 +119,7 @@ def create_title(options):
         except KeyError:
             print options.mtype
     else:
-        return ceremonies_title(options)
+        return ceremonies_yt_title(options)
 
 def quals_filename(options):
     for f in options.files:
