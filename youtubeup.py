@@ -60,7 +60,7 @@ def quals_yt_title(options):
 
 def eights_yt_title(options):
     return None
-    
+
 def quarters_yt_title(options):
     mnum = options.mnum
     if 1 <= options.mnum <= 8:
@@ -206,11 +206,12 @@ def create_filename(options):
                 }
         try:
             options.file = switcher[options.mtype](options)
-            return switcher[options.mtype](options)
+            return options.file
         except KeyError:
             print options.mtype
     else:
-        return ceremonies_filename(options)
+        options.file = ceremonies_filename(options)
+        return options.file
 def quals_match_code(mcode, mnum):
     match_code = str(mcode) + str(mnum)
     return match_code
