@@ -178,7 +178,7 @@ def ceremonies_filename(options):
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("opening", "ceremon")):
-                if any(k in fl for k in (options.day, options.eday)):
+                if any(k in fl for k in (options.day.lower(), str(options.eday))):
                     print "Found {} to upload".format(f)
                     return f
     if options.ceremonies is 2:
@@ -191,7 +191,7 @@ def ceremonies_filename(options):
         for f in options.files:
             fl = f.lower()
             if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
-                if any(k in fl for k in (options.day, options.eday)):
+                if any(k in fl for k in (options.day.lower(), str(options.eday))):
                     print "Found {} to upload".format(f)
                     return f
 
@@ -341,7 +341,7 @@ def add_to_playlist(youtube,videoID,playlistID):
 
 def init(options):
     """The program starts here"""
-    options.day = dt.datetime.now().strftime("%A").lower()
+    options.day = dt.datetime.now().strftime("%A")
     options.files = list(reversed([f for f in os.listdir(options.where) 
         if os.path.isfile(os.path.join(options.where, f))]))
     options.tags = DEFAULT_TAGS.format(options.ecode)
