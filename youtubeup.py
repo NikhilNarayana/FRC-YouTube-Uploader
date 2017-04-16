@@ -495,7 +495,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             error = "A retriable error occurred: {}".format(e)
 
         except TypeError:
-            print "Something went wrong, please restart"
+            print "Something went wrong, please send a screenshot of this upload to metonym@live.com"
             print response, status
             sys.exit(0)
 
