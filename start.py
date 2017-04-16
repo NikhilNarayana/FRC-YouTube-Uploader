@@ -48,7 +48,7 @@ dataform = form.Form(
 		description="Video description",
 		value="Add alternate description here."),
 	form.Textbox("mcode",
-		form.Validator("Must be 0 if not used properly", lambda x: any(k in x for k in ("qm","qf","sf","f1m")) or x == "0"),
+		form.Validator("Must be 0 if not used properly", lambda x: any(k in x for k in ("qm","qf","sf","f1m","0",""))),
 		value="0",
 		description="Match Code"),
 	form.Textbox("mnum",
@@ -166,8 +166,8 @@ class index(threading.Thread):
 				myform.mcode.set_value("qf")
 			if myform.d.mcode == "qm" and myform.d.tiebreak == "yes":
 				myform.tiebreak.set_value("no")
-			row[11] = int(myform.d.mnum)
-			row[16] = myform.d.end
+			row[12] = int(myform.d.mnum)
+			row[18] = myform.d.end
 			writer = csv.writer(open('form_values.csv', 'w'))
 			writer.writerow(row)
 			return render.forms(myform)
