@@ -494,6 +494,11 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
         except retry_exceptions as e:
             error = "A retriable error occurred: {}".format(e)
 
+        except TypeError:
+            print "Something went wrong, please restart"
+            print response, status
+            sys.exit(0)
+
         if error is not None:
             print error
             retry += 1
