@@ -380,7 +380,7 @@ def initialize_upload(youtube, spreadsheet, options):
     if not options.ceremonies:
         print "Initializing upload for {} match {}".format(options.mtype, options.mnum)
     else:
-        print "Initializing upload for: {}".format(ceremonies_title(options))
+        print "Initializing upload for: {}".format(ceremonies_yt_title(options))
     tags = None
     mcode = None
     if options.tba:
