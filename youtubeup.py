@@ -306,14 +306,14 @@ def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
         try:
             print initialize_upload(youtube, spreadsheet, options)
-        except HttpError, e:
-            print "An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content)
-        options.then = dt.datetime.now()
-        options.mnum = options.mnum + 1
-        options.file = create_filename(options)
-        while options.file is None and options.mnum <= options.end:
+            options.then = dt.datetime.now()
             options.mnum = options.mnum + 1
             options.file = create_filename(options)
+            while options.file is None and options.mnum <= options.end:
+                options.mnum = options.mnum + 1
+                options.file = create_filename(options)
+        except HttpError, e:
+            print "An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content)
     print "All matches have been uploaded"
 
 def update_thumbnail(youtube, video_id, thumbnail):
