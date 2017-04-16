@@ -60,13 +60,14 @@ def quals_yt_title(options):
 
 def eights_yt_title(options):
     return None
+    
 def quarters_yt_title(options):
     mnum = options.mnum
     if 1 <= options.mnum <= 8:
         title = options.ename + " - " + QUARTER.format(mnum)
         return title
     elif 9 <= options.mnum <= 12:
-        mnum = options.mnum - 8
+        mnum -= 8
         title = options.ename + " - " + QUARTERT.format(mnum)
         return title
     else:
@@ -78,7 +79,7 @@ def semis_yt_title(options):
         title = options.ename + " - " + SEMI.format(mnum)
         return title
     elif 5 <= options.mnum <= 6:
-        mnum = options.mnum - 4
+        mnum -= 4
         title = options.ename + " - " + SEMIT.format(mnum)
         return title
     else:
