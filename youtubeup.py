@@ -219,8 +219,7 @@ def quals_match_code(mcode, mnum):
 def eights_match_code(mcode, mnum):
     match_set = str(mnum % 8)
     match_code = None
-    if match_set == "0":
-        match_set = "8"
+    match_set = "8" if match_set == "0" else match_set
     if mnum <= 8:
         match_code = mcode + match_set + "m1"
     elif mnum <= 16:
@@ -235,8 +234,7 @@ def eights_match_code(mcode, mnum):
 def quarters_match_code(mcode, mnum):
     match_set = str(mnum % 4)
     match_code = None
-    if match_set == "0":
-        match_set = "4"
+    match_set = "4" if match_set == "0" else match_set
     if mnum <= 4:
         match_code = mcode + match_set + "m1"
     elif mnum <= 8:
@@ -250,8 +248,7 @@ def quarters_match_code(mcode, mnum):
 def semis_match_code(mcode, mnum):
     match_set = str(mnum % 2)
     match_code = None
-    if match_set == "0":
-        match_set = "2"
+    match_set = "2" if match_set == "0" else match_set
     if mnum <= 2:
         match_code = mcode + match_set + "m1"
     elif mnum <= 4:
