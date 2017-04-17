@@ -305,7 +305,11 @@ def tiebreak_mnum(mnum, mcode):
 def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
         try:
-            print initialize_upload(youtube, spreadsheet, options)
+            conclusion = initialize_upload(youtube, spreadsheet, options)
+            if conclusion == "FAILED":
+                print "Try again"
+                return
+            print conclusion
             options.then = dt.datetime.now()
             options.mnum = options.mnum + 1
             options.file = create_filename(options)
@@ -483,7 +487,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                     error = None
                 else:
                     print "Upload limit could not be avoided\n{} was not uploaded".format(options.file)
-                    sys.exit(0)
+                    return "FAILED"
             else:
                 raise
         except retry_exceptions as e:
