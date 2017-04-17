@@ -212,55 +212,55 @@ def create_filename(options):
             print options.mtype
     else:
         return ceremonies_filename(options)
-def quals_match_code(mcode, mnum):
-    match_code = str(mcode) + str(mnum)
+def quals_match_code(mtype, mnum):
+    match_code = str(mtype) + str(mnum)
     return match_code
 
-def eights_match_code(mcode, mnum):
+def eights_match_code(mtype, mnum):
     match_set = str(mnum % 8)
-    match_code = None
     match_set = "8" if match_set == "0" else match_set
+    match_code = mtype + match_set
     if mnum <= 8:
-        match_code = mcode + match_set + "m1"
+        match_code += "m1"
     elif mnum <= 16:
-        match_code = mcode + match_set + "m2"
+        match_code += "m2"
     elif mnum <= 24:
-        match_code = mcode + match_set + "m3"
+        match_code += "m3"
     else:
         raise ValueError("Match Number can't be larger than 24")
     return match_code
 
 
-def quarters_match_code(mcode, mnum):
+def quarters_match_code(mtype, mnum):
     match_set = str(mnum % 4)
-    match_code = None
     match_set = "4" if match_set == "0" else match_set
+    match_code = mtype + match_set
     if mnum <= 4:
-        match_code = mcode + match_set + "m1"
+        match_code += "m1"
     elif mnum <= 8:
-        match_code = mcode + match_set + "m2"
+        match_code += "m2"
     elif mnum <= 12:
-        match_code = mcode + match_set + "m3"
+        match_code += "m3"
     else:
         raise ValueError("Match Number can't be larger than 12")
     return match_code
 
-def semis_match_code(mcode, mnum):
+def semis_match_code(mtype, mnum):
     match_set = str(mnum % 2)
-    match_code = None
     match_set = "2" if match_set == "0" else match_set
+    match_code = mtype + match_set
     if mnum <= 2:
-        match_code = mcode + match_set + "m1"
+        match_code += "m1"
     elif mnum <= 4:
-        match_code = mcode + match_set + "m2"
+        match_code += "m2"
     elif mnum <= 6:
-        match_code = mcode + match_set + "m3"
+        match_code += "m3"
     else:
         raise ValueError("Match Number can't be larger than 6")
     return match_code
 
-def finals_match_code(mcode, mnum):
-    match_code = str(mcode) + str(mnum)
+def finals_match_code(mtype, mnum):
+    match_code = mtype + str(mnum)
     return match_code
 
 def get_match_code(mtype, mnum, mcode):
@@ -292,7 +292,7 @@ def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3
         print e
         return options.description
 
-def tiebreak_mnum(mnum, mcode):
+def tiebreak_mnum(mnum, mtype):
     switcher = {
             "qm": mnum,
             "ef": mnum + 16,
@@ -300,7 +300,7 @@ def tiebreak_mnum(mnum, mcode):
             "sf": mnum + 4,
             "f1m": 3,
     }
-    return switcher[mcode]
+    return switcher[mtype]
 
 def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
@@ -314,6 +314,7 @@ def upload_multiple_videos(youtube, spreadsheet, options):
             options.mnum = options.mnum + 1
             options.file = create_filename(options)
             while options.file is None and options.mnum <= options.end:
+                print "{} Match {} is missing".format(options.mtype.upper(), options.mnum)
                 options.mnum = options.mnum + 1
                 options.file = create_filename(options)
         except HttpError, e:
