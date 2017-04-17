@@ -183,9 +183,10 @@ def internet(host="www.google.com", port=80, timeout=4):
         return False
 			
 def main():
-	if os.geteuid() != 0 and "linux" in sys.platform: #root needed for writing files
-		print("Need root for writing files")
-		subprocess.call(['sudo', 'python', sys.argv[0]])
+	if "linux" in sys.platform: #root needed for writing files
+		if os.geteuid() != 0:
+			print("Need root for writing files")
+			subprocess.call(['sudo', 'python', sys.argv[0]])
 	YA.get_youtube_service()
 	YA.get_spreadsheet_service()
 	web.internalerror = web.debugerror

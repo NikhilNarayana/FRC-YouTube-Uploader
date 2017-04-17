@@ -52,7 +52,7 @@ Thanks for watching!
 
 Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 
-VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
+VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 
 
 def quals_yt_title(options):
@@ -495,9 +495,9 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
         except retry_exceptions as e:
             error = "A retriable error occurred: {}".format(e)
 
-        except TypeError:
+        except TypeError as e:
             response = None
-            print "Upload failed, delete failed video from YouTube\n Trying again in 10 seconds"
+            print "Upload failed, delete failed video from YouTube\nTrying again in 10 seconds"
             time.sleep(10)
 
         attempt_retry(error, retry, max_retries)
@@ -534,4 +534,4 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v={}".format(options.vid), usedTBA, options.ename, wasBatch]]
     body = {'values': values}
     appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
-    return "DONE"
+    return "DONE\n"
