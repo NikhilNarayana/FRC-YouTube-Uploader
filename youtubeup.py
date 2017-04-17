@@ -306,14 +306,14 @@ def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
         try:
             print initialize_upload(youtube, spreadsheet, options)
-        except HttpError, e:
-            print "An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content)
-        options.then = dt.datetime.now()
-        options.mnum = options.mnum + 1
-        options.file = create_filename(options)
-        while options.file is None and options.mnum <= options.end:
+            options.then = dt.datetime.now()
             options.mnum = options.mnum + 1
             options.file = create_filename(options)
+            while options.file is None and options.mnum <= options.end:
+                options.mnum = options.mnum + 1
+                options.file = create_filename(options)
+        except HttpError, e:
+            print "An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content)
     print "All matches have been uploaded"
 
 def update_thumbnail(youtube, video_id, thumbnail):
@@ -341,6 +341,17 @@ def add_to_playlist(youtube,videoID,playlistID):
         }
     ).execute()
         print "Added to playlist"
+def retry(error):
+    if error is not None:
+        print error
+        retry += 1
+        if retry > max_retries:
+            exit("No longer attempting to retry.")
+
+        max_sleep = 2 ** retry
+        sleep_seconds = random.random() * max_sleep
+        print "Sleeping {} seconds and then retrying...".format(sleep_seconds)
+        time.sleep(sleep_seconds)
 
 def init(options):
     """The program starts here"""
@@ -452,24 +463,8 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
         try:
             status, response = insert_request.next_chunk()
             if 'id' in response:
-                print "Video link is https://www.youtube.com/watch?v={}".format(response['id'])
-                if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):
-                    update_thumbnail(youtube, response['id'], "thumbnail.png")
-                else:
-                    print "thumbnail.png does not exist"
-                add_to_playlist(youtube, response['id'], options.pID)
-                request_body = json.dumps({mcode: response['id']})
-                if options.tba:
-                    post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
-                totalTime = dt.datetime.now() - options.then
-                spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
-                rowRange = "Data!A1:F1"
-                wasBatch = "True" if any(options.end != y for y in ("Only for batch uploads", "")) else "False"
-                usedTBA = "True" if options.tba == 1 else "False"
-                values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v={}".format(response['id']), usedTBA, options.ename, wasBatch]]
-                body = {'values': values}
-                appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
-                return "DONE"
+                options.vid = response['id']
+                print "Video link is https://www.youtube.com/watch?v={}".format(options.vid)
             else:
                 exit("The upload failed with an unexpected response: {}".format(response))
         except HttpError, e:
@@ -494,13 +489,43 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
         except retry_exceptions as e:
             error = "A retriable error occurred: {}".format(e)
 
-        if error is not None:
-            print error
-            retry += 1
-            if retry > max_retries:
-                exit("No longer attempting to retry.")
+        except TypeError:
+            response = None
+            print "Upload failed, delete failed video from YouTube\n Trying again in 10 seconds"
+            time.sleep(10)
 
-            max_sleep = 2 ** retry
-            sleep_seconds = random.random() * max_sleep
-            print "Sleeping {} seconds and then retrying...".format(sleep_seconds)
-            time.sleep(sleep_seconds)
+        retry(error)
+
+    request_body = json.dumps({mcode: options.vid})
+    if options.tba:
+        post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
+    vidOptions = False
+    while vidOptions == False:
+        try:
+            error = None
+            if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):
+                update_thumbnail(youtube, options.vid, "thumbnail.png")
+            else:
+                print "thumbnail.png does not exist"
+            add_to_playlist(youtube, options.vid, options.pID)
+            vidOptions = True
+
+        except HttpError, e:
+            if e.resp.status in retry_status_codes:
+                error = "A retriable HTTP error {} occurred:\n{}".format(e.resp.status,
+                        e.content)
+
+        except retry_exceptions as e:
+            error = "A retriable error occurred: {}".format(e)
+
+        retry(error)
+        
+    spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
+    rowRange = "Data!A1:F1"
+    wasBatch = "True" if any(options.end != y for y in ("Only for batch uploads", "")) else "False"
+    usedTBA = "True" if options.tba == 1 else "False"
+    totalTime = dt.datetime.now() - options.then
+    values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v={}".format(options.vid), usedTBA, options.ename, wasBatch]]
+    body = {'values': values}
+    appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
+    return "DONE"
