@@ -341,7 +341,7 @@ def add_to_playlist(youtube,videoID,playlistID):
         }
     ).execute()
         print "Added to playlist"
-def retry(error):
+def retry(error, retry, max_retries, max_sleep, sleep_seconds):
     if error is not None:
         print error
         retry += 1
@@ -494,7 +494,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             print "Upload failed, delete failed video from YouTube\n Trying again in 10 seconds"
             time.sleep(10)
 
-        retry(error)
+        retry(error, retry, max_retries, max_sleep, sleep_seconds)
 
     request_body = json.dumps({mcode: options.vid})
     if options.tba:
