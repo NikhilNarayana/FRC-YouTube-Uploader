@@ -356,6 +356,7 @@ def attempt_retry(error, retry, max_retries):
         sleep_seconds = random.random() * max_sleep
         print "Sleeping {} seconds and then retrying...".format(sleep_seconds)
         time.sleep(sleep_seconds)
+        error = None
 
 def init(options):
     """The program starts here"""
@@ -465,6 +466,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     print "Uploading {}".format(options.file)
     while response is None:
         try:
+            error = None
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 options.vid = response['id']
