@@ -341,6 +341,17 @@ def add_to_playlist(youtube,videoID,playlistID):
         }
     ).execute()
         print "Added to playlist"
+def retry(error):
+    if error is not None:
+        print error
+        retry += 1
+        if retry > max_retries:
+            exit("No longer attempting to retry.")
+
+        max_sleep = 2 ** retry
+        sleep_seconds = random.random() * max_sleep
+        print "Sleeping {} seconds and then retrying...".format(sleep_seconds)
+        time.sleep(sleep_seconds)
 
 def init(options):
     """The program starts here"""
@@ -480,18 +491,10 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
 
         except TypeError:
             response = None
-            print "Upload failed, delete failed video from YouTube\n Trying again"
+            print "Upload failed, delete failed video from YouTube\n Trying again in 10 seconds"
+            time.sleep(10)
 
-        if error is not None:
-            print error
-            retry += 1
-            if retry > max_retries:
-                exit("No longer attempting to retry.")
-
-            max_sleep = 2 ** retry
-            sleep_seconds = random.random() * max_sleep
-            print "Sleeping {} seconds and then retrying...".format(sleep_seconds)
-            time.sleep(sleep_seconds)
+        retry(error)
 
     request_body = json.dumps({mcode: options.vid})
     if options.tba:
@@ -506,22 +509,17 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                 print "thumbnail.png does not exist"
             add_to_playlist(youtube, options.vid, options.pID)
             vidOptions = True
+
         except HttpError, e:
             if e.resp.status in retry_status_codes:
                 error = "A retriable HTTP error {} occurred:\n{}".format(e.resp.status,
                         e.content)
+
         except retry_exceptions as e:
             error = "A retriable error occurred: {}".format(e)
-        if error is not None:
-            print error
-            retry += 1
-            if retry > max_retries:
-                exit("No longer attempting to retry.")
 
-            max_sleep = 2 ** retry
-            sleep_seconds = random.random() * max_sleep
-            print "Sleeping {} seconds and then retrying...".format(sleep_seconds)
-            time.sleep(sleep_seconds)
+        retry(error)
+        
     spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
     rowRange = "Data!A1:F1"
     wasBatch = "True" if any(options.end != y for y in ("Only for batch uploads", "")) else "False"
