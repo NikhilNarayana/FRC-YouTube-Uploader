@@ -494,7 +494,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             print "Upload failed, delete failed video from YouTube\n Trying again in 10 seconds"
             time.sleep(10)
 
-        retry(error, retry, max_retries, max_sleep, sleep_seconds)
+        retry(error, retry, max_retries, sleep_seconds)
 
     request_body = json.dumps({mcode: options.vid})
     if options.tba:
@@ -518,7 +518,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
         except retry_exceptions as e:
             error = "A retriable error occurred: {}".format(e)
 
-        retry(error, retry, max_retries, max_sleep, sleep_seconds)
+        retry(error, retry, max_retries, sleep_seconds)
         
     spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
     rowRange = "Data!A1:F1"
