@@ -453,14 +453,14 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print "Video link is https://www.youtube.com/watch?v={}".format(response['id'])
+                request_body = json.dumps({mcode: response['id']})
+                if options.tba:
+                    post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
                 if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):
                     update_thumbnail(youtube, response['id'], "thumbnail.png")
                 else:
                     print "thumbnail.png does not exist"
                 add_to_playlist(youtube, response['id'], options.pID)
-                request_body = json.dumps({mcode: response['id']})
-                if options.tba:
-                    post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
                 totalTime = dt.datetime.now() - options.then
                 spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
                 rowRange = "Data!A1:F1"
