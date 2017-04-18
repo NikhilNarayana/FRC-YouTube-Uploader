@@ -125,13 +125,16 @@ class index(threading.Thread):
 				reader = csv.reader(open('form_values.csv'))
 				row = next(reader)
 			except StopIteration:
-				with open("form_values.csv", "r+b") as csvf: #if the file doesn't exist
+				with open("form_values.csv", "w+b") as csvf: #if the file doesn't exist
 					csvf.write(''.join(str(x) for x in [","]*30))
-					row = next(csvf)
+					reader = csv.reader(open("form_values.csv"))
+					row = next(reader)
 			except IOError:
-				with open("form_values.csv", "r+b") as csvf: #if the file doesn't exist
+				with open("form_values.csv", "w+b") as csvf: #if the file doesn't exist
 					csvf.write(''.join(str(x) for x in [","]*30))
-					row = next(csvf)
+					csvf.close()
+					reader = csv.reader(open("form_values.csv"))
+					row = next(reader)
 			if "thebluealliance" in myform.d.mcode:
 				myform.mcode.set_value(myform.d.mcode.split("_")[-1])
 			args = argparse.ArgumentParser().parse_args()
