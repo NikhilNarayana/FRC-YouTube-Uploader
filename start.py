@@ -10,11 +10,11 @@ import threading
 import webbrowser
 import subprocess
 
-import argparse
 from web import form
 from time import sleep
 import youtubeup as yup
 from datetime import datetime
+from argparse import Namespace
 import youtubeAuthenticate as YA
 
 render = web.template.render('webpage/')
@@ -137,32 +137,32 @@ class index(threading.Thread):
 					row = next(reader)
 			if "thebluealliance" in myform.d.mcode:
 				myform.mcode.set_value(myform.d.mcode.split("_")[-1])
-			args = argparse.ArgumentParser().parse_args()
+			options = Namespace()
 			formdata = web.input()
-			args.then = then
-			args.gui = True
-			args.where = row[0] = myform.d.where
-			args.prodteam = row[1] = myform.d.prodteam
-			args.twit = row[2] = myform.d.twit
-			args.fb = row[3] = myform.d.fb
-			args.weblink = row[4] = myform.d.weblink
-			args.ename = row[5] = myform.d.ename
-			args.ecode = row[6] = myform.d.ecode
-			args.pID = row[7] = myform.d.pID
-			args.tbaID = row[8] = myform.d.tbaID
-			args.tbaSecret = row[9] = myform.d.tbaSecret
-			args.description = row[10] = myform.d.description
-			args.mcode = row[11] = myform.d.mcode
-			args.mnum = row[12] = int(myform.d.mnum)
-			args.mtype = row[13] = myform.d.mtype
-			args.tiebreak = 0 if myform.d.tiebreak == "no" else 1
+			options.then = then
+			options.gui = True
+			options.where = row[0] = myform.d.where
+			options.prodteam = row[1] = myform.d.prodteam
+			options.twit = row[2] = myform.d.twit
+			options.fb = row[3] = myform.d.fb
+			options.weblink = row[4] = myform.d.weblink
+			options.ename = row[5] = myform.d.ename
+			options.ecode = row[6] = myform.d.ecode
+			options.pID = row[7] = myform.d.pID
+			options.tbaID = row[8] = myform.d.tbaID
+			options.tbaSecret = row[9] = myform.d.tbaSecret
+			options.description = row[10] = myform.d.description
+			options.mcode = row[11] = myform.d.mcode
+			options.mnum = row[12] = int(myform.d.mnum)
+			options.mtype = row[13] = myform.d.mtype
+			options.tiebreak = 0 if myform.d.tiebreak == "no" else 1
 			row[14] = myform.d.tiebreak
-			args.tba = 0 if myform.d.tba == "no" else 1
+			options.tba = 0 if myform.d.tba == "no" else 1
 			row[15] = myform.d.tba
-			args.ceremonies = row[16] = myform.d.ceremonies
-			args.eday = row[17] = myform.d.eday
-			args.end = row[18] = myform.d.end
-			thr = threading.Thread(target=yup.init, args=(args,))
+			options.ceremonies = row[16] = myform.d.ceremonies
+			options.eday = row[17] = myform.d.eday
+			options.end = row[18] = myform.d.end
+			thr = threading.Thread(target=yup.init, args=(options,))
 			thr.daemon = True
 			thr.start()
 			if int(myform.d.ceremonies) == 0:
