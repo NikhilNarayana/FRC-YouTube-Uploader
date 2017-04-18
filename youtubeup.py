@@ -346,11 +346,8 @@ def add_to_playlist(youtube,videoID,playlistID):
         }
     ).execute()
         print "Added to playlist"
-<<<<<<< HEAD
-def retry(error, retry, max_retries, sleep_seconds):
-=======
+
 def attempt_retry(error, retry, max_retries):
->>>>>>> 037872df4c5c3ea4c106885e6e792cdcbdd8c651
     if error is not None:
         print error
         retry += 1
