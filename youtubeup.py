@@ -494,9 +494,11 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             else:
                 raise
         except retry_exceptions as e:
+            print response, status
             error = "A retriable error occurred: {}".format(e)
 
         except TypeError as e:
+            print response
             response = None
             print "Upload failed, delete failed video from YouTube\nTrying again in 10 seconds"
             time.sleep(10)
