@@ -79,51 +79,61 @@ class index(threading.Thread):
 
 	def GET(self):
 		myform = dataform()
-		with open('form_values.csv', 'rb') as csvfile:
-			reader = csv.reader(csvfile, delimiter=',', quotechar='|')
-			i = 0
-			for row in reader:
-				for value in row:
-					if value is not "":
-						switcher = {
-							0: myform.where,
-							1: myform.prodteam,
-							2: myform.twit,
-							3: myform.fb,
-							4: myform.weblink,
-							5: myform.ename,
-							6: myform.ecode,
-							7: myform.pID,
-							8: myform.tbaID,
-							9: myform.tbaSecret,
-							10: myform.description,
-							11: myform.mcode,
-							12: myform.mnum,
-							13: myform.mtype,
-							14: myform.tiebreak,
-							15: myform.tba,
-							16: myform.ceremonies,
-							17: myform.eday,
-							18: myform.end,
-						}
-						switcher[i].set_value(value)
-					i = i + 1
-				break
+		try:
+			with open('form_values.csv', 'rb') as csvfile:
+				reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+				i = 0
+				for row in reader:
+					for value in row:
+						if value is not "":
+							switcher = {
+								0: myform.where,
+								1: myform.prodteam,
+								2: myform.twit,
+								3: myform.fb,
+								4: myform.weblink,
+								5: myform.ename,
+								6: myform.ecode,
+								7: myform.pID,
+								8: myform.tbaID,
+								9: myform.tbaSecret,
+								10: myform.description,
+								11: myform.mcode,
+								12: myform.mnum,
+								13: myform.mtype,
+								14: myform.tiebreak,
+								15: myform.tba,
+								16: myform.ceremonies,
+								17: myform.eday,
+								18: myform.end,
+							}
+							switcher[i].set_value(value)
+						i = i + 1
+					break
+		except IOError:
+			x = 0
 		return render.forms(myform)
 
 	def POST(self):
 		then = datetime.now() #tracking for the time delta
 		myform = dataform()
+		row = None
 		if not myform.validates():
 			return render.forms(myform)
 		else:
-			reader = csv.reader(open('form_values.csv'))
 			try:
+				reader = csv.reader(open('form_values.csv'))
 				row = next(reader)
 			except StopIteration:
-				with open("form_values.csv", "wb") as csvf: #if the file doesn't exist
+				with open("form_values.csv", "w+b") as csvf: #if the file doesn't exist
+					csvf.write(''.join(str(x) for x in [","]*30))
+					reader = csv.reader(open("form_values.csv"))
+					row = next(reader)
+			except IOError:
+				with open("form_values.csv", "w+b") as csvf: #if the file doesn't exist
 					csvf.write(''.join(str(x) for x in [","]*30))
 					csvf.close()
+					reader = csv.reader(open("form_values.csv"))
 					row = next(reader)
 			if "thebluealliance" in myform.d.mcode:
 				myform.mcode.set_value(myform.d.mcode.split("_")[-1])
@@ -183,9 +193,10 @@ def internet(host="www.google.com", port=80, timeout=4):
         return False
 			
 def main():
-	if os.geteuid() != 0 and "linux" in sys.platform: #root needed for writing files
-		print("Need root for writing files")
-		subprocess.call(['sudo', 'python', sys.argv[0]])
+	if "linux" in sys.platform: #root needed for writing files
+		if os.geteuid() != 0:
+			print("Need root for writing files")
+			subprocess.call(['sudo', 'python', sys.argv[0]])
 	YA.get_youtube_service()
 	YA.get_spreadsheet_service()
 	web.internalerror = web.debugerror

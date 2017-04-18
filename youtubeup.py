@@ -52,7 +52,7 @@ Thanks for watching!
 
 Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 
-VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
+VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 
 
 def quals_yt_title(options):
@@ -212,55 +212,55 @@ def create_filename(options):
             print options.mtype
     else:
         return ceremonies_filename(options)
-def quals_match_code(mcode, mnum):
-    match_code = str(mcode) + str(mnum)
+def quals_match_code(mtype, mnum):
+    match_code = str(mtype) + str(mnum)
     return match_code
 
-def eights_match_code(mcode, mnum):
+def eights_match_code(mtype, mnum):
     match_set = str(mnum % 8)
-    match_code = None
     match_set = "8" if match_set == "0" else match_set
+    match_code = mtype + match_set
     if mnum <= 8:
-        match_code = mcode + match_set + "m1"
+        match_code += "m1"
     elif mnum <= 16:
-        match_code = mcode + match_set + "m2"
+        match_code += "m2"
     elif mnum <= 24:
-        match_code = mcode + match_set + "m3"
+        match_code += "m3"
     else:
         raise ValueError("Match Number can't be larger than 24")
     return match_code
 
 
-def quarters_match_code(mcode, mnum):
+def quarters_match_code(mtype, mnum):
     match_set = str(mnum % 4)
-    match_code = None
     match_set = "4" if match_set == "0" else match_set
+    match_code = mtype + match_set
     if mnum <= 4:
-        match_code = mcode + match_set + "m1"
+        match_code += "m1"
     elif mnum <= 8:
-        match_code = mcode + match_set + "m2"
+        match_code += "m2"
     elif mnum <= 12:
-        match_code = mcode + match_set + "m3"
+        match_code += "m3"
     else:
         raise ValueError("Match Number can't be larger than 12")
     return match_code
 
-def semis_match_code(mcode, mnum):
+def semis_match_code(mtype, mnum):
     match_set = str(mnum % 2)
-    match_code = None
     match_set = "2" if match_set == "0" else match_set
+    match_code = mtype + match_set
     if mnum <= 2:
-        match_code = mcode + match_set + "m1"
+        match_code += "m1"
     elif mnum <= 4:
-        match_code = mcode + match_set + "m2"
+        match_code += "m2"
     elif mnum <= 6:
-        match_code = mcode + match_set + "m3"
+        match_code += "m3"
     else:
         raise ValueError("Match Number can't be larger than 6")
     return match_code
 
-def finals_match_code(mcode, mnum):
-    match_code = str(mcode) + str(mnum)
+def finals_match_code(mtype, mnum):
+    match_code = mtype + str(mnum)
     return match_code
 
 def get_match_code(mtype, mnum, mcode):
@@ -292,7 +292,7 @@ def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3
         print e
         return options.description
 
-def tiebreak_mnum(mnum, mcode):
+def tiebreak_mnum(mnum, mtype):
     switcher = {
             "qm": mnum,
             "ef": mnum + 16,
@@ -300,7 +300,7 @@ def tiebreak_mnum(mnum, mcode):
             "sf": mnum + 4,
             "f1m": 3,
     }
-    return switcher[mcode]
+    return switcher[mtype]
 
 def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
@@ -314,6 +314,7 @@ def upload_multiple_videos(youtube, spreadsheet, options):
             options.mnum = options.mnum + 1
             options.file = create_filename(options)
             while options.file is None and options.mnum <= options.end:
+                print "{} Match {} is missing".format(options.mtype.upper(), options.mnum)
                 options.mnum = options.mnum + 1
                 options.file = create_filename(options)
         except HttpError, e:
@@ -345,7 +346,11 @@ def add_to_playlist(youtube,videoID,playlistID):
         }
     ).execute()
         print "Added to playlist"
+<<<<<<< HEAD
 def retry(error, retry, max_retries, sleep_seconds):
+=======
+def attempt_retry(error, retry, max_retries):
+>>>>>>> 037872df4c5c3ea4c106885e6e792cdcbdd8c651
     if error is not None:
         print error
         retry += 1
@@ -356,9 +361,11 @@ def retry(error, retry, max_retries, sleep_seconds):
         sleep_seconds = random.random() * max_sleep
         print "Sleeping {} seconds and then retrying...".format(sleep_seconds)
         time.sleep(sleep_seconds)
+        error = None
 
 def init(options):
     """The program starts here"""
+    options.privacy = VALID_PRIVACY_STATUSES[0]
     options.day = dt.datetime.now().strftime("%A")
     options.files = list(reversed([f for f in os.listdir(options.where) 
         if os.path.isfile(os.path.join(options.where, f))]))
@@ -422,7 +429,7 @@ def initialize_upload(youtube, spreadsheet, options):
                     categoryId=options.category
                     ),
                 status=dict(
-                    privacyStatus=VALID_PRIVACY_STATUSES[0]
+                    privacyStatus=options.privacy
                     )
                 )
     else:
@@ -439,7 +446,7 @@ def initialize_upload(youtube, spreadsheet, options):
                     categoryId=options.category
                     ),
                 status=dict(
-                    privacyStatus=VALID_PRIVACY_STATUSES[0]
+                    privacyStatus=options.privacy
                     )
                 )
 
@@ -465,6 +472,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     print "Uploading {}".format(options.file)
     while response is None:
         try:
+            error = None
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 options.vid = response['id']
@@ -490,15 +498,19 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
                     return "FAILED"
             else:
                 raise
-        except retry_exceptions as e:
-            error = "A retriable error occurred: {}".format(e)
 
-        except TypeError:
+        except TypeError as e:
+            print response
             response = None
-            print "Upload failed, delete failed video from YouTube\n Trying again in 10 seconds"
-            time.sleep(10)
+            print "Upload failed, delete failed video from YouTube\nTrying again in 15 seconds"
+            time.sleep(15)
 
-        retry(error, retry, max_retries, sleep_seconds)
+        except Exception as e:
+            print response, status
+            print e
+            #error = "A retriable error occurred: {}".format(e)
+
+        attempt_retry(error, retry, max_retries)
 
     request_body = json.dumps({mcode: options.vid})
     if options.tba:
@@ -522,7 +534,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
         except retry_exceptions as e:
             error = "A retriable error occurred: {}".format(e)
 
-        retry(error, retry, max_retries, sleep_seconds)
+        attempt_retry(error, retry, max_retries)
         
     spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
     rowRange = "Data!A1:F1"
@@ -532,4 +544,4 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v={}".format(options.vid), usedTBA, options.ename, wasBatch]]
     body = {'values': values}
     appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
-    return "DONE"
+    return "DONE\n"
