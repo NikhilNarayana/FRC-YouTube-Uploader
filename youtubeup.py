@@ -361,6 +361,7 @@ def attempt_retry(error, retry, max_retries):
 
 def init(options):
     """The program starts here"""
+    options.privacy = VALID_PRIVACY_STATUSES[0]
     options.day = dt.datetime.now().strftime("%A")
     options.files = list(reversed([f for f in os.listdir(options.where) 
         if os.path.isfile(os.path.join(options.where, f))]))
@@ -424,7 +425,7 @@ def initialize_upload(youtube, spreadsheet, options):
                     categoryId=options.category
                     ),
                 status=dict(
-                    privacyStatus=VALID_PRIVACY_STATUSES[0]
+                    privacyStatus=options.privacy
                     )
                 )
     else:
@@ -441,7 +442,7 @@ def initialize_upload(youtube, spreadsheet, options):
                     categoryId=options.category
                     ),
                 status=dict(
-                    privacyStatus=VALID_PRIVACY_STATUSES[0]
+                    privacyStatus=options.privacy
                     )
                 )
 
