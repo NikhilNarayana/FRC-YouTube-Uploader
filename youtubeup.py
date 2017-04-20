@@ -500,6 +500,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
         except TypeError as e:
             print response
             response = None
+            status = None
             print "Upload failed, delete failed video from YouTube\nTrying again in 15 seconds"
             time.sleep(15)
 
