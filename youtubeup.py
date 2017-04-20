@@ -134,7 +134,7 @@ def quarters_filename(options):
     if 1 <= options.mnum <= 8:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("quarter", "final", " "+str(options.mnum)+".")):
+            if all(k in fl for k in ("quarter", "final")) and any(k in fl for k in (" "+str(options.mnum)+".",str(options.mnum)+" of")):
                 if "tiebreak" not in fl:
                     file = f
     elif 9 <= options.mnum <= 12:
@@ -535,11 +535,11 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
         attempt_retry(error, retry, max_retries)
         
     spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
-    rowRange = "Data!A1:F1"
+    rowRange = "Data!A1:G1"
     wasBatch = "True" if any(options.end != y for y in ("Only for batch uploads", "")) else "False"
     usedTBA = "True" if options.tba == 1 else "False"
     totalTime = dt.datetime.now() - options.then
-    values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v={}".format(options.vid), usedTBA, options.ename, wasBatch]]
+    values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v={}".format(options.vid), usedTBA, options.ename, wasBatch, options.mnum]]
     body = {'values': values}
     appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
     return "DONE\n"
