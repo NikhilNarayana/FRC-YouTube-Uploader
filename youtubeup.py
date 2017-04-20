@@ -459,6 +459,7 @@ def initialize_upload(youtube, spreadsheet, options):
 
 def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     response = None
+    status = None
     error = None
     sleep_minutes = 600
     retry = 0
