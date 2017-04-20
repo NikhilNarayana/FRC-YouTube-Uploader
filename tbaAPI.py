@@ -198,7 +198,7 @@ def post_video(token, secret, match_video, event_key):
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         raise Exception("""An auth ID and/or auth secret required.
             Please use set_auth_id() and/or set_auth_secret() to set them""")
-    try:
+	try:
 	    r = s.post(url_str, data=match_video, headers=trusted_auth)
 	    while "405" in r.content:
 	        print "Failed to POST to TBA"
