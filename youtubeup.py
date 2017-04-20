@@ -8,8 +8,8 @@ import random
 import argparse
 import datetime as dt
 
-from apiclient.errors import HttpError
-from apiclient.http import MediaFileUpload
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
 
 from tbaAPI import *
 from youtubeAuthenticate import *
