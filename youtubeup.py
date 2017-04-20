@@ -125,7 +125,7 @@ def quals_filename(options):
     file = None
     for f in options.files:
         fl = f.lower()
-        if all(k in fl for k in ("qualification", " "+str(options.mnum)+".")):
+        if all(" "+str(options.mnum)+"." in fl and any(k in fl for k in ("qual","qualification","qm"))):
             file = f
     return file
 
@@ -150,7 +150,7 @@ def semis_filename(options):
     if 1 <= options.mnum <= 4:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("semi", "final", " "+str(options.mnum)+".")):
+            if all(k in fl for k in ("semi", "final")) and any(k in fl for k in (" "+str(options.mnum)+".",str(options.mnum)+" of")):
                 if "tiebreak" not in fl:
                     file = f
     elif 5 <= options.mnum <= 6:
