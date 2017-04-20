@@ -504,6 +504,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             time.sleep(15)
 
         except retry_exceptions as e:
+            print response
             error = "A retriable error occurred: {}".format(e)
 
         attempt_retry(error, retry, max_retries)
