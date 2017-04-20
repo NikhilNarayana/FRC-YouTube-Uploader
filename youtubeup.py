@@ -125,7 +125,7 @@ def quals_filename(options):
     file = None
     for f in options.files:
         fl = f.lower()
-        if all(" "+str(options.mnum)+"." in fl and any(k in fl for k in ("qual","qualification","qm"))):
+        if all([" "+str(options.mnum)+"." in fl and any(k in fl for k in ("qual","qualification","qm"))]):
             file = f
     return file
 
