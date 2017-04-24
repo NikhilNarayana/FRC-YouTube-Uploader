@@ -62,7 +62,7 @@ dataform = form.Form(
 		[("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
 		description="Match Type"),
 	form.Dropdown("tiebreak",[("no","False"),("yes","True")],description="Tiebreaker"),
-	form.Dropdown("tba",[("yes","True"),("no","False")],description="Update TBA"),
+	form.Dropdown("tba",[("yes","True"),("no","False")],description="Use TBA"),
 	form.Dropdown("ceremonies",[(0,"None"),(1,"Opening Ceremonies"),(2,"Alliance Selection"),(3,"Closing Ceremonies")],description="Ceremonies"),
 	form.Dropdown("eday",[(0,"Ignore"),(1,"1"),(2,"2"),(3,"3")], description="Event Day"),
 	form.Textbox("end",
