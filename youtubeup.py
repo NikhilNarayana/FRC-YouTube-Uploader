@@ -285,7 +285,7 @@ def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3
     if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
         return NO_TBA_DESCRIPTION.format(options.ename, options.prodteam, options.twit, options.fb, options.weblink)
     try:
-    	if options.ecode = "2017gagai":
+    	if options.ecode == "2017gagai":
     		options.description = "Audio was intentionally removed from this video.\n" + options.description
         return options.description.format(str(options.ename), str(options.prodteam),
                 str(red1), str(red2), str(red3), str(redScore), str(blue1), str(blue2), str(blue3), str(blueScore),
