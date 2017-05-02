@@ -27,7 +27,7 @@ FINALS = "Final Match {}"
 FINALST = "Final Tiebreaker"
 EXTENSION = ".mp4"
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
-DEFAULT_DESCRIPTION = """Footage of the {} is courtesy of the {}.
+DEFAULT_DESCRIPTION = """Footage of the {} is courtesy of {}.
 
 Red Alliance  ({}, {}, {}) - {}
 Blue Alliance ({}, {}, {}) - {}
@@ -54,7 +54,17 @@ Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTub
 
 VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 
+"""Utility Functions"""
+def convert_bytes(num):
+	for x in ["bytes", "KB", "MB", "GB", "TB"]:
+		if num < 1024.0:
+			return "%3.1f %s" % (num, x)
+		num /= 1024.0
+def file_size(path):
+	file_info = os.stat(path)
+	return convert_bytes(file_info.st_size)
 
+"""YouTube Title Generators"""
 def quals_yt_title(options):
     return options.title.format(options.mnum)
 
@@ -75,10 +85,12 @@ def quarters_yt_title(options):
 
 def semis_yt_title(options):
     mnum = options.mnum
-    if 1 <= options.mnum <= 4:
+    if options.mnum <= 15 and options.ein:
+        title = options.ename + " - Einstein Round Robin {}".format(mnum)
+    if options.mnum <= 4 and not options.ein:
         title = options.ename + " - " + SEMI.format(mnum)
         return title
-    elif 5 <= options.mnum <= 6:
+    elif options.mnum <= 6 and not options.ein:
         mnum -= 4
         title = options.ename + " - " + SEMIT.format(mnum)
         return title
@@ -86,7 +98,10 @@ def semis_yt_title(options):
         raise ValueError("options.mnum must be within 1 and 6")
 
 def finals_yt_title(options):
-    title = options.ename + " - " + FINALS.format(options.mnum)
+    if options.ein:
+        title = options.ename + " - Einstein Final {}".format(options.mnum)
+    else:
+        title = options.ename + " - " + FINALS.format(options.mnum)
     return title
 
 def ceremonies_yt_title(options):
@@ -121,6 +136,7 @@ def create_title(options):
     else:
         return ceremonies_yt_title(options)
 
+"""File Locate Functions"""
 def quals_filename(options):
     file = None
     for f in options.files:
@@ -147,13 +163,19 @@ def quarters_filename(options):
 
 def semis_filename(options):
     file = None
-    if 1 <= options.mnum <= 4:
+    if options.mnum <= 15 and options.ein:
+        for f in options.files:
+            fl = f.lower()
+            if all(k in fl for k in ("einstein"," "+str(options.mnum)+".")):
+                if "final" not in fl:
+                    file = f
+    if options.mnum <= 4 and not options.ein:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "final"," "+str(options.mnum)+".")):
                 if "tiebreak" not in fl:
                     file = f
-    elif 5 <= options.mnum <= 6:
+    elif options.mnum <= 6 and not options.ein:
         mnum = options.mnum - 4
         for f in options.files:
             fl = f.lower()
@@ -163,7 +185,12 @@ def semis_filename(options):
 
 def finals_filename(options):
     file = None
-    if 1 <= options.mnum <= 2:
+    if options.mnum <= 2 and options.ein:
+        for f in options.files:
+            fl = f.lower()
+            if all(k in fl for k in ("final","einstein"," "+str(options.mnum)+".") and "match" not in fl):
+                file = f
+    if options.mnum <= 2 and not options.ein:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("final"," "+str(options.mnum)+".")):
@@ -212,6 +239,8 @@ def create_filename(options):
             print options.mtype
     else:
         return ceremonies_filename(options)
+
+"""Match Code Generators"""
 def quals_match_code(mtype, mnum):
     match_code = str(mtype) + str(mnum)
     return match_code
@@ -276,6 +305,7 @@ def get_match_code(mtype, mnum, mcode):
     print "Uploading as {}".format(mcode)
     return mcode.lower()
 
+"""Data Compliation and Adjustment Functions"""
 def tba_results(options):
     mcode = get_match_code(options.mtype, options.mnum, options.mcode)
     blue_data, red_data = get_match_results(options.ecode, mcode)
@@ -304,6 +334,7 @@ def tiebreak_mnum(mnum, mtype):
     }
     return switcher[mtype]
 
+"""YouTube Parameter Functions"""
 def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
         try:
@@ -362,8 +393,10 @@ def attempt_retry(error, retry, max_retries):
         time.sleep(sleep_seconds)
         error = None
 
+"""The program starts here"""
 def init(options):
-    """The program starts here"""
+    options.debug = 0
+    options.ein = False
     options.privacy = VALID_PRIVACY_STATUSES[0]
     options.day = dt.datetime.now().strftime("%A")
     options.files = list(reversed([f for f in os.listdir(options.where) 
@@ -469,7 +502,7 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     retry_status_codes = get_retry_status_codes()
     retry_exceptions = get_retry_exceptions()
     max_retries = get_max_retries()
-    print "Uploading {}".format(options.file)
+    print "Uploading {} of size {}".format(options.file, file_size(options.where+options.file))
     while response is None:
         try:
             error = None
@@ -511,7 +544,11 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             error = "A retriable error occurred: {}".format(e)
 
         attempt_retry(error, retry, max_retries)
-
+    if 'id' in response:
+    	options.vid = response['id']
+    	print "Video link is https://www.youtube.com/watch?v={}".format(options.vid)
+    else:
+    	print "There was a problem with the upload"
     request_body = json.dumps({mcode: options.vid})
     if options.tba:
         post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
