@@ -22,6 +22,7 @@ class MyTests(unittest.TestCase):
         args = parser.parse_args()
         args.mcode = 1
         args.mnum = 6
+        args.ein = False
         args.ename = "2016 INFIRST Indiana State Championship"
         self.assertEqual(yup.quarters_yt_title(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 6")
         self.assertNotEqual(yup.semis_yt_title(args), "2016 INFIRST Indiana State Championship - Quarterfinal Match 5")
@@ -37,7 +38,7 @@ class MyTests(unittest.TestCase):
         args = parser.parse_args()
         args.mcode = 1
         args.mnum = 6
-        args.ext = ".mp4"
+        args.ein = False
         args.ename = "2016 INFIRST Indiana State Championship"
         args.files = ("2016 INFIRST Indiana State Championship - Quarterfinal Match 6.mp4", "2016 INFIRST Indiana State Championship - Quarterfinal Match 3.mp4", "2016 INFIRST Indiana State Championship - Quarterfinal Match 1.mp4")
         self.assertEqual(yup.quarters_filename(args),
@@ -54,6 +55,7 @@ class MyTests(unittest.TestCase):
         parser = argparse.ArgumentParser(description='argparse for testing')
         args = parser.parse_args()
         args.ename, args.ecode, args.prodteam, args.twit, args.fb, args.weblink, args.mnum, args.mtype, args.mcode = "2016 Indiana State Championship", "2016incmp", "IndianaFIRST AV", "IndianaFIRST", "IndianaFIRST", "www.IndianaFIRST.org", 1, "qm", "qm1"
+        args.ein = False
         blue_data, red_data, mcode = yup.tba_results(args)
         args.description = """Footage of the {} Event is courtesy of the {}.
 
