@@ -27,26 +27,26 @@ FINALS = "Final Match {}"
 FINALST = "Final Tiebreaker"
 EXTENSION = ".mp4"
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
-DEFAULT_DESCRIPTION = """Footage of the {} is courtesy of {}.
+DEFAULT_DESCRIPTION = """Footage of the {ename} is courtesy of {team}.
 
-Red Alliance  ({}, {}, {}) - {}
-Blue Alliance ({}, {}, {}) - {}
+Red Alliance  ({red1}, {red2}, {red3}) - {redscore}
+Blue Alliance ({blue3}, {blue2}, {blue1}) - {bluescore}
 
-To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/{}
+To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/{ecode}
 
-Follow us on Twitter (@{}) and Facebook ({}).
+Follow us on Twitter (@{twit}) and Facebook ({fb}).
 
-For more information and future event schedules, visit our website: {}
+For more information and future event schedules, visit our website: {weblink}
 
 Thanks for watching!
 
 Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 
-NO_TBA_DESCRIPTION = """Footage of the {} Event is courtesy of the {}.
+NO_TBA_DESCRIPTION = """Footage of the {ename} Event is courtesy of the {team}.
 
-Follow us on Twitter (@{}) and Facebook ({}).
+Follow us on Twitter (@{twit}) and Facebook ({fb}).
 
-For more information and future event schedules, visit our website: {}
+For more information and future event schedules, visit our website: {weblink}
 
 Thanks for watching!
 
@@ -136,7 +136,7 @@ def create_title(options):
     else:
         return ceremonies_yt_title(options)
 
-"""File Locate Functions"""
+"""File Location Functions"""
 def quals_filename(options):
     file = None
     for f in options.files:
@@ -312,14 +312,12 @@ def tba_results(options):
     return blue_data, red_data, mcode
 
 def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3, redScore):
-    if all(x <= -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
-        return NO_TBA_DESCRIPTION.format(options.ename, options.prodteam, options.twit, options.fb, options.weblink)
+    if all(x == -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
+        return NO_TBA_DESCRIPTION.format(ename=options.ename, team=options.prodteam, twit=options.twit, fb=options.fb, weblink=options.weblink)
     try:
-    	if options.ecode == "2017gagai":
-    		options.description = "Audio was intentionally removed from this video.\n" + options.description
-        return options.description.format(str(options.ename), str(options.prodteam),
-                str(red1), str(red2), str(red3), str(redScore), str(blue1), str(blue2), str(blue3), str(blueScore),
-                str(options.ecode), str(options.twit), str(options.fb), str(options.weblink))
+        return options.description.format(ename=options.ename, team=options.prodteam,
+                red1=red1, red2=red2, red3=red3, redscore=redScore, blue1=blue1, blue2=blue2, blue3=blue3, bluescore=blueScore,
+                ecode=options.ecode, twit=options.twit, fb=options.fb, weblink=options.weblink)
     except TypeError, e:
         print e
         return options.description
@@ -334,7 +332,7 @@ def tiebreak_mnum(mnum, mtype):
     }
     return switcher[mtype]
 
-"""YouTube Parameter Functions"""
+"""Additional YouTube Functions"""
 def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
         try:
@@ -447,8 +445,8 @@ def initialize_upload(youtube, spreadsheet, options):
     if options.tba:
         blue_data, red_data, mcode = tba_results(options)
         tags = options.tags.split(",")
-        tags.extend(["frc" + str(blue_data[1]), "frc" + str(blue_data[2]), "frc" + str(blue_data[3])])
-        tags.extend(["frc" + str(red_data[1]), "frc" + str(red_data[2]), "frc" + str(red_data[3])])
+        tags.extend(["frc%d"%blue_data[1], "frc%d"%blue_data[2], "frc%d"%blue_data[3]])
+        tags.extend(["frc%d"%red_data[1], "frc%d"%red_data[2], "frc%d"%red_data[3]])
         tags.append(get_event_hashtag(options.ecode))
         tags.extend(options.ename.split(" "))
 
@@ -490,9 +488,9 @@ def initialize_upload(youtube, spreadsheet, options):
             resumable=True),
         )
 
-    return resumable_upload(insert_request, options, mcode, youtube, spreadsheet)
+    return upload(insert_request, options, mcode, youtube, spreadsheet)
 
-def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
+def upload(insert_request, options, mcode, youtube, spreadsheet):
     response = None
     status = None
     error = None
@@ -581,4 +579,4 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v={}".format(options.vid), usedTBA, options.ename, wasBatch, mcode]]
     body = {'values': values}
     appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
-    return "DONE\n"
+    return "DONE UPLOADING {}\n".format(options.file)
