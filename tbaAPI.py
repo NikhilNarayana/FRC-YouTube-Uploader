@@ -1,15 +1,13 @@
 # Written by Wes Jordan and found here: Python TBA API Layer (https://github.com/Thing342/pyTBA)
 import simplejson as json
 import requests
-import hashlib
-import re
+from hashlib import md5
 import time
 
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import ExpiresAfter
 
-app_id = {'X-TBA-App-Id': ""}
-trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
+app_id = {'X-TBA-App-Id': "Nikki-Narayana:FRC-Match-Uploader:2.6.1"}
 
 s = requests.Session()
 s = CacheControl(s, heuristic=ExpiresAfter(minutes=1))
@@ -176,25 +174,16 @@ def district_teams(year, district_code):
 	return tba_get('district/' + district_code + '/' + str(year) + '/teams')
 
 ### THE FOLLOWING API CODE IS FOR PUBLISHING VIDEOS TO TBA. WRITTEN BY Nikki Narayana ###
-def set_auth_id(token):
-	global trusted_auth
-	trusted_auth['X-TBA-Auth-Id'] = token
-
-def set_auth_sig(secret, event_key, request_body):
-	global trusted_auth
-	m = hashlib.md5()
-	request_path = "/api/trusted/v1/event/{}/match_videos/add".format(event_key)
+def post_video(token, secret, match_video, match_key):
+    trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
+    trusted_auth['X-TBA-Auth-Id'] = token
+	m = md5()
+	request_path = "/api/trusted/v1/event/{}/match_videos/add".format(match_key)
 	concat = secret + request_path + str(request_body)
 	m.update(concat)
 	md5 = m.hexdigest()
 	trusted_auth['X-TBA-Auth-Sig'] = str(md5)
-	return request_path
-
-def post_video(token, secret, match_video, event_key):
-    global trusted_auth
-    set_auth_id(token)
-    set_auth_sig(secret, event_key, match_video)
-    url_str = "http://thebluealliance.com/api/trusted/v1/event/{}/match_videos/add".format(event_key)
+    url_str = "http://thebluealliance.com/api/trusted/v1/event/{}/match_videos/add".format(match_key)
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         raise Exception("""An auth ID and/or auth secret required.
             Please use set_auth_id() and/or set_auth_secret() to set them""")
@@ -209,7 +198,6 @@ def post_video(token, secret, match_video, event_key):
     	print "Successfully added to TBA"
 
 def get_match_results(event_key, match_key):
-	set_api_key("Nikki-Narayana","FRC-Match-Uploader","2.5.1")
 	match_data = event_get(event_key).get_match(match_key)
 	if match_data is None:
 		raise ValueError("""{} {} does not exist on TBA. Please use a match that exists""".format(event_key, match_key))
@@ -235,7 +223,4 @@ def parse_data(match_data):
 	blue_data = [blue_score, blue1, blue2, blue3]
 	red_data = [red_score, red1, red2, red3]
 	return blue_data, red_data
-
-def get_event_hashtag(event_key):
-    return "frc" + re.search('\D+', event_key).group()
 ### END ###
