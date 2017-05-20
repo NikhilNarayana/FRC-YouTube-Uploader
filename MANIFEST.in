@@ -1,0 +1,3 @@
+include README.md
+include client_secrets.json
+include requirements.txt
