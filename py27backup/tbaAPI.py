@@ -20,8 +20,10 @@ class Event:
 	def __init__(self, info, teams, matches, awards, rankings):
 		self.key = info['key']
 		self.info = info
-		self.teams = list([team for team in teams if len(list([match for match in matches if team['key'] in match['alliances']['red']['teams'] or team['key'] in
-																			   match['alliances']['blue']['teams']])) > 0])
+		self.teams = list(filter(lambda team: len(list(filter(
+			lambda match: team['key'] in match['alliances']['red']['teams'] or team['key'] in
+																			   match['alliances']['blue']['teams'],
+			matches))) > 0, teams))
 		self.matches = sorted(matches, key=match_sort_key)
 		self.awards = awards
 		self.rankings = rankings
@@ -81,10 +83,10 @@ class Event:
 		return ranking_dict
 
 	def get_qual_matches(self):
-		return list([match for match in self.matches if match['comp_level'] == 'qm'])
+		return list(filter(lambda match: match['comp_level'] == 'qm', self.matches))
 
 	def get_playoff_matches(self):
-		return list([match for match in self.matches if match['comp_level'] != 'qm'])
+		return list(filter(lambda match: match['comp_level'] != 'qm', self.matches))
 
 
 def match_sort_key(match):
@@ -150,7 +152,7 @@ def team_matches(team, year):
 					matches.append({'match': match, 'alliance': 'blue', 'score': match['alliances']['blue']['score'],
 									'opp_score': match['alliances']['red']['score']})
 		except:
-			print((event['key']))
+			print(event['key'])
 	return matches
 
 def district_list(year):
@@ -199,13 +201,13 @@ def post_video(token, secret, match_video, event_key):
 
     r = s.post(url_str, data=match_video, headers=trusted_auth)
     while "405" in r.content:
-        print("Failed to POST to TBA")
-        print("Attempting to POST to TBA again")
+        print "Failed to POST to TBA"
+        print "Attempting to POST to TBA again"
         r = s.post(url_str, data=match_video, headers=trusted_auth)
     if "Error" in r.content:
         raise Exception(r.content)
     else:
-    	print("Successfully added to TBA")
+    	print "Successfully added to TBA"
 
 def get_match_results(event_key, match_key):
 	set_api_key("Nikki-Narayana","FRC-Match-Uploader","2.5.1")
@@ -214,7 +216,7 @@ def get_match_results(event_key, match_key):
 		raise ValueError("""{} {} does not exist on TBA. Please use a match that exists""".format(event_key, match_key))
 	blue_data, red_data = parse_data(match_data)
 	while (blue_data[0] == -1 or red_data[0] == -1):
-                print("Waiting 1 minute for TBA to update scores")
+                print "Waiting 1 minute for TBA to update scores"
                 time.sleep(60)
                 match_data = event_get(event_key).get_match(match_key)
                 blue_data, red_data = parse_data(match_data)

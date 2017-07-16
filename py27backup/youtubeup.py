@@ -8,8 +8,8 @@ import random
 import argparse
 import datetime as dt
 
-from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaFileUpload
+from apiclient.errors import HttpError
+from apiclient.http import MediaFileUpload
 
 from tbaAPI import *
 from youtubeAuthenticate import *
@@ -117,7 +117,7 @@ def create_title(options):
         try:
             return switcher[options.mtype](options)
         except KeyError:
-            print(options.mtype)
+            print options.mtype
     else:
         return ceremonies_yt_title(options)
 
@@ -209,7 +209,7 @@ def create_filename(options):
         try:
             return switcher[options.mtype](options)
         except KeyError:
-            print(options.mtype)
+            print options.mtype
     else:
         return ceremonies_filename(options)
 def quals_match_code(mtype, mnum):
@@ -273,7 +273,7 @@ def get_match_code(mtype, mnum, mcode):
                 "f1m": finals_match_code,
         }
         return switcher[mtype](mtype, mnum)
-    print("Uploading as {}".format(mcode))
+    print "Uploading as {}".format(mcode)
     return mcode.lower()
 
 def tba_results(options):
@@ -288,8 +288,8 @@ def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3
         return options.description.format(str(options.ename), str(options.prodteam),
                 str(red1), str(red2), str(red3), str(redScore), str(blue1), str(blue2), str(blue3), str(blueScore),
                 str(options.ecode), str(options.twit), str(options.fb), str(options.weblink))
-    except TypeError as e:
-        print(e)
+    except TypeError, e:
+        print e
         return options.description
 
 def tiebreak_mnum(mnum, mtype):
@@ -307,26 +307,26 @@ def upload_multiple_videos(youtube, spreadsheet, options):
         try:
             conclusion = initialize_upload(youtube, spreadsheet, options)
             if conclusion == "FAILED":
-                print("Try again")
+                print "Try again"
                 return
-            print(conclusion)
+            print conclusion
             options.then = dt.datetime.now()
             options.mnum = options.mnum + 1
             options.file = create_filename(options)
             while options.file is None and options.mnum <= options.end:
-                print("{} Match {} is missing".format(options.mtype.upper(), options.mnum))
+                print "{} Match {} is missing".format(options.mtype.upper(), options.mnum)
                 options.mnum = options.mnum + 1
                 options.file = create_filename(options)
-        except HttpError as e:
-            print("An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content))
-    print("All matches have been uploaded")
+        except HttpError, e:
+            print "An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content)
+    print "All matches have been uploaded"
 
 def update_thumbnail(youtube, video_id, thumbnail):
     youtube.thumbnails().set(
         videoId=video_id,
         media_body=thumbnail
         ).execute()
-    print("Thumbnail added to video {}".format(video_id))
+    print "Thumbnail added to video {}".format(video_id)
 
 def add_to_playlist(youtube,videoID,playlistID):
     if type(videoID) is list: # Recursively add videos if videoID is list
@@ -345,17 +345,17 @@ def add_to_playlist(youtube,videoID,playlistID):
             }
         }
     ).execute()
-        print("Added to playlist")
+        print "Added to playlist"
 def attempt_retry(error, retry, max_retries):
     if error is not None:
-        print(error)
+        print error
         retry += 1
         if retry > max_retries:
             exit("No longer attempting to retry.")
 
         max_sleep = 2 ** retry
         sleep_seconds = random.random() * max_sleep
-        print("Sleeping {} seconds and then retrying...".format(sleep_seconds))
+        print "Sleeping {} seconds and then retrying...".format(sleep_seconds)
         time.sleep(sleep_seconds)
         error = None
 
@@ -388,24 +388,24 @@ def init(options):
     options.file = create_filename(options)
 
     if options.file is not None:
-        print("Found {} to upload".format(options.file))
+        print "Found {} to upload".format(options.file)
         try:
             if int(options.end) > options.mnum:
                 options.end = int(options.end)
                 upload_multiple_videos(youtube, spreadsheet, options)
         except ValueError:
             try:
-                print(initialize_upload(youtube, spreadsheet, options))
-            except HttpError as e:
-                print("An HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
+                print initialize_upload(youtube, spreadsheet, options)
+            except HttpError, e:
+                print "An HTTP error {} occurred:\n{}".format(e.resp.status, e.content)
     else:
         raise Exception("First match file must exist")
 
 def initialize_upload(youtube, spreadsheet, options):
     if not options.ceremonies:
-        print("Initializing upload for {} match {}".format(options.mtype, options.mnum))
+        print "Initializing upload for {} match {}".format(options.mtype, options.mnum)
     else:
-        print("Initializing upload for: {}".format(ceremonies_yt_title(options)))
+        print "Initializing upload for: {}".format(ceremonies_yt_title(options))
     tags = None
     mcode = None
     if options.tba:
@@ -447,7 +447,7 @@ def initialize_upload(youtube, spreadsheet, options):
                 )
 
     insert_request = youtube.videos().insert(
-        part=",".join(list(body.keys())),
+        part=",".join(body.keys()),
         body=body,
         media_body=MediaFileUpload(options.where+options.file,
             chunksize=-1, 
@@ -465,45 +465,45 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     retry_status_codes = get_retry_status_codes()
     retry_exceptions = get_retry_exceptions()
     max_retries = get_max_retries()
-    print("Uploading {}".format(options.file))
+    print "Uploading {}".format(options.file)
     while response is None:
         try:
             error = None
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 options.vid = response['id']
-                print("Video link is https://www.youtube.com/watch?v={}".format(options.vid))
+                print "Video link is https://www.youtube.com/watch?v={}".format(options.vid)
             else:
                 exit("The upload failed with an unexpected response: {}".format(response))
-        except HttpError as e:
+        except HttpError, e:
             if e.resp.status in retry_status_codes:
                 error = "A retriable HTTP error {} occurred:\n{}".format(e.resp.status,
                         e.content)
             elif "uploadLimitExceeded" in e.content:
                 retryforlimit += 1
                 if retryforlimit < max_retries:
-                    print("Waiting {} minutes to avoid upload limit".format(sleep_minutes / 60))
-                    for x in range(sleep_minutes):
+                    print "Waiting {} minutes to avoid upload limit".format(sleep_minutes / 60)
+                    for x in xrange(sleep_minutes):
                         time.sleep(1)
                         if x % 60 == 0:
-                            print("Minute {} of {}".format(x/60, sleep_minutes/60))
+                            print "Minute {} of {}".format(x/60, sleep_minutes/60)
                     sleep_minutes -= 60
                     error = None
                 else:
-                    print("Upload limit could not be avoided\n{} was not uploaded".format(options.file))
+                    print "Upload limit could not be avoided\n{} was not uploaded".format(options.file)
                     return "FAILED"
             else:
                 raise
 
         except TypeError as e:
-            print(response)
+            print response
             response = None
-            print("Upload failed, delete failed video from YouTube\nTrying again in 15 seconds")
+            print "Upload failed, delete failed video from YouTube\nTrying again in 15 seconds"
             time.sleep(15)
 
         except Exception as e:
-            print(response, status)
-            print(e)
+            print response, status
+            print e
             #error = "A retriable error occurred: {}".format(e)
 
         attempt_retry(error, retry, max_retries)
@@ -518,11 +518,11 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
             if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):
                 update_thumbnail(youtube, options.vid, "thumbnail.png")
             else:
-                print("thumbnail.png does not exist")
+                print "thumbnail.png does not exist"
             add_to_playlist(youtube, options.vid, options.pID)
             vidOptions = True
 
-        except HttpError as e:
+        except HttpError, e:
             if e.resp.status in retry_status_codes:
                 error = "A retriable HTTP error {} occurred:\n{}".format(e.resp.status,
                         e.content)
@@ -539,5 +539,5 @@ def resumable_upload(insert_request, options, mcode, youtube, spreadsheet):
     totalTime = dt.datetime.now() - options.then
     values = [[str(dt.datetime.now()),str(totalTime),"https://www.youtube.com/watch?v={}".format(options.vid), usedTBA, options.ename, wasBatch]]
     body = {'values': values}
-    appendSpreadsheet = list(spreadsheet.spreadsheets().values()).append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
+    appendSpreadsheet = spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
     return "DONE\n"
