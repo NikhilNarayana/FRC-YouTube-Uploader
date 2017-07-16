@@ -15,5 +15,5 @@ rsa==3.4.2
 simplejson==3.11.1
 six==1.10.0
 uritemplate==3.0.0
-urllib3=1.21.1
+urllib3==1.21.1
 web.py==0.40.dev0
