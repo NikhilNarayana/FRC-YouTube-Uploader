@@ -9,12 +9,17 @@ import socket
 import threading
 import webbrowser
 import subprocess
+import re
 
+import selectorUI
+import uploaderSysUI
+from PyQt5.QtWidgets import QApplication, QWidget, QComboBox, QPlainTextEdit
 import argparse
 from web import form
 from time import sleep
 import youtubeup as yup
 from datetime import datetime
+from argparse import Namespace
 import youtubeAuthenticate as YA
 
 render = web.template.render('webpage/')
@@ -37,10 +42,12 @@ dataform = form.Form(
     description="Playlist ID",
     size=41),
   form.Textbox("tbaID",
+    form.Validator("Make sure there are no spaces", lambda x: " " not in x or x == "Go to thebluealliance.com/request/apiwrite to get keys"),
     description="TBA Event ID",
     value="Go to thebluealliance.com/request/apiwrite to get keys",
     size=41),
   form.Textbox("tbaSecret",
+    form.Validator("Make sure there are no spaces", lambda x: " " not in x or x == "Go to thebluealliance.com/request/apiwrite to get keys"),
     description="TBA Event Secret",
     value="Go to thebluealliance.com/request/apiwrite to get keys",
     size=41),
@@ -60,7 +67,7 @@ dataform = form.Form(
     [("qm", "Qualifications"), ("qf","Quarterfinals"), ("sf", "Semifinals"), ("f1m", "Finals")],
     description="Match Type"),
   form.Dropdown("tiebreak",[("no","False"),("yes","True")],description="Tiebreaker"),
-  form.Dropdown("tba",[("yes","True"),("no","False")],description="Update TBA"),
+  form.Dropdown("tba",[("yes","True"),("no","False")],description="Use TBA"),
   form.Dropdown("ceremonies",[(0,"None"),(1,"Opening Ceremonies"),(2,"Alliance Selection"),(3,"Closing Ceremonies")],description="Ceremonies"),
   form.Dropdown("eday",[(0,"Ignore"),(1,"1"),(2,"2"),(3,"3")], description="Event Day"),
   form.Textbox("end",
@@ -113,7 +120,7 @@ class index(threading.Thread):
     except IOError:
       x = 0
     return render.forms(myform)
-
+  
   def POST(self):
     then = datetime.now() #tracking for the time delta
     myform = dataform()
@@ -183,16 +190,41 @@ class index(threading.Thread):
       return render.forms(myform)
 
 def internet(host="www.google.com", port=80, timeout=4):
-	try:
-		host = socket.gethostbyname(host)
-		socket.setdefaulttimeout(timeout)
-		socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
-		return True
-	except Exception:
-		print("No internet!")
-		return False
-      
-def main():
+  try:
+    host = socket.gethostbyname(host)
+    socket.setdefaulttimeout(timeout)
+    socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+    return True
+  except Exception:
+    print("No internet!")
+    return False
+
+def sys_ui():
+  uploader_form = QWidget()
+  ui_builder = uploaderSysUI.Ui_uploader_form()
+  ui_builder.setupUi(uploader_form)
+  ui_builder.submit.clicked.connect(lambda: upload(ui_builder))
+  uploader_form.show()
+  sys.exit(app.exec_())
+  
+def upload(options):
+  WIDGET_DATA_FUNCTIONS = {
+                            'QComboBox' : 'currentText',
+                            'QPlainTextEdit' : 'toPlainText'
+                          }
+  data = dict()
+  widgets = vars(options)
+  for widget in widgets:
+    if issubclass(type(widgets[widget]), QWidget):
+      widget_type = re.search('(?<=PyQt5\.QtWidgets\.)\w+', str(type(widgets[widget])))
+      widget_type = widget_type.group() if widget_type else ''  
+      if widget_type in WIDGET_DATA_FUNCTIONS:
+        data[widget] = getattr(widgets[widget], WIDGET_DATA_FUNCTIONS[widget_type])() 
+  
+  for key in data:
+    print('%s: %s' % (key,data[key]))
+
+def start_ui(use_web_connect):
   if "linux" in sys.platform: #root needed for writing files
     if os.geteuid() != 0:
       print("Need root for writing files")
@@ -200,10 +232,14 @@ def main():
   YA.get_youtube_service()
   YA.get_spreadsheet_service()
   web.internalerror = web.debugerror
+  
   if internet():
-    t = index()
-    t.daemon = True
-    t.start()
+    if use_web_connect:
+      t = index()
+      t.daemon = True
+      t.start()
+    else:
+      sys_ui()
     while True:
       try:
         sleep(100)
@@ -213,5 +249,23 @@ def main():
   else:
     return
 
+def selector():
+  ui_selector = QWidget()
+  ui_builder = selectorUI.Ui_ui_selector()
+  ui_builder.setupUi(ui_selector)
+  ui_builder.select_web_ui.clicked.connect(lambda: choose(ui_selector, True))
+  ui_builder.select_sys_ui.clicked.connect(lambda: choose(ui_selector, False))
+  ui_selector.show()
+  app.exec_()
+
+def choose(ui_selector, selection):
+  global use_web_connect
+  use_web_connect = selection
+  ui_selector.close()
+
 if __name__=="__main__":
-  main()
+  app = QApplication(list())
+  global use_web_connect
+  use_web_connect = None
+  selector()
+  start_ui(use_web_connect)
