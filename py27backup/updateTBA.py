@@ -2,7 +2,7 @@
 """This is a backup solution for if the main script doesn't update TBA properly"""
 
 import tbaAPI as tba
-from urllib.parse import *
+from urlparse import *
 import simplejson as json
 
 def video_id(value):
@@ -19,10 +19,10 @@ def video_id(value):
             return query.path.split('/')[2]
     return value
 
-vID = video_id(input("Video Link: "))
-link = input("Blue Alliance Match Link (eg.https://www.thebluealliance.com/match/2017gaalb_sf1m1) : ")
+vID = video_id(raw_input("Video Link: "))
+link = raw_input("Blue Alliance Match Link (eg.https://www.thebluealliance.com/match/2017gaalb_sf1m1) : ")
 codes = link.split("/")[-1].split("_")
 request_body = json.dumps({codes[-1]: vID})
-tbaID = input("TBA ID: ")
-tbaSecret = input("TBA Secret: ")
+tbaID = raw_input("TBA ID: ")
+tbaSecret = raw_input("TBA Secret: ")
 tba.post_video(tbaID, tbaSecret, request_body, codes[0])

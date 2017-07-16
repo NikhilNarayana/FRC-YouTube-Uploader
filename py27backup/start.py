@@ -189,7 +189,7 @@ def internet(host="www.google.com", port=80, timeout=4):
 		socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
 		return True
 	except Exception:
-		print("No internet!")
+		print "No internet!"
 		return False
       
 def main():
@@ -208,7 +208,7 @@ def main():
       try:
         sleep(100)
       except KeyboardInterrupt:
-        print("\nQuitting Program")
+        print "\nQuitting Program"
         return
   else:
     return
