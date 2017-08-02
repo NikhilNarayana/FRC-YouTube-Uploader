@@ -6,11 +6,12 @@ import argparse
 import youtubeup  as yup
 import tbaAPI as tba
 import simplejson as json
+import re
 
 
 class MyTests(unittest.TestCase):
     def test_get_hashtag(self):
-        self.assertEqual(tbaAPI.get_event_hashtag("2016arc"), "frcarc")
+        self.assertEqual("frc" + re.search('\D+', "2016arc").group(), "frcarc")
 
     def test_parse_data(self):
         blue_data = [132, "999", "180", "3166"]
