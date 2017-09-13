@@ -4,56 +4,16 @@ import os
 import re
 import sys
 import time
-import math
 import random
 import argparse
 import datetime as dt
 
+import tbapy
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
-from tbaAPI import *
+from consts import *
 from youtubeAuthenticate import *
-
-# Default Variables
-DEFAULT_VIDEO_CATEGORY = 28
-DEFAULT_THUMBNAIL = "thumbnail.png"
-DEFAULT_TAGS = """{}, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST STEAMworks"""
-QUAL = "Qualification Match {}"
-QUARTER = "Quarterfinal Match {}"
-QUARTERT = "Quarterfinal Tiebreaker {}"
-SEMI = "Semifinal Match {}"
-SEMIT = "Semifinal Tiebreaker {}"
-FINALS = "Final Match {}"
-FINALST = "Final Tiebreaker"
-EXTENSION = ".mp4"
-MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
-DEFAULT_DESCRIPTION = """Footage of the {ename} is courtesy of {team}.
-
-Red Alliance  ({red1}, {red2}, {red3}) - {redscore}
-Blue Alliance ({blue3}, {blue2}, {blue1}) - {bluescore}
-
-To view match schedules and results for this event, visit The Blue Alliance Event Page: https://www.thebluealliance.com/event/{ecode}
-
-Follow us on Twitter (@{twit}) and Facebook ({fb}).
-
-For more information and future event schedules, visit our website: {weblink}
-
-Thanks for watching!
-
-Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
-
-NO_TBA_DESCRIPTION = """Footage of the {ename} Event is courtesy of the {team}.
-
-Follow us on Twitter (@{twit}) and Facebook ({fb}).
-
-For more information and future event schedules, visit our website: {weblink}
-
-Thanks for watching!
-
-Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
-
-VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 
 """Utility Functions"""
 def convert_bytes(num):
@@ -122,22 +82,6 @@ def ceremonies_yt_title(options):
 			title = options.ename + " - " + "Day {} Closing Ceremonies".format(options.eday)
 	return title
 
-def create_title(options):
-	if options.ceremonies is 0:
-		switcher = {
-				"qm": quals_yt_title,
-				"ef": eights_yt_title,
-				"qf": quarters_yt_title,
-				"sf": semis_yt_title,
-				"f1m": finals_yt_title,
-				}
-		try:
-			return switcher[options.mtype](options)
-		except KeyError:
-			print options.mtype
-	else:
-		return ceremonies_yt_title(options)
-
 """File Location Functions"""
 def quals_filename(options):
 	file = None
@@ -192,7 +136,7 @@ def finals_filename(options):
 			fl = f.lower()
 			if all(k in fl for k in ("final","einstein"," "+str(options.mnum)+".") and "match" not in fl):
 				file = f
-	if options.mnum <= 2 and not options.ein:
+	elif options.mnum <= 2 and not options.ein:
 		for f in options.files:
 			fl = f.lower()
 			if all(k in fl for k in ("final"," "+str(options.mnum)+".")):
@@ -214,12 +158,12 @@ def ceremonies_filename(options):
 			if all(k in fl for k in ("opening", "ceremon")):
 				if any(k in fl for k in (options.day.lower(), "day {}".format(options.eday))):
 					file = f
-	if options.ceremonies is 2:
+	elif options.ceremonies is 2:
 		for f in options.files:
 			fl = f.lower()
 			if all(k in fl for k in ("alliance", "selection")):
 				file = f
-	if options.ceremonies is 3:
+	elif options.ceremonies is 3:
 		for f in options.files:
 			fl = f.lower()
 			if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
@@ -227,20 +171,27 @@ def ceremonies_filename(options):
 					file = f
 	return file
 
-def create_filename(options):
+def create_names(options):
 	if options.ceremonies is 0:
-		switcher = {
+		fname = {
 				"qm": quals_filename,
 				"qf": quarters_filename,
 				"sf": semis_filename,
 				"f1m": finals_filename,
 				}
+		yt = {
+				"qm": quals_yt_title,
+				"ef": eights_yt_title,
+				"qf": quarters_yt_title,
+				"sf": semis_yt_title,
+				"f1m": finals_yt_title,
+				}
 		try:
-			return switcher[options.mtype](options)
+			return fname[options.mtype](options), yt[options.mtype](options)
 		except KeyError:
 			print options.mtype
 	else:
-		return ceremonies_filename(options)
+		return ceremonies_filename(options), ceremonies_yt_title(options)
 
 """Match Code Generators"""
 def quals_match_code(mtype, mnum):
@@ -308,6 +259,28 @@ def get_match_code(mtype, mnum, mcode):
 	return mcode.lower()
 
 """Data Compliation and Adjustment Functions"""
+def get_match_results(event_key, match_key):
+	tba = tbapy.TBA("wvIxtt5Qvbr2qJtqW7ZsZ4vNppolYy0zMNQduH8LdYA7v2o1myt8ZbEOHAwzRuqf")
+	match_data = tba.match("_".join([event_key, match_key]))
+	if match_data is None:
+		raise ValueError("""{} {} does not exist on TBA. Please use a match that exists""".format(event_key, match_key))
+	blue_data, red_data = parse_data(match_data)
+	while (blue_data[0] == -1 or red_data[0] == -1):
+		print "Waiting 1 minute for TBA to update scores"
+		time.sleep(60)
+		match_data = event_get(event_key).get_match(match_key)
+		blue_data, red_data = parse_data(match_data)
+	return blue_data, red_data
+
+def parse_data(match_data):
+	blue = match_data['alliances']['blue']['team_keys']
+	red = match_data['alliances']['red']['team_keys']
+	blue_data = [match_data['alliances']['blue']['score']]
+	red_data = [match_data['alliances']['red']['score']]
+	for team in blue: blue_data.append(team[3:])
+	for team in red: red_data.append(team[3:])
+	return blue_data, red_data
+
 def tba_results(options):
 	mcode = get_match_code(options.mtype, options.mnum, options.mcode)
 	blue_data, red_data = get_match_results(options.ecode, mcode)
@@ -345,11 +318,11 @@ def upload_multiple_videos(youtube, spreadsheet, options):
 			print conclusion
 			options.then = dt.datetime.now()
 			options.mnum = options.mnum + 1
-			options.file = create_filename(options)
+			options.file, options.yttitle = create_name(options)
 			while options.file is None and options.mnum <= options.end:
 				print "{} Match {} is missing".format(options.mtype.upper(), options.mnum)
 				options.mnum = options.mnum + 1
-				options.file = create_filename(options)
+				options.file, options.yttitle = create_name(options)
 		except HttpError, e:
 			print "An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content)
 	print "All matches have been uploaded"
@@ -393,6 +366,33 @@ def attempt_retry(error, retry, max_retries):
 		time.sleep(sleep_seconds)
 		error = None
 
+"""TBA Trusted API"""
+def post_video(token, secret, match_video, match_key):
+	trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
+	trusted_auth['X-TBA-Auth-Id'] = token
+
+	m = md5()
+	request_path = "/api/trusted/v1/event/{}/match_videos/add".format(match_key)
+	concat = secret + request_path + str(request_body)
+	m.update(concat)
+	md5 = m.hexdigest()
+	trusted_auth['X-TBA-Auth-Sig'] = str(md5)
+
+	url_str = "http://thebluealliance.com/api/trusted/v1/event/{}/match_videos/add".format(match_key)
+	if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
+		raise Exception("""An auth ID and/or auth secret required.
+			Please use set_auth_id() and/or set_auth_secret() to set them""")
+	r = s.post(url_str, data=match_video, headers=trusted_auth)
+
+	while "405" in r.content:
+		print "Failed to POST to TBA"
+		print "Attempting to POST to TBA again"
+		r = s.post(url_str, data=match_video, headers=trusted_auth)
+	if "Error" in r.content:
+		raise Exception(r.content)
+	else:
+		print "Successfully added to TBA"
+
 """The program starts here"""
 def init(options):
 	options.debug = 0
@@ -421,7 +421,7 @@ def init(options):
 	youtube = get_youtube_service()
 	spreadsheet = get_spreadsheet_service()
 
-	options.file = create_filename(options)
+	options.file, options.yttitle = create_name(options)
 
 	if options.file is not None:
 		print "Found {} to upload".format(options.file)
@@ -447,14 +447,13 @@ def initialize_upload(youtube, spreadsheet, options):
 	if options.tba:
 		blue_data, red_data, mcode = tba_results(options)
 		tags = options.tags.split(",")
-		tags.extend(["frc%d"%blue_data[1], "frc%d"%blue_data[2], "frc%d"%blue_data[3]])
-		tags.extend(["frc%d"%red_data[1], "frc%d"%red_data[2], "frc%d"%red_data[3]])
+		for team in blue_data[1:] + red_data[1:]: tags.append("frc{}".format(team))
 		tags.extend(options.ename.split(" "))
 		tags.append("frc" + re.search('\D+', options.ecode).group())
 
 		body = dict(
 				snippet=dict(
-					title=create_title(options),
+					title=options.yttitle,
 					description=create_description(options, blue_data[1], blue_data[2], blue_data[3], blue_data[0],
 						red_data[1], red_data[2], red_data[3], red_data[0]),
 					tags=tags,
@@ -468,11 +467,11 @@ def initialize_upload(youtube, spreadsheet, options):
 		mcode = get_match_code(options.mtype, options.mnum, options.mcode)
 
 		tags = options.tags.split(",")
-		tags.append(get_event_hashtag(options.ecode))
+		tags.append("frc" + re.search('\D+', options.ecode).group())
 
 		body = dict(
 				snippet=dict(
-					title=create_title(options),
+					title=options.yttitle,
 					description=create_description(options, -1, -1, -1, -1, -1, -1, -1, -1),
 					tags=tags,
 					categoryId=options.category

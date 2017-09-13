@@ -197,7 +197,7 @@ def internet(host="www.google.com", port=80, timeout=4):
 def main():
 	if "linux" in sys.platform: #root needed for writing files
 		if os.geteuid() != 0:
-			print("Need root for writing files")
+			print("Need sudo for writing files")
 			subprocess.call(['sudo', 'python', sys.argv[0]])
 	YA.get_youtube_service()
 	YA.get_spreadsheet_service()
