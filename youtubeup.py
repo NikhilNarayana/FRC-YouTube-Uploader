@@ -17,7 +17,7 @@ from youtubeAuthenticate import *
 
 """Utility Functions"""
 def convert_bytes(num):
-	for x in ["bytes", "KB", "MB", "GB", "TB"]:
+	for x in sizes:
 		if num < 1024.0:
 			return "%3.1f %s" % (num, x)
 		num /= 1024.0
@@ -31,14 +31,15 @@ def quals_yt_title(options):
 	return options.title.format(options.mnum)
 
 def eights_yt_title(options):
+	#Not implemented yet
 	return None
 
 def quarters_yt_title(options):
 	mnum = options.mnum
-	if 1 <= options.mnum <= 8:
+	if mnum <= 8:
 		title = options.ename + " - " + QUARTER.format(mnum)
 		return title
-	elif 9 <= options.mnum <= 12:
+	elif mnum <= 12:
 		mnum -= 8
 		title = options.ename + " - " + QUARTERT.format(mnum)
 		return title
@@ -47,12 +48,12 @@ def quarters_yt_title(options):
 
 def semis_yt_title(options):
 	mnum = options.mnum
-	if options.mnum <= 15 and options.ein:
+	if mnum <= 15 and options.ein:
 		title = options.ename + " - Einstein Round Robin {}".format(mnum)
-	if options.mnum <= 4 and not options.ein:
+	if mnum <= 4 and not options.ein:
 		title = options.ename + " - " + SEMI.format(mnum)
 		return title
-	elif options.mnum <= 6 and not options.ein:
+	elif mnum <= 6 and not options.ein:
 		mnum -= 4
 		title = options.ename + " - " + SEMIT.format(mnum)
 		return title
@@ -418,8 +419,6 @@ def init(options):
 	if options.tiebreak == 1:
 		options.mnum = tiebreak_mnum(options.mnum, options.mtype)
 
-	youtube = get_youtube_service()
-	spreadsheet = get_spreadsheet_service()
 
 	options.file, options.yttitle = create_name(options)
 
@@ -442,8 +441,6 @@ def initialize_upload(youtube, spreadsheet, options):
 		print "Initializing upload for {} match {}".format(options.mtype, options.mnum)
 	else:
 		print "Initializing upload for: {}".format(ceremonies_yt_title(options))
-	tags = None
-	mcode = None
 	if options.tba:
 		blue_data, red_data, mcode = tba_results(options)
 		tags = options.tags.split(",")
@@ -492,15 +489,6 @@ def initialize_upload(youtube, spreadsheet, options):
 	return upload(insert_request, options, mcode, youtube, spreadsheet)
 
 def upload(insert_request, options, mcode, youtube, spreadsheet):
-	response = None
-	status = None
-	error = None
-	sleep_minutes = 600
-	retry = 0
-	retryforlimit = 0
-	retry_status_codes = get_retry_status_codes()
-	retry_exceptions = get_retry_exceptions()
-	max_retries = get_max_retries()
 	print "Uploading {} of size {}".format(options.file, file_size(options.where+options.file))
 	while response is None:
 		try:
@@ -572,8 +560,6 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
 
 		attempt_retry(error, retry, max_retries)
 		
-	spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
-	rowRange = "Data!A1:G1"
 	wasBatch = "True" if any(options.end != y for y in ("Only for batch uploads", "")) else "False"
 	usedTBA = "True" if options.tba == 1 else "False"
 	totalTime = dt.datetime.now() - options.then

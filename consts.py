@@ -39,3 +39,20 @@ Thanks for watching!
 Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 
 VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
+
+spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
+rowRange = "Data!A1:G1"
+response = None
+status = None
+error = None
+sleep_minutes = 600
+retry = 0
+retryforlimit = 0
+retry_status_codes = get_retry_status_codes()
+retry_exceptions = get_retry_exceptions()
+max_retries = get_max_retries()
+tags = None
+mcode = None
+youtube = get_youtube_service()
+spreadsheet = get_spreadsheet_service()
+sizes = ["bytes", "KB", "MB", "GB", "TB"]
