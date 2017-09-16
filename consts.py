@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from youtubeAuthenticate import *
+
 # Default Variables
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"

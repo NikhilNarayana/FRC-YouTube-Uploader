@@ -13,7 +13,6 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 from consts import *
-from youtubeAuthenticate import *
 
 """Utility Functions"""
 def convert_bytes(num):
@@ -396,7 +395,7 @@ def post_video(token, secret, match_video, match_key):
 
 """The program starts here"""
 def init(options):
-	options.debug = 0
+	options.debug = sys.exit(0)
 	options.ein = False
 	options.privacy = VALID_PRIVACY_STATUSES[0]
 	options.day = dt.datetime.now().strftime("%A")
