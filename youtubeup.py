@@ -361,11 +361,11 @@ def upload_multiple_videos(youtube, spreadsheet, options):
             print conclusion
             options.then = dt.datetime.now()
             options.mnum = options.mnum + 1
-            options.file, options.yttitle = create_name(options)
+            options.file, options.yttitle = create_names(options)
             while options.file is None and options.mnum <= options.end:
                 print "{} Match {} is missing".format(options.mtype.upper(), options.mnum)
                 options.mnum = options.mnum + 1
-                options.file, options.yttitle = create_name(options)
+                options.file, options.yttitle = create_names(options)
         except HttpError, e:
             print "An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content)
     print "All matches have been uploaded"
@@ -471,7 +471,7 @@ def init(options):
     if options.tiebreak == 1:
         options.mnum = tiebreak_mnum(options.mnum, options.mtype)
 
-    options.file, options.yttitle = create_name(options)
+    options.file, options.yttitle = create_names(options)
 
     if options.file is not None:
         print "Found {} to upload".format(options.file)
