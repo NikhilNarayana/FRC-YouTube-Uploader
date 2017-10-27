@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from apiclient.errors import HttpError
+from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
 from updateThumbnail import update_thumbnail
 from youtubeAuthenticate import get_youtube_service

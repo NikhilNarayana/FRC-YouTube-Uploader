@@ -14,12 +14,14 @@ setup(
     long_description=long_des,
     url="https://github.com/NikhilNarayana/FRC-YouTube-Uploader",
     author="Nikhil Narayana",
+    author_email="nikhil.narayana@live.com",
     license="GPL 3.0",
-    keywords='frc robotics youtube uploader'
+    keywords='frc robotics youtube uploader',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 2.7',
     ],
-    version='2.5.1',
-    packages=find_packages(),
+    version='2.7-beta',
+    packages=["frcUploader"],
+    include_package_data=True,
 )
