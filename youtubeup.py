@@ -35,20 +35,13 @@ def quals_yt_title(options):
     return options.title.format(options.mnum)
 
 
-def eights_yt_title(options):
-    # Not implemented yet
-    return None
-
-
 def quarters_yt_title(options):
     mnum = options.mnum
     if mnum <= 8:
-        title = options.ename + " - " + QUARTER.format(mnum)
-        return title
+        return options.ename + " - " + QUARTER.format(mnum)
     elif mnum <= 12:
         mnum -= 8
-        title = options.ename + " - " + QUARTERT.format(mnum)
-        return title
+        return options.ename + " - " + QUARTERT.format(mnum)
     else:
         raise ValueError("options.mnum must be within 1 and 12")
 
@@ -56,24 +49,21 @@ def quarters_yt_title(options):
 def semis_yt_title(options):
     mnum = options.mnum
     if mnum <= 15 and options.ein:
-        title = options.ename + " - Einstein Round Robin {}".format(mnum)
+        return options.ename + " - Einstein Round Robin {}".format(mnum)
     if mnum <= 4 and not options.ein:
-        title = options.ename + " - " + SEMI.format(mnum)
-        return title
+        return options.ename + " - " + SEMI.format(mnum)
     elif mnum <= 6 and not options.ein:
         mnum -= 4
-        title = options.ename + " - " + SEMIT.format(mnum)
-        return title
+        return options.ename + " - " + SEMIT.format(mnum)
     else:
         raise ValueError("options.mnum must be within 1 and 6")
 
 
 def finals_yt_title(options):
     if options.ein:
-        title = options.ename + " - Einstein Final {}".format(options.mnum)
+        return options.ename + " - Einstein Final {}".format(options.mnum)
     else:
-        title = options.ename + " - " + FINALS.format(options.mnum)
-    return title
+        return options.ename + " - " + FINALS.format(options.mnum)
 
 
 def ceremonies_yt_title(options):
@@ -85,9 +75,9 @@ def ceremonies_yt_title(options):
         else:
             title = options.ename + " - " + \
                 "Day {} Opening Ceremonies".format(options.eday)
-    if options.ceremonies is 2:
+    elif options.ceremonies is 2:
         title = options.ename + " - " + "Alliance Selection"
-    if options.ceremonies is 3:
+    elif options.ceremonies is 3:
         if not options.eday:
             title = options.ename + " - " + "Closing Ceremonies"
         else:
@@ -105,6 +95,8 @@ def quals_filename(options):
         fl = f.lower()
         if all([" " + str(options.mnum) + "." in fl and any(k in fl for k in ("qual", "qualification", "qm"))]):
             file = f
+    if file is None:
+        raise Exception("No File Found")
     return file
 
 
@@ -123,6 +115,8 @@ def quarters_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("quarter", "tiebreak", "final", " " + str(mnum) + ".")):
                 file = f
+    if file is None:
+        raise Exception("No File Found")
     return file
 
 
@@ -146,6 +140,8 @@ def semis_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("semi", "tiebreak", "final", " " + str(mnum) + ".")):
                 file = f
+    if file is None:
+        raise Exception("No File Found")
     return file
 
 
@@ -168,6 +164,8 @@ def finals_filename(options):
             if "final" in fl and any(k in fl for k in ("tiebreak", " " + str(options.mnum) + ".")):
                 if all(k not in fl for k in ("quarter", "semi")):
                     file = f
+    if file is None:
+        raise Exception("No File Found")
     return file
 
 
@@ -190,6 +188,8 @@ def ceremonies_filename(options):
             if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
                 if any(k in fl for k in (options.day.lower(), "day {}".format(options.eday))):
                     file = f
+    if file is None:
+        raise Exception("No File Found")
     return file
 
 
@@ -203,7 +203,6 @@ def create_names(options):
         }
         yt = {
             "qm": quals_yt_title,
-            "ef": eights_yt_title,
             "qf": quarters_yt_title,
             "sf": semis_yt_title,
             "f1m": finals_yt_title,
@@ -221,21 +220,6 @@ def create_names(options):
 
 def quals_match_code(mtype, mnum):
     match_code = str(mtype) + str(mnum)
-    return match_code
-
-
-def eights_match_code(mtype, mnum):
-    match_set = str(mnum % 8)
-    match_set = "8" if match_set == "0" else match_set
-    match_code = mtype + match_set
-    if mnum <= 8:
-        match_code += "m1"
-    elif mnum <= 16:
-        match_code += "m2"
-    elif mnum <= 24:
-        match_code += "m3"
-    else:
-        raise ValueError("Match Number can't be larger than 24")
     return match_code
 
 
@@ -278,7 +262,6 @@ def get_match_code(mtype, mnum, mcode):
     if any(k == mcode for k in ("", "0")):
         switcher = {
             "qm": quals_match_code,
-            "ef": eights_match_code,
             "qf": quarters_match_code,
             "sf": semis_match_code,
             "f1m": finals_match_code,
@@ -340,7 +323,6 @@ def create_description(options, blue1, blue2, blue3, blueScore, red1, red2, red3
 def tiebreak_mnum(mnum, mtype):
     switcher = {
         "qm": mnum,
-        "ef": mnum + 16,
         "qf": mnum + 8,
         "sf": mnum + 4,
         "f1m": 3,
@@ -448,12 +430,11 @@ def post_video(token, secret, match_video, match_key):
 
 
 def init(options):
-    options.debug = sys.exit(0)
     options.ein = False
     options.privacy = VALID_PRIVACY_STATUSES[0]
     options.day = dt.datetime.now().strftime("%A")
     options.files = list(reversed([f for f in os.listdir(options.where)
-                                   if os.path.isfile(os.path.join(options.where, f))]))
+        if os.path.isfile(os.path.join(options.where, f))]))
     options.tags = DEFAULT_TAGS.format(options.ecode)
     options.category = DEFAULT_VIDEO_CATEGORY
     options.title = options.ename + " - " + QUAL
@@ -544,13 +525,16 @@ def initialize_upload(youtube, spreadsheet, options):
     size2 = file_size(options.where + options.file)
     while (size1 != size2):
         size1 = file_size(options.where + options.file)
-        time.sleep(1)
+        print "Size of the file is changing, waiting 2 seconds for stabiliziation"
+        time.sleep(2)
         size2 = file_size(options.where + options.file)
     return upload(insert_request, options, mcode, youtube, spreadsheet)
 
 
 def upload(insert_request, options, mcode, youtube, spreadsheet):
-    print "Uploading {} of size {}".format(options.file, file_size(options.where + options.file))
+    response = None
+    status = None
+    print "Uploading {} of size {}".format(options.file)
     while response is None:
         try:
             error = None
@@ -630,5 +614,5 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
         options.vid), usedTBA, options.ename, wasBatch, mcode]]
     body = {'values': values}
     spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
-                                               range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
+        range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
     return "DONE UPLOADING {}\n".format(options.file)
