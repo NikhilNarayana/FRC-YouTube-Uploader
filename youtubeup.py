@@ -9,11 +9,22 @@ import random
 import datetime as dt
 
 import tbapy
+import requests
 import simplejson as json
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 from consts import *
+
+from cachecontrol import CacheControl
+from cachecontrol.heuristics import ExpiresAfter
+
+app_id = {'X-TBA-App-Id': ""}
+trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
+
+s = requests.Session()
+s = CacheControl(s, heuristic=ExpiresAfter(minutes=1))
+s.headers.update(app_id)
 
 """Utility Functions"""
 
