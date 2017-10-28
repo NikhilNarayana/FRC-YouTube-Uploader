@@ -534,7 +534,7 @@ def initialize_upload(youtube, spreadsheet, options):
 def upload(insert_request, options, mcode, youtube, spreadsheet):
     response = None
     status = None
-    print "Uploading {} of size {}".format(options.file)
+    print "Uploading {} of size {}".format(options.file, file_size(options.where + options.file))
     while response is None:
         try:
             error = None
