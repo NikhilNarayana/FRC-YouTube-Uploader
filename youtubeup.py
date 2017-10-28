@@ -577,11 +577,6 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
             error = "A retriable error occurred: {}".format(e)
 
         attempt_retry(error, retry, max_retries)
-    if 'id' in response:
-        options.vid = response['id']
-        print "Video link is https://www.youtube.com/watch?v={}".format(options.vid)
-    else:
-        print "There was a problem with the upload"
     request_body = json.dumps({mcode: options.vid})
     if options.tba:
         post_video(options.tbaID, options.tbaSecret,
