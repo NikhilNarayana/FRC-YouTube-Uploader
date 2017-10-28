@@ -406,7 +406,7 @@ def post_video(token, secret, match_video, match_key):
     m = hashlib.md5()
     request_path = "/api/trusted/v1/event/{}/match_videos/add".format(
         match_key)
-    concat = secret + request_path + str(request_body)
+    concat = secret + request_path + str(match_video)
     m.update(concat)
     md5 = m.hexdigest()
     trusted_auth['X-TBA-Auth-Sig'] = str(md5)
