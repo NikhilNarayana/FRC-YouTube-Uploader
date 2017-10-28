@@ -3,7 +3,7 @@
 import os
 import re
 import sys
-import md5
+import hashlib
 import time
 import random
 import datetime as dt
@@ -403,7 +403,7 @@ def attempt_retry(error, retry, max_retries):
 def post_video(token, secret, match_video, match_key):
     trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
     trusted_auth['X-TBA-Auth-Id'] = token
-    m = md5()
+    m = hashlib.md5()
     request_path = "/api/trusted/v1/event/{}/match_videos/add".format(
         match_key)
     concat = secret + request_path + str(request_body)
