@@ -7,6 +7,7 @@ import youtubeup  as yup
 import simplejson as json
 import re
 import tbapy
+import nose
 
 
 class MyTests(unittest.TestCase):
@@ -97,4 +98,4 @@ Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTub
 
 
 if __name__ == '__main__':
-    unittest.main()
+    nose.main()
