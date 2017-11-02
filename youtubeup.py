@@ -3,15 +3,28 @@
 import os
 import re
 import sys
+import hashlib
 import time
 import random
 import datetime as dt
 
 import tbapy
+import requests
+import simplejson as json
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 from consts import *
+
+from cachecontrol import CacheControl
+from cachecontrol.heuristics import ExpiresAfter
+
+app_id = {'X-TBA-App-Id': ""}
+trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
+
+s = requests.Session()
+s = CacheControl(s, heuristic=ExpiresAfter(minutes=1))
+s.headers.update(app_id)
 
 """Utility Functions"""
 
@@ -48,11 +61,9 @@ def quarters_yt_title(options):
 
 def semis_yt_title(options):
     mnum = options.mnum
-    if mnum <= 15 and options.ein:
-        return options.ename + " - Einstein Round Robin {}".format(mnum)
-    if mnum <= 4 and not options.ein:
+    if mnum <= 4:
         return options.ename + " - " + SEMI.format(mnum)
-    elif mnum <= 6 and not options.ein:
+    elif mnum <= 6:
         mnum -= 4
         return options.ename + " - " + SEMIT.format(mnum)
     else:
@@ -60,10 +71,7 @@ def semis_yt_title(options):
 
 
 def finals_yt_title(options):
-    if options.ein:
-        return options.ename + " - Einstein Final {}".format(options.mnum)
-    else:
-        return options.ename + " - " + FINALS.format(options.mnum)
+    return options.ename + " - " + FINALS.format(options.mnum)
 
 
 def ceremonies_yt_title(options):
@@ -122,19 +130,13 @@ def quarters_filename(options):
 
 def semis_filename(options):
     file = None
-    if options.mnum <= 15 and options.ein:
-        for f in options.files:
-            fl = f.lower()
-            if all(k in fl for k in ("einstein", " " + str(options.mnum) + ".")):
-                if "final" not in fl:
-                    file = f
-    if options.mnum <= 4 and not options.ein:
+    if options.mnum <= 4:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "final", " " + str(options.mnum) + ".")):
                 if "tiebreak" not in fl:
                     file = f
-    elif options.mnum <= 6 and not options.ein:
+    elif options.mnum <= 6:
         mnum = options.mnum - 4
         for f in options.files:
             fl = f.lower()
@@ -147,12 +149,7 @@ def semis_filename(options):
 
 def finals_filename(options):
     file = None
-    if options.mnum <= 2 and options.ein:
-        for f in options.files:
-            fl = f.lower()
-            if all(k in fl for k in ("final", "einstein", " " + str(options.mnum) + ".") and "match" not in fl):
-                file = f
-    elif options.mnum <= 2 and not options.ein:
+    if options.mnum <= 2:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("final", " " + str(options.mnum) + ".")):
@@ -401,10 +398,10 @@ def attempt_retry(error, retry, max_retries):
 def post_video(token, secret, match_video, match_key):
     trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
     trusted_auth['X-TBA-Auth-Id'] = token
-    m = md5()
+    m = hashlib.md5()
     request_path = "/api/trusted/v1/event/{}/match_videos/add".format(
         match_key)
-    concat = secret + request_path + str(request_body)
+    concat = secret + request_path + str(match_video)
     m.update(concat)
     md5 = m.hexdigest()
     trusted_auth['X-TBA-Auth-Sig'] = str(md5)
@@ -430,7 +427,6 @@ def post_video(token, secret, match_video, match_key):
 
 
 def init(options):
-    options.ein = False
     options.privacy = VALID_PRIVACY_STATUSES[0]
     options.day = dt.datetime.now().strftime("%A")
     options.files = list(reversed([f for f in os.listdir(options.where)
@@ -534,7 +530,7 @@ def initialize_upload(youtube, spreadsheet, options):
 def upload(insert_request, options, mcode, youtube, spreadsheet):
     response = None
     status = None
-    print "Uploading {} of size {}".format(options.file)
+    print "Uploading {} of size {}".format(options.file, file_size(options.where + options.file))
     while response is None:
         try:
             error = None
@@ -576,11 +572,6 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
             error = "A retriable error occurred: {}".format(e)
 
         attempt_retry(error, retry, max_retries)
-    if 'id' in response:
-        options.vid = response['id']
-        print "Video link is https://www.youtube.com/watch?v={}".format(options.vid)
-    else:
-        print "There was a problem with the upload"
     request_body = json.dumps({mcode: options.vid})
     if options.tba:
         post_video(options.tbaID, options.tbaSecret,
