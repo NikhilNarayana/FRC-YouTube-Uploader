@@ -5,7 +5,7 @@ from youtubeAuthenticate import *
 # Default Variables
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
-DEFAULT_TAGS = """{}, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST STEAMworks"""
+DEFAULT_TAGS = """{}, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST Power Up, FIRST POWER UP"""
 QUAL = "Qualification Match {}"
 QUARTER = "Quarterfinal Match {}"
 QUARTERT = "Quarterfinal Tiebreaker {}"
