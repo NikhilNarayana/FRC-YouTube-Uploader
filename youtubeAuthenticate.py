@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import httplib
+import http.client
 import httplib2
 import os
 import sys
@@ -13,10 +13,10 @@ from oauth2client.tools import argparser, run_flow
 
 httplib2.RETRIES = 1
 
-RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
-						httplib.IncompleteRead, httplib.ImproperConnectionState,
-						httplib.CannotSendRequest, httplib.CannotSendHeader,
-						httplib.ResponseNotReady, httplib.BadStatusLine)
+RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, http.client.NotConnected,
+						http.client.IncompleteRead, http.client.ImproperConnectionState,
+						http.client.CannotSendRequest, http.client.CannotSendHeader,
+						http.client.ResponseNotReady, http.client.BadStatusLine)
 
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
