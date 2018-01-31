@@ -341,11 +341,13 @@ def upload_multiple_videos(youtube, spreadsheet, options):
             options.mnum = options.mnum + 1
             options.file, options.yttitle = create_names(options)
             while options.file is None and options.mnum <= options.end:
-                print("{} Match {} is missing".format(options.mtype.upper(), options.mnum))
+                print("{} Match {} is missing".format(
+                    options.mtype.upper(), options.mnum))
                 options.mnum = options.mnum + 1
                 options.file, options.yttitle = create_names(options)
         except HttpError as e:
-            print("An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content))
+            print("An HTTP error {} occurred:\n{}\n".format(
+                e.resp.status, e.content))
     print("All matches have been uploaded")
 
 
@@ -459,16 +461,19 @@ def init(options):
             try:
                 print(initialize_upload(youtube, spreadsheet, options))
             except HttpError as e:
-                print("An HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
+                print("An HTTP error {} occurred:\n{}".format(
+                    e.resp.status, e.content))
     else:
         raise Exception("First match file must exist")
 
 
 def initialize_upload(youtube, spreadsheet, options):
     if not options.ceremonies:
-        print("Initializing upload for {} match {}".format(options.mtype, options.mnum))
+        print("Initializing upload for {} match {}".format(
+            options.mtype, options.mnum))
     else:
-        print("Initializing upload for: {}".format(ceremonies_yt_title(options)))
+        print("Initializing upload for: {}".format(
+            ceremonies_yt_title(options)))
     if options.tba:
         blue_data, red_data, mcode = tba_results(options)
         tags = options.tags.split(",")
@@ -529,7 +534,8 @@ def initialize_upload(youtube, spreadsheet, options):
 def upload(insert_request, options, mcode, youtube, spreadsheet):
     response = None
     status = None
-    print("Uploading {} of size {}".format(options.file, file_size(options.where + options.file)))
+    print("Uploading {} of size {}".format(
+        options.file, file_size(options.where + options.file)))
     while response is None:
         try:
             error = None
@@ -546,11 +552,13 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
             elif "uploadLimitExceeded" in e.content:
                 retryforlimit += 1
                 if retryforlimit < max_retries:
-                    print("Waiting {} minutes to avoid upload limit".format(sleep_minutes / 60))
+                    print("Waiting {} minutes to avoid upload limit".format(
+                        sleep_minutes / 60))
                     for x in xrange(sleep_minutes):
                         time.sleep(1)
                         if x % 60 == 0:
-                            print("Minute {} of {}".format(x / 60, sleep_minutes / 60))
+                            print("Minute {} of {}".format(
+                                x / 60, sleep_minutes / 60))
                     sleep_minutes -= 60
                     error = None
                 else:
@@ -576,7 +584,7 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
         post_video(options.tbaID, options.tbaSecret,
                    request_body, options.ecode)
     vidOptions = False
-    while vidOptions == False:
+    while vidOptions is False:
         try:
             error = None
             if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):

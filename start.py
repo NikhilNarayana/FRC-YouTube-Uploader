@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
 
 import os
-import csv
+import re
 import sys
-import time
 import socket
-import threading
 import subprocess
 
 import uploaderSysUI
 from time import sleep
-import youtubeup as yup
-from datetime import datetime
-from argparse import Namespace
 import youtubeAuthenticate as YA
+from PyQt5 import QApplication, QWidget
+
 
 def internet(host="www.google.com", port=80, timeout=4):
     try:
