@@ -9,7 +9,7 @@ import subprocess
 import uploaderSysUI
 from time import sleep
 import youtubeAuthenticate as YA
-from PyQt5 import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget
 
 
 def internet(host="www.google.com", port=80, timeout=4):

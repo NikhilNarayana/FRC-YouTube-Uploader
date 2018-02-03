@@ -6,6 +6,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_uploader_form(object):
@@ -271,7 +273,6 @@ class Ui_uploader_form(object):
 
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     uploader_form = QtWidgets.QDialog()
     ui = Ui_uploader_form()
