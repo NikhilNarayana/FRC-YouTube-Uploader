@@ -282,7 +282,7 @@ def get_match_results(event_key, match_key):
     while (blue_data[0] == -1 or red_data[0] == -1):
         print "Waiting 1 minute for TBA to update scores"
         time.sleep(60)
-        match_data = event_get(event_key).get_match(match_key)
+        match_data = tba.match("_".join([event_key, match_key]))
         blue_data, red_data = parse_data(match_data)
     return blue_data, red_data
 
