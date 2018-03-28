@@ -1,5 +1,4 @@
 # FRC-CLI-YouTube-Uploader
-[![Build Status](https://travis-ci.org/NikhilNarayana/FRC-YouTube-Uploader.svg?branch=master)](https://travis-ci.org/NikhilNarayana/FRC-YouTube-Uploader)
 
 A YouTube Uploader for FRC Events
 
@@ -14,17 +13,31 @@ A YouTube Uploader for FRC Events
 
 
 ## How to Setup
-1. Install Python 2.7 for your OS with the PATH added and make sure there are no other versions of python 2.7
+1. Install Python 3.6 for your OS with the PATH added and make sure there are no other versions of Python 3
 2. Download this repository into a subfolder to the folder that will contain the videos, make sure every event is in seperate folders
-3. Install the requirements for the script with `pip install -r /path/to/requirements.txt`, or `make` if supported by your OS
-4. Add the thumbnail to the same folder as `thumbnail.png`
+3. Install the requirements for the script with `pip install -r /path/to/requirements.txt` and `pip3 install git+https://github.com/webpy/webpy#egg=web.py`, or `make` if supported by your OS
+4. Add the thumbnail to the same folder as `thumbnail.png` (not required)
 5. Make your recording program follow this naming scheme: [MATCH TYPE] [MATCH NUM].[EXTENSION] ex. Qualification Match 1.mp4 Also use the Tiebreaker scheme when necessary
-5. Start the program by executing the .bat file for Windows or .sh file for Linux/macOS or by running `python start.py`
+5. Start the program by executing the .bat file for Windows or .sh file for Linux/macOS or by running `python3 start.py` on UNIX and `py start.py` on Windows.
 6. Add in the necessary info
 7. Hit submit everytime a match finishes. No need to update any values unless you are entering eliminations or doing ceremonies
 8. Enjoy not having to deal with YouTube's front end 
 
 ### File Name Examples
+
+File names are determined through substrings, you need the base of the match type and the match number at a minimum. Is this bad code design? Proabbly but it works and covers all known cases. Additionally all file names can be lowercase.
+Bases:
+
+    Qualification -> qual
+    
+    Quarter -> quarter + final
+    
+    Semifinal -> semi + final
+    
+    Final -> final
+    
+    Tiebreaker -> tiebreak
+
 QM15 = `Qualification Match 15.mp4` or `Qual 15.mp4`
 
 SF2M3 = `Semifinal Tiebreaker 2.mp4` or `semi final tiebreak 2.mp4`
@@ -49,22 +62,22 @@ You can now pick whether the match files  are in the same folder as the scripts 
 Constants that used to be in the script itself, you can now edit them as you see fit without going into the code.
 
 ##### Event Name
-You can name this as you wish, but it should also be used at the start of every video filename. Generally includes [YEAR] [NAME OF EVENT]
+You can name this as you wish, but know that it goes at the start of the video's YouTube Title, if you don't like this I can make a toggle. Generally includes [YEAR] [NAME OF EVENT]
 
 ##### Event Code
 Find this at TheBlueAlliance in the address bar of the event page. It generally follows [YEAR][EVENT_CODE] format such as 2016arc or 2016incmp.
 
 ##### Playlist ID
-You can find the playlist ID on the playlist page's web address. Every playlist ID starts with PL making them easy to identify.
+You can find the playlist ID on the playlist page's web address. Every playlist ID starts with PL making them easy to identify. You will not be able to sumbit with invalid links.
 
 ##### TBA Event ID/Secret
-Both of these must be obtained by requesting them from www.thebluealliance.com/request/apiwrite for the keys to your event. If your event is not on TBA I suggest you just set `Update TBA` to False.
+Both of these must be obtained by requesting them from www.thebluealliance.com/request/apiwrite for the keys to your event. If your event is not on TBA I suggest you just set `Use TBA` to False.
 
 ##### Video Description
 The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. The usual description is found in `youtubeup.py`. If you would rather not use that description feel free to input your own or ask me to create a specific description just for you.
 
 ##### Match Code
-This is an overriding function that will push any match you setup here to the correct TBA match and with the right info. This does not affect other parameters, you still need to set them up so it will find the correct match. For example, [2017 PCH Albany](https://www.thebluealliance.com/event/2017gaalb) had 6 matches in Semifinals 2, the matches that counted were matches 4-6 on TBA, but the FMS kept the naming scheme from matches 1-3. To fix this you can input the match info like it was for `SF2M1` and name the file `Semifinal Match 2.mp4`, but then set match code to `SF2M4`. That would get the right scores and then update the right TBA match.
+This is an overriding function that will push any match you setup here to the correct TBA match and with the right info. This does not affect other parameters, you still need to set them up so it will find the correct match. For example, [2017 PCH Albany](https://www.thebluealliance.com/event/2017gaalb) had 5 replay matches in Semifinals 2, the matches that counted were matches 4-6 on TBA, but the FMS kept the naming scheme from matches 1-3. To fix this you can input the match info like it was for `SF2M1` and name the file `Semifinal Match 2.mp4`, but then set match code to `SF2M4`. That would get the right scores and then update the right TBA match. This should almost never be used outside of cases like this.
 
 ##### Match Number
 Fairly self-explanatory, just remember to reset the value when you go into each stage of eliminations. This value will increment each time you press "Submit". Get the value from the FMS display during tiebreakers.
@@ -90,8 +103,9 @@ All the information collected is very simple and lacks sensetive data. If you wa
 
 ### Credits
 * Google - Authentication and Video Uploading
-* Phil Lopreiato - TBA Integration
-* Wes Jordan - Python TBA API Layer (https://github.com/Thing342/pyTBA)
+* Phil Lopreiato - TBA Trusted API Integration
+* Wes Jordan - Python TBA API Layer (https://github.com/Thing342/pyTBA) *no longer used*
+* tbapy -  New Python TBA API Layer
 * Josh Klar - Bug Fixes during 2017 St. Joseph District
 * Matthew Zacune - Testing
 * Stack Exchange - Bug Fixes
