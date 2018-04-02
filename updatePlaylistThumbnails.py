@@ -2,40 +2,57 @@
 
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
-from updateThumbnail import update_thumbnail
+from youtubeup import update_thumbnail
 from youtubeAuthenticate import get_youtube_service
 
-#Thumbnail file to use
 THUMBNAIL = ""
 PLAYLISTID = ""
+# Thumbnail file to use
 
 # Retrieve the contentDetails part of the channel resource for the
 # authenticated user's channel.
-def update_thumbnails(youtube,pID,thumbnail):
-	playlistitems_list_request = youtube.playlistItems().list(
-		playlistId=pID,
-		part="snippet",
-		maxResults=50
-	)
 
-	while playlistitems_list_request:
-		playlistitems_list_response = playlistitems_list_request.execute()
 
-		# Print information about each video.
-	for playlist_item in playlistitems_list_response["items"]:
-		title = playlist_item["snippet"]["title"]
-		video_id = playlist_item["snippet"]["resourceId"]["videoId"]
-		update_thumbnail(youtube,video_id,thumbnail)
+def update_thumbnails(youtube, pID, thumbnail):
+    playlistitems_list = youtube.playlistItems().list(
+        playlistId=pID,
+        part="snippet",
+        maxResults=50
+    ).execute()
 
-	playlistitems_list_request = youtube.playlistItems().list_next(
-		playlistitems_list_request, playlistitems_list_response)
+    print "got list"
+    nextPageToken = playlistitems_list["nextPageToken"]
+    while ('nextPageToken' in playlistitems_list):
+        print "getting next page"
+        nextPageList = youtube.playlistItems().list(
+            playlistId=pID,
+            part="snippet",
+            maxResults=50,
+            pageToken=nextPageToken).execute()
+        print "got next page"
+        playlistitems_list["items"] = playlistitems_list["items"] + \
+            nextPageList["items"]
+        if "nextPageToken" not in nextPageList:
+            playlistitems_list.pop('nextPageToken', None)
+            print "no more pages"
+        else:
+            nextPageToken = nextPageList['nextPageToken']
+            print "got next page token"
+            # Print information about each video.
+    errorvids = []
+    for playlist_item in playlistitems_list["items"]:
+        title = playlist_item["snippet"]["title"]
+        video_id = playlist_item["snippet"]["resourceId"]["videoId"]
+        try:
+        	update_thumbnail(youtube, video_id, thumbnail)
+        except HttpError as e:
+        	continue
+        print "thumbnail updated"
+
 
 if __name__ == '__main__':
-	argparser.add_argument("--pID",help="PlaylistID of videos to change thumbnails for",default=PLAYLISTID)
-	argparser.add_argument("--tnail",help="Thumbnail filename, with extension, for playlist",default=THUMBNAIL)
-	args = argparser.parse_args()
-	youtube = get_youtube_service()
-	try:
-		update_thumbnails(youtube,args.pID,args,thumbnail)
-	except HttpError, e:
-		print "An HTTP error {} occurred:\n{}".format(e.resp.status, e.content)
+    youtube = get_youtube_service()
+    try:
+        update_thumbnails(youtube, PLAYLISTID, THUMBNAIL)
+    except HttpError, e:
+        print "An HTTP error {} occurred:\n{}".format(e.resp.status, e.content)

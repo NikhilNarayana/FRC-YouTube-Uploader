@@ -331,7 +331,7 @@ def tiebreak_mnum(mnum, mtype):
 
 
 def upload_multiple_videos(youtube, spreadsheet, options):
-    while options.mnum <= options.end:
+    while options.mnum < options.end:
         try:
             conclusion = initialize_upload(youtube, spreadsheet, options)
             if conclusion == "FAILED":
