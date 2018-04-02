@@ -114,7 +114,7 @@ def quarters_filename(options):
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in (
-                "quarter", "final", " " + str(options.mnum) + ".")):
+                    "quarter", "final", " " + str(options.mnum) + ".")):
                 if "tiebreak" not in fl:
                     file = f
     elif 9 <= options.mnum <= 12:
@@ -430,7 +430,7 @@ def init(options):
     options.privacy = VALID_PRIVACY_STATUSES[0]
     options.day = dt.datetime.now().strftime("%A")
     options.files = list(reversed([f for f in os.listdir(options.where)
-        if os.path.isfile(os.path.join(options.where, f))]))
+                                   if os.path.isfile(os.path.join(options.where, f))]))
     options.tags = DEFAULT_TAGS.format(options.ecode)
     options.category = DEFAULT_VIDEO_CATEGORY
     options.title = options.ename + " - " + QUAL
@@ -605,5 +605,5 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
         options.vid), usedTBA, options.ename, wasBatch, mcode]]
     body = {'values': values}
     spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
-        range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
+                                               range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
     return "DONE UPLOADING {}\n".format(options.file)
