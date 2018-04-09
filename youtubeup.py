@@ -577,7 +577,7 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
         post_video(options.tbaID, options.tbaSecret,
                    request_body, options.ecode, "match_video")
     elif options.ceremonies:
-    	post_media(options.tbaID, options.tbaSecret,
+    	post_video(options.tbaID, options.tbaSecret,
                    [options.vid], options.ecode, "media")
     vidOptions = False
     while vidOptions == False:
