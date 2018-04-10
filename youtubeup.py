@@ -606,7 +606,12 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
     totalTime = dt.datetime.now() - options.then
     values = [[str(dt.datetime.now()), str(totalTime), "https://www.youtube.com/watch?v={}".format(
         options.vid), usedTBA, options.ename, wasBatch, mcode]]
-    body = {'values': values}
-    spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
-                                               range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
+    sheetbody = {'values': values}
+    try:
+    	spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
+                                               range=rowRange, valueInputOption="USER_ENTERED", body=sheetbody).execute()
+    except:
+    	print("Failed to write to spreadsheet")
+    	del totalTime
+    	del sheetbody
     return "DONE UPLOADING {}\n".format(options.file)
