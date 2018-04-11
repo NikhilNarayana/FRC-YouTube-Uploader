@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import csv
@@ -93,7 +93,7 @@ class index(threading.Thread):
     def GET(self):
         myform = dataform()
         try:
-            with open('form_values.csv', 'rb') as csvfile:
+            with open('form_values.csv') as csvfile:
                 reader = csv.reader(csvfile, delimiter=',', quotechar='|')
                 i = 0
                 for row in reader:
@@ -203,7 +203,7 @@ def internet(host="www.google.com", port=80, timeout=4):
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         return True
     except Exception:
-        print "No internet!"
+        print("No internet!")
         return False
 
 
@@ -223,7 +223,7 @@ def main():
             try:
                 sleep(100)
             except KeyboardInterrupt:
-                print "\nQuitting Program"
+                print("\nQuitting Program")
                 return
     else:
         return

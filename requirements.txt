@@ -15,4 +15,3 @@ simplejson==3.10.0
 six==1.10.0
 tbapy==1.2.1
 uritemplate==3.0.0
-web.py==0.38
