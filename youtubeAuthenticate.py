@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-import http.client as httplib
+try:
+	import http.client as httplib
+except ImportError:
+	import httplib
 import httplib2
 import os
 import sys
