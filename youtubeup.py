@@ -610,7 +610,7 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
     try:
         spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
                                                    range=rowRange, valueInputOption="USER_ENTERED", body=sheetbody).execute()
-    exceptd:
+    except:
         print("Failed to write to spreadsheet")
         del totalTime
         del sheetbody
