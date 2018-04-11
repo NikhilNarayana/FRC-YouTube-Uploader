@@ -331,7 +331,7 @@ def tiebreak_mnum(mnum, mtype):
 
 
 def upload_multiple_videos(youtube, spreadsheet, options):
-    while options.mnum < options.end:
+    while options.mnum <= options.end:
         try:
             conclusion = initialize_upload(youtube, spreadsheet, options)
             if conclusion == "FAILED":
@@ -389,18 +389,18 @@ def attempt_retry(error, retry, max_retries):
         sleep_seconds = random.random() * max_sleep
         print "Sleeping {} seconds and then retrying...".format(sleep_seconds)
         time.sleep(sleep_seconds)
-        error = None
+        return None
 
 
 """TBA Trusted API"""
 
- 
+
 def post_video(token, secret, match_video, match_key, loc):
     trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
     trusted_auth['X-TBA-Auth-Id'] = token
     m = hashlib.md5()
     request_path = "/api/trusted/v1/event/{}/{}/add".format(
-        match_key,loc)
+        match_key, loc)
     concat = secret + request_path + str(match_video)
     m.update(concat)
     md5 = m.hexdigest()
@@ -571,16 +571,16 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
             print response
             error = "A retriable error occurred: {}".format(e)
 
-        attempt_retry(error, retry, max_retries)
+        error = attempt_retry(error, retry, max_retries)
     request_body = json.dumps({mcode: options.vid})
     if options.tba:
         post_video(options.tbaID, options.tbaSecret,
                    request_body, options.ecode, "match_video")
     elif options.ceremonies:
-    	post_video(options.tbaID, options.tbaSecret,
+        post_video(options.tbaID, options.tbaSecret,
                    [options.vid], options.ecode, "media")
     vidOptions = False
-    while vidOptions == False:
+    while not vidOptions:
         try:
             error = None
             if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):
@@ -598,7 +598,7 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
         except retry_exceptions as e:
             error = "A retriable error occurred: {}".format(e)
 
-        attempt_retry(error, retry, max_retries)
+        error = attempt_retry(error, retry, max_retries)
 
     wasBatch = "True" if any(options.end != y for y in (
         "Only for batch uploads", "")) else "False"
@@ -608,10 +608,10 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
         options.vid), usedTBA, options.ename, wasBatch, mcode]]
     sheetbody = {'values': values}
     try:
-    	spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
-                                               range=rowRange, valueInputOption="USER_ENTERED", body=sheetbody).execute()
-    except:
-    	print("Failed to write to spreadsheet")
-    	del totalTime
-    	del sheetbody
+        spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
+                                                   range=rowRange, valueInputOption="USER_ENTERED", body=sheetbody).execute()
+    exceptd:
+        print("Failed to write to spreadsheet")
+        del totalTime
+        del sheetbody
     return "DONE UPLOADING {}\n".format(options.file)
