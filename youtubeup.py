@@ -413,11 +413,11 @@ def post_video(token, secret, match_video, match_key, loc):
             Please use set_auth_id() and/or set_auth_secret() to set them""")
     r = s.post(url_str, data=match_video, headers=trusted_auth)
 
-    while "405" in r.content:
+    while b"405" in r.content:
         print("Failed to POST to TBA")
         print("Attempting to POST to TBA again")
         r = s.post(url_str, data=match_video, headers=trusted_auth)
-    if "Error" in r.content:
+    if b"Error" in r.content:
         raise Exception(r.content)
     else:
         print("Successfully added to TBA")
@@ -544,7 +544,7 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
             if e.resp.status in retry_status_codes:
                 error = "A retriable HTTP error {} occurred:\n{}".format(e.resp.status,
                                                                          e.content)
-            elif "uploadLimitExceeded" in e.content:
+            elif b"uploadLimitExceeded" in e.content:
                 retryforlimit += 1
                 if retryforlimit < max_retries:
                     print("Waiting {} minutes to avoid upload limit".format(sleep_minutes / 60))
