@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """This is a backup solution for if the main script doesn't update TBA properly"""
 
-import tbaAPI as tba
+from youtubeup import post_video
 from urlparse import *
 import simplejson as json
 
@@ -25,4 +25,4 @@ codes = link.split("/")[-1].split("_")
 request_body = json.dumps({codes[-1]: vID})
 tbaID = raw_input("TBA ID: ")
 tbaSecret = raw_input("TBA Secret: ")
-tba.post_video(tbaID, tbaSecret, request_body, codes[0])
+post_video(tbaID, tbaSecret, request_body, codes[0], "match_video")
