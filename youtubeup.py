@@ -612,6 +612,4 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
                                                    range=rowRange, valueInputOption="USER_ENTERED", body=sheetbody).execute()
     except:
         print("Failed to write to spreadsheet")
-        del totalTime
-        del sheetbody
     return "DONE UPLOADING {}\n".format(options.file)
