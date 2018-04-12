@@ -333,6 +333,10 @@ def tiebreak_mnum(mnum, mtype):
 def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
         try:
+            while options.file is None and options.mnum <= options.end:
+                print("{} Match {} is missing".format(options.mtype.upper(), options.mnum))
+                options.mnum = options.mnum + 1
+                options.file, options.yttitle = create_names(options)
             conclusion = initialize_upload(youtube, spreadsheet, options)
             if conclusion == "FAILED":
                 print("Try again")
@@ -341,10 +345,6 @@ def upload_multiple_videos(youtube, spreadsheet, options):
             options.then = dt.datetime.now()
             options.mnum = options.mnum + 1
             options.file, options.yttitle = create_names(options)
-            while options.file is None and options.mnum <= options.end:
-                print("{} Match {} is missing".format(options.mtype.upper(), options.mnum))
-                options.mnum = options.mnum + 1
-                options.file, options.yttitle = create_names(options)
         except HttpError as e:
             print("An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content))
     print("All matches have been uploaded")
@@ -442,6 +442,7 @@ def init(options):
     options.mnum = int(options.mnum)
     options.tiebreak = int(options.tiebreak)
     options.eday = int(options.eday)
+    options.end = int(options.end)
 
     if options.ceremonies != 0:
         options.tba = 0
