@@ -78,7 +78,7 @@ def get_spreadsheet_service():
 
 	http = credentials.authorize(httplib2.Http())
 	discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?''version=v4')
-	return build('sheets', 'v4', http=credentials.authorize(httplib2.Http()), discoveryServiceUrl=discoveryUrl)
+	return build('sheets', 'v4', http=http, discoveryServiceUrl=discoveryUrl)
 
 def get_retry_status_codes():
 	return RETRIABLE_STATUS_CODES
