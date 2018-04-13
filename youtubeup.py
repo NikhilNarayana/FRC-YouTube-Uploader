@@ -395,22 +395,22 @@ def attempt_retry(error, retry, max_retries):
 """TBA Trusted API"""
 
 
-def post_video(token, secret, match_video, match_key, loc):
+def post_video(token, secret, match_video, event_key, loc):
     trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
     trusted_auth['X-TBA-Auth-Id'] = token
     m = hashlib.md5()
     request_path = "/api/trusted/v1/event/{}/{}/add".format(
-        match_key, loc)
+        event_key, loc)
     concat = secret + request_path + str(match_video)
     m.update(concat.encode("utf-8"))
     md5 = m.hexdigest()
     trusted_auth['X-TBA-Auth-Sig'] = str(md5)
 
     url = "http://thebluealliance.com/api/trusted/v1/event/{}/{}/add"
-    url_str = url.format(match_key, loc)
+    url_str = url.format(event_key, loc)
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
-        raise Exception("""An auth ID and/or auth secret required. 
-            Please use set_auth_id() and/or set_auth_secret() to set them""")
+        raise Exception("""TBA ID and/or TBA secret missing.
+            Please set them in the UI""")
     r = s.post(url_str, data=match_video, headers=trusted_auth)
 
     while b"405" in r.content:
