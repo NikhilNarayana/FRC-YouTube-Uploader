@@ -91,6 +91,9 @@ class index(threading.Thread):
         app = web.application(urls, globals())
         if DEBUG:
             web.httpserver.runsimple(app.wsgifunc(), ("0.0.0.0", 8888))
+            webbrowser.open_new("http://localhost:8888")
+        else:
+            webbrowser.open_new("http://localhost:8080")
         app.run()
 
     def GET(self):

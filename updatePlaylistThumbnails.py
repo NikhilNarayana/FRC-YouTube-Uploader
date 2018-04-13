@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
@@ -19,8 +19,6 @@ def update_thumbnails(youtube, pID, thumbnail):
         part="snippet",
         maxResults=50
     ).execute()
-
-    print "got list"
     nextPageToken = playlistitems_list["nextPageToken"]
     while ('nextPageToken' in playlistitems_list):
         print "getting next page"
@@ -49,7 +47,10 @@ def update_thumbnails(youtube, pID, thumbnail):
             x = (title, video_id)
             errorvids.append(x)
         	continue
-        print "thumbnail updated"
+        print("thumbnail updated")
+
+    for tup in errorvids:
+        print(tup)
 
 
 if __name__ == '__main__':
