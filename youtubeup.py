@@ -442,7 +442,6 @@ def init(options):
     options.mnum = int(options.mnum)
     options.tiebreak = int(options.tiebreak)
     options.eday = int(options.eday)
-    options.end = int(options.end)
 
     if options.ceremonies != 0:
         options.tba = 0
