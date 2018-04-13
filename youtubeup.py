@@ -405,8 +405,9 @@ def post_video(token, secret, match_video, event_key, loc):
     m.update(concat.encode("utf-8"))
     md5 = m.hexdigest()
     trusted_auth['X-TBA-Auth-Sig'] = str(md5)
-
     url = "http://thebluealliance.com/api/trusted/v1/event/{}/{}/add"
+    if DEBUG:
+        url = "http://localhost:8080/api/trusted/v1/event/{}/{}/add"
     url_str = url.format(event_key, loc)
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         raise Exception("""TBA ID and/or TBA secret missing.

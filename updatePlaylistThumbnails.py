@@ -46,6 +46,8 @@ def update_thumbnails(youtube, pID, thumbnail):
         try:
         	update_thumbnail(youtube, video_id, thumbnail)
         except HttpError as e:
+            x = (title, video_id)
+            errorvids.append(x)
         	continue
         print "thumbnail updated"
 

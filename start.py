@@ -17,6 +17,8 @@ from datetime import datetime
 from argparse import Namespace
 import youtubeAuthenticate as YA
 
+from consts import *
+
 render = web.template.render('webpage/')
 
 dataform = form.Form(
@@ -87,7 +89,8 @@ class index(threading.Thread):
     def run(self):
         urls = ('/', 'index')
         app = web.application(urls, globals())
-        webbrowser.open_new("http://localhost:8080")
+        if DEBUG:
+            web.httpserver.runsimple(app.wsgifunc(), ("0.0.0.0", 8888))
         app.run()
 
     def GET(self):
