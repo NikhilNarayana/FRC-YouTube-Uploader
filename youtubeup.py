@@ -419,30 +419,34 @@ def post_video(token, secret, match_video, event_key, loc):
         r = s.post(url_str, data=match_video, headers=trusted_auth)
     if b"Error" in r.content:
         raise Exception(r.content)
-    else:
+    elif b"Success" in r.content or b'' == r.content:
         print("Successfully added to TBA")
+    else:
+        print(r.content)
+        print("Something went wrong")
 
 
 """The program starts here"""
 
 
 def init(options):
-    options.privacy = VALID_PRIVACY_STATUSES[0]
-    options.day = dt.datetime.now().strftime("%A")
+    options.privacy = VALID_PRIVACY_STATUSES[0] # privacy is always public
+    options.day = dt.datetime.now().strftime("%A") # weekday in english ex: "Monday"
     options.files = list(reversed([f for f in os.listdir(options.where)
-                                   if os.path.isfile(os.path.join(options.where, f))]))
-    options.tags = DEFAULT_TAGS.format(options.ecode)
-    options.category = DEFAULT_VIDEO_CATEGORY
-    options.title = options.ename + " - " + QUAL
+                                   if os.path.isfile(os.path.join(options.where, f))])) # magic
+    options.tags = DEFAULT_TAGS.format(options.ecode) # add the ecode to default tags
+    options.category = DEFAULT_VIDEO_CATEGORY # default category is science & technology
+    options.title = options.ename + " - " + QUAL # default title
     if any(k == options.description for k in ("Add alternate description here.", "")):
-        options.description = DEFAULT_DESCRIPTION
-    # fix types
+        options.description = DEFAULT_DESCRIPTION # only change description if unchanged
+    """ fix types except options.end"""
     options.ceremonies = int(options.ceremonies)
     options.tba = int(options.tba)
     options.mnum = int(options.mnum)
     options.tiebreak = int(options.tiebreak)
     options.eday = int(options.eday)
 
+    # seperate case to push to TBA
     if options.ceremonies != 0:
         options.tba = 0
     if options.tiebreak == 1:
@@ -575,7 +579,7 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
     if options.tba:
         request_body = json.dumps({mcode: options.vid})
         post_video(options.tbaID, options.tbaSecret,
-                   request_body, options.ecode, "match_video")
+                   request_body, options.ecode, "match_videos")
     elif options.ceremonies:
         request_body = json.dumps([options.vid])
         post_video(options.tbaID, options.tbaSecret,
