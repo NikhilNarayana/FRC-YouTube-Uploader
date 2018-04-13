@@ -402,7 +402,7 @@ def post_video(token, secret, match_video, match_key, loc):
     request_path = "/api/trusted/v1/event/{}/{}/add".format(
         match_key, loc)
     concat = secret + request_path + str(match_video)
-    m.update(concat)
+    m.update(concat.encode("utf-8"))
     md5 = m.hexdigest()
     trusted_auth['X-TBA-Auth-Sig'] = str(md5)
 
@@ -573,13 +573,14 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
             error = "A retriable error occurred: {}".format(e)
 
         error = attempt_retry(error, retry, max_retries)
-    request_body = json.dumps({mcode: options.vid})
     if options.tba:
+        request_body = json.dumps({mcode: options.vid})
         post_video(options.tbaID, options.tbaSecret,
                    request_body, options.ecode, "match_video")
     elif options.ceremonies:
+        request_body = json.dumps([options.vid])
         post_video(options.tbaID, options.tbaSecret,
-                   [options.vid], options.ecode, "media")
+                   request_body, options.ecode, "media")
     vidOptions = False
     while not vidOptions:
         try:
