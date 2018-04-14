@@ -69,7 +69,7 @@ class FRC_Uploader(BaseWidget):
 
         self.formset = [{"-Match Values": ["_mcode", "_mnum", "_mtype", "=", "_tiebreak", "||", "_tba", "=", "_ceremonies", "_eday", "_end"],
                         "-Status Output-": ["_output"],
-                        "Event Values-": ["_where", "_prodteam", "_twit", "_fb", "_weblink", "_ename", "_ecode", "_pID", "_tbaID", "_tbaSecret", "_description"]},
+                        "Event Values-": ["_where", "=", "_prodteam", "||", "_twit", "||", "_fb", "=", "_weblink", "||", "_ename", "||", "_ecode", "=", "_pID", "||", "_tbaID", "||", "_tbaSecret", "=", "_description"]},
                         '=', (' ', '_button', ' ')]
 
         self._button = ControlButton('Submit')
@@ -178,7 +178,7 @@ class FRC_Uploader(BaseWidget):
         options.end = row[18] = self._end.value
         thr = threading.Thread(target=yup.init, args=(options,))
         thr.daemon = True
-        thr.start()
+        # thr.start()
         if int(self._ceremonies.value) == 0:
             if self._end.value == "Only for batch uploads":
                 self._mnum.value = str(int(self._mnum.value) + 1)
@@ -187,11 +187,11 @@ class FRC_Uploader(BaseWidget):
                 self._end.value = "Only for batch uploads"
         elif int(self._ceremonies.value) == 2:
             self._mnum.value = "1"
-            self._mcode.value = "qf"
-        if self._mcode.value == "qm" and self._tiebreak.value :
+            self._mtype.value = "qf"
+        if self._mtype.value == "qm" and self._tiebreak.value :
             self._tiebreak.value = False
-        row[12] = int(self._mnum)
-        row[18] = self._end
+        row[12] = int(self._mnum.value)
+        row[18] = self._end.value
         writer = csv.writer(open('form_values.csv', 'w'))
         writer.writerow(row)
 
