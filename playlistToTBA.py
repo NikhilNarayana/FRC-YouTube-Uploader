@@ -6,10 +6,10 @@ import youtubeup
 from youtubeAuthenticate import *
 from youtubeup import post_video, quarters_match_code, semis_match_code, finals_match_code, tiebreak_mnum
 
-PID = input("Playlist ID: ")
+PID = input("Playlist ID (starts with PL): ")
 TBAID = input("TBA ID: ")
 TBASECRET = input("TBA Secret: ")
-
+ecode = input("Event Code (eg: 2018incmp): ")
 
 if (TBAID == "" or TBASECRET == ""):
 	print("Can't add to TBA without ID and Secret")
