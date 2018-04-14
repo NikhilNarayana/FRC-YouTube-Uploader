@@ -1,8 +1,9 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 from youtubeAuthenticate import *
 
 # Default Variables
+DEBUG = False
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_TAGS = """{}, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, FIRST Power Up, FIRST POWER UP"""

@@ -113,7 +113,7 @@ def quarters_filename(options):
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in (
-                "quarter", "final", " " + str(options.mnum) + ".")):
+                    "quarter", "final", " " + str(options.mnum) + ".")):
                 if "tiebreak" not in fl:
                     file = f
     elif 9 <= options.mnum <= 12:
@@ -281,7 +281,7 @@ def get_match_results(event_key, match_key):
     while (blue_data[0] == -1 or red_data[0] == -1):
         print("Waiting 1 minute for TBA to update scores")
         time.sleep(60)
-        match_data = event_get(event_key).get_match(match_key)
+        match_data = tba.match("_".join([event_key, match_key]))
         blue_data, red_data = parse_data(match_data)
     return blue_data, red_data
 
@@ -332,6 +332,10 @@ def tiebreak_mnum(mnum, mtype):
 def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
         try:
+            while options.file is None and options.mnum < options.end:
+                print("{} Match {} is missing".format(options.mtype.upper(), options.mnum))
+                options.mnum = options.mnum + 1
+                options.file, options.yttitle = create_names(options)
             conclusion = initialize_upload(youtube, spreadsheet, options)
             if conclusion == "FAILED":
                 print("Try again")
@@ -340,14 +344,8 @@ def upload_multiple_videos(youtube, spreadsheet, options):
             options.then = dt.datetime.now()
             options.mnum = options.mnum + 1
             options.file, options.yttitle = create_names(options)
-            while options.file is None and options.mnum <= options.end:
-                print("{} Match {} is missing".format(
-                    options.mtype.upper(), options.mnum))
-                options.mnum = options.mnum + 1
-                options.file, options.yttitle = create_names(options)
         except HttpError as e:
-            print("An HTTP error {} occurred:\n{}\n".format(
-                e.resp.status, e.content))
+            print("An HTTP error {} occurred:\n{}\n".format(e.resp.status, e.content))
     print("All matches have been uploaded")
 
 
@@ -390,60 +388,64 @@ def attempt_retry(error, retry, max_retries):
         sleep_seconds = random.random() * max_sleep
         print("Sleeping {} seconds and then retrying...".format(sleep_seconds))
         time.sleep(sleep_seconds)
-        error = None
+        return None
 
 
 """TBA Trusted API"""
 
 
-def post_video(token, secret, match_video, match_key):
+def post_video(token, secret, match_video, event_key, loc):
     trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
     trusted_auth['X-TBA-Auth-Id'] = token
     m = hashlib.md5()
-    request_path = "/api/trusted/v1/event/{}/match_videos/add".format(
-        match_key)
+    request_path = "/api/trusted/v1/event/{}/{}/add".format(
+        event_key, loc)
     concat = secret + request_path + str(match_video)
-    m.update(concat)
+    m.update(concat.encode("utf-8"))
     md5 = m.hexdigest()
     trusted_auth['X-TBA-Auth-Sig'] = str(md5)
-
-    url = "http://thebluealliance.com/api/trusted/v1/event/{}/match_videos/add"
-    url_str = url.format(match_key)
+    url = "https://www.thebluealliance.com/api/trusted/v1/event/{}/{}/add"
+    if DEBUG:
+        url = "http://localhost:8080/api/trusted/v1/event/{}/{}/add"
+    url_str = url.format(event_key, loc)
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
-        raise Exception("""An auth ID and/or auth secret required. 
-            Please use set_auth_id() and/or set_auth_secret() to set them""")
+        raise Exception("""TBA ID and/or TBA secret missing.
+            Please set them in the UI""")
     r = s.post(url_str, data=match_video, headers=trusted_auth)
-
-    while "405" in r.content:
+    while 405 == r.status_code:
         print("Failed to POST to TBA")
         print("Attempting to POST to TBA again")
         r = s.post(url_str, data=match_video, headers=trusted_auth)
-    if "Error" in r.content:
-        raise Exception(r.content)
-    else:
+    if r.status_code > 299:
+        raise Exception(r.text)
+    elif "Success" in r.text or r.status_code == 200:
         print("Successfully added to TBA")
+    else:
+        print(r.text)
+        print("Something went wrong")
 
 
 """The program starts here"""
 
 
 def init(options):
-    options.privacy = VALID_PRIVACY_STATUSES[0]
-    options.day = dt.datetime.now().strftime("%A")
+    options.privacy = VALID_PRIVACY_STATUSES[0] # privacy is always public
+    options.day = dt.datetime.now().strftime("%A") # weekday in english ex: "Monday"
     options.files = list(reversed([f for f in os.listdir(options.where)
-        if os.path.isfile(os.path.join(options.where, f))]))
-    options.tags = DEFAULT_TAGS.format(options.ecode)
-    options.category = DEFAULT_VIDEO_CATEGORY
-    options.title = options.ename + " - " + QUAL
+                                   if os.path.isfile(os.path.join(options.where, f))])) # magic
+    options.tags = DEFAULT_TAGS.format(options.ecode) # add the ecode to default tags
+    options.category = DEFAULT_VIDEO_CATEGORY # default category is science & technology
+    options.title = options.ename + " - " + QUAL # default title
     if any(k == options.description for k in ("Add alternate description here.", "")):
-        options.description = DEFAULT_DESCRIPTION
-    # fix types
+        options.description = DEFAULT_DESCRIPTION # only change description if unchanged
+    """ fix types except options.end"""
     options.ceremonies = int(options.ceremonies)
     options.tba = int(options.tba)
     options.mnum = int(options.mnum)
     options.tiebreak = int(options.tiebreak)
     options.eday = int(options.eday)
 
+    # seperate case to push to TBA
     if options.ceremonies != 0:
         options.tba = 0
     if options.tiebreak == 1:
@@ -461,19 +463,16 @@ def init(options):
             try:
                 print(initialize_upload(youtube, spreadsheet, options))
             except HttpError as e:
-                print("An HTTP error {} occurred:\n{}".format(
-                    e.resp.status, e.content))
+                print("An HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
     else:
         raise Exception("First match file must exist")
 
 
 def initialize_upload(youtube, spreadsheet, options):
     if not options.ceremonies:
-        print("Initializing upload for {} match {}".format(
-            options.mtype, options.mnum))
+        print("Initializing upload for {} match {}".format(options.mtype, options.mnum))
     else:
-        print("Initializing upload for: {}".format(
-            ceremonies_yt_title(options)))
+        print("Initializing upload for: {}".format(ceremonies_yt_title(options)))
     if options.tba:
         blue_data, red_data, mcode = tba_results(options)
         tags = options.tags.split(",")
@@ -521,7 +520,7 @@ def initialize_upload(youtube, spreadsheet, options):
                                    resumable=True),
     )
     size1 = file_size(options.where + options.file)
-    time.sleep(1)
+    time.sleep(2)
     size2 = file_size(options.where + options.file)
     while (size1 != size2):
         size1 = file_size(options.where + options.file)
@@ -534,8 +533,7 @@ def initialize_upload(youtube, spreadsheet, options):
 def upload(insert_request, options, mcode, youtube, spreadsheet):
     response = None
     status = None
-    print("Uploading {} of size {}".format(
-        options.file, file_size(options.where + options.file)))
+    print("Uploading {} of size {}".format(options.file, file_size(options.where + options.file)))
     while response is None:
         try:
             error = None
@@ -549,9 +547,10 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
             if e.resp.status in retry_status_codes:
                 error = "A retriable HTTP error {} occurred:\n{}".format(e.resp.status,
                                                                          e.content)
-            elif "uploadLimitExceeded" in e.content:
+            elif b"uploadLimitExceeded" in e.content:
                 retryforlimit += 1
                 if retryforlimit < max_retries:
+<<<<<<< HEAD
                     print("Waiting {} minutes to avoid upload limit".format(
                         sleep_minutes / 60))
                     for x in xrange(sleep_minutes):
@@ -559,6 +558,13 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
                         if x % 60 == 0:
                             print("Minute {} of {}".format(
                                 x / 60, sleep_minutes / 60))
+=======
+                    print("Waiting {} minutes to avoid upload limit".format(sleep_minutes / 60))
+                    for x in xrange(sleep_minutes):
+                        time.sleep(1)
+                        if x % 60 == 0:
+                            print("Minute {} of {}".format(x / 60, sleep_minutes / 60))
+>>>>>>> master
                     sleep_minutes -= 60
                     error = None
                 else:
@@ -578,13 +584,21 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
             print(response)
             error = "A retriable error occurred: {}".format(e)
 
-        attempt_retry(error, retry, max_retries)
-    request_body = json.dumps({mcode: options.vid})
+        error = attempt_retry(error, retry, max_retries)
     if options.tba:
+        request_body = json.dumps({mcode: options.vid})
         post_video(options.tbaID, options.tbaSecret,
-                   request_body, options.ecode)
+                   request_body, options.ecode, "match_videos")
+    elif options.ceremonies:
+        request_body = json.dumps([options.vid])
+        post_video(options.tbaID, options.tbaSecret,
+                   request_body, options.ecode, "media")
     vidOptions = False
+<<<<<<< HEAD
     while vidOptions is False:
+=======
+    while not vidOptions:
+>>>>>>> master
         try:
             error = None
             if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):
@@ -602,7 +616,7 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
         except retry_exceptions as e:
             error = "A retriable error occurred: {}".format(e)
 
-        attempt_retry(error, retry, max_retries)
+        error = attempt_retry(error, retry, max_retries)
 
     wasBatch = "True" if any(options.end != y for y in (
         "Only for batch uploads", "")) else "False"
@@ -610,7 +624,12 @@ def upload(insert_request, options, mcode, youtube, spreadsheet):
     totalTime = dt.datetime.now() - options.then
     values = [[str(dt.datetime.now()), str(totalTime), "https://www.youtube.com/watch?v={}".format(
         options.vid), usedTBA, options.ename, wasBatch, mcode]]
-    body = {'values': values}
-    spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
-        range=rowRange, valueInputOption="USER_ENTERED", body=body).execute()
+    sheetbody = {'values': values}
+    try:
+        spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
+                                                   range=rowRange, valueInputOption="USER_ENTERED", body=sheetbody).execute()
+    except:
+        print("Failed to write to spreadsheet")
+        del totalTime
+        del sheetbody
     return "DONE UPLOADING {}\n".format(options.file)

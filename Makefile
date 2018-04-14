@@ -1,9 +1,12 @@
 init:
-	pip install -r requirements.txt
+	pip3 install -r requirements.txt
 
 test:
 	python test.py
 
+clean:
+	rm *.pyc
+
 all:
-	pip install -r requirements.txt
+	pip3 install -r requirements.txt
 	python test.py
