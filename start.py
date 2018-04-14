@@ -130,7 +130,7 @@ class index(threading.Thread):
                         i = i + 1
                     break
         except IOError:
-            x = 0
+            print("No form_values.csv to read from, continuing with default values")
         return render.forms(myform)
 
     def POST(self):
