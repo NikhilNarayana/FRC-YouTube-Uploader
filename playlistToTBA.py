@@ -47,30 +47,43 @@ for playlist_item in playlistitems_list["items"]:
     title = str(playlist_item["snippet"]["title"])
     video_id = str(playlist_item["snippet"]["resourceId"]["videoId"])
     if "Qual" in title:
-        mnum = "qm{}".format(title[-3:].split(" ")[1])
+        mnum = None
+        try:
+            mnum = "qm{}".format(title[title.find("Match")+5:].split(" ")[1])
+        except IndexError as e:
+            print(title)
+            print(e)
         body = json.dumps({mnum: video_id})
+        print("Posting {}".format(mnum))
         post_video(TBAID, TBASECRET, body, ecode, "match_videos")
     elif "Quarterfinal" in title:
-        num = int(title[-3:].split(" ")[1])
+        num = int(title[title.find("Match")+5:].split(" ")[1])
         if "Tiebreak" in title:
             num = tiebreak_mnum(num, "qf")
         mnum = quarters_match_code("qf", num)
         body = json.dumps({mnum: video_id})
+        print("Posting {}".format(mnum))
         post_video(TBAID, TBASECRET, body, ecode, "match_videos")
     elif "Semifinal" in title:
-        num = int(title[-3:].split(" ")[1])
+        num = int(title[title.find("Match")+5:].split(" ")[1])
         if "Tiebreak" in title:
             num = tiebreak_mnum(num, "sf")
         mnum = semis_match_code("sf", num)
         body = json.dumps({mnum: video_id})
+        print("Posting {}".format(mnum))
         post_video(TBAID, TBASECRET, body, ecode, "match_videos")
     elif "Final" in title:
-        num = int(title[-3:].split(" ")[1])
+        num = int(title[title.find("Match")+5:].split(" ")[1])
         if "Tiebreak" in title:
             num = tiebreak_mnum(num, "f1m")
         mnum = finals_match_code("f1m", num)
         body = json.dumps({mnum: video_id})
+        print("Posting {}".format(mnum))
         post_video(TBAID, TBASECRET, body, ecode, "match_videos")
+    elif any(k in title for k in ("Opening", "Closing", "Awards", "Alliance", "Highlight")):
+        body = json.dumps([video_id])
+        print("Posting {}".format(title))
+        post_video(TBAID, TBASECRET, body, ecode, "media")
     else:
         print("I don't know what this is")
         print(title)
