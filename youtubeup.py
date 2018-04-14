@@ -413,13 +413,13 @@ def post_video(token, secret, match_video, event_key, loc):
         raise Exception("""TBA ID and/or TBA secret missing.
             Please set them in the UI""")
     r = s.post(url_str, data=match_video, headers=trusted_auth)
-    while "405" in r.text:
+    while 405 == r.status_code:
         print("Failed to POST to TBA")
         print("Attempting to POST to TBA again")
         r = s.post(url_str, data=match_video, headers=trusted_auth)
-    if "Error" in r.text:
+    if r.status_code > 299:
         raise Exception(r.text)
-    elif "Success" in r.text or '' == r.text:
+    elif "Success" in r.text or r.status_code == 200:
         print("Successfully added to TBA")
     else:
         print(r.text)
