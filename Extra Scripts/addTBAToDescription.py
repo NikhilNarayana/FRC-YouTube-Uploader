@@ -1,14 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import web
 from web import form
 import youtubeup as yup
 import argparse
 import csv
-from urlparse import *
+from urllib.parse import *
 from youtubeAuthenticate import *
 import simplejson as json
-import tbaAPI as TBA
+import tbapy as TBA
 
 render = web.template.render('webpage/')
 
@@ -25,8 +25,8 @@ Updated with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube
 
 def tbainfo(ecode, mcode):
     blue_data, red_data = TBA.get_match_results(ecode, mcode)
-    print data.format(red_data[1], red_data[2], red_data[3], red_data[0],
-                      blue_data[1], blue_data[2], blue_data[3], blue_data[0])
+    print(data.format(red_data[1], red_data[2], red_data[3], red_data[0],
+                      blue_data[1], blue_data[2], blue_data[3], blue_data[0]))
 
 
 def run(youtube, vURL, pID, ecode, mID, mnum, end):
@@ -41,7 +41,7 @@ def run(youtube, vURL, pID, ecode, mID, mnum, end):
             update_description(youtube, vID, ecode, mID, mnum)
             vURL = "https://www.youtube.com/watch?v={}".format(
                 get_next_video_id(youtube, vID, pID))
-        print "Updated all video descriptions"
+        print("Updated all video descriptions")
         return vURL
     else:
         return vURL
@@ -111,8 +111,7 @@ def update_description(youtube, vID, ecode, mID, mnum):
             snippet=snippet['items'][0]['snippet'],
             id=vID)
     ).execute()
-    print "Updated description of {}".format(vID)
-
+    print("Updated description of {}".format(vID))
 
 dataform = form.Form(
     form.Textbox("pID",
