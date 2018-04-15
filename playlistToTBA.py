@@ -7,7 +7,9 @@ from youtubeAuthenticate import *
 from youtubeup import post_video, quarters_match_code, semis_match_code, finals_match_code, tiebreak_mnum
 
 if __name__ == "__main__":
-    PID = input("Playlist ID (starts with PL): ")
+    PID = input("Link to Playlist: ")
+    f = PID.find("PL")
+    PID = PID[f:f+34]
     TBAID = input("TBA ID: ")
     TBASECRET = input("TBA Secret: ")
     ecode = input("Event Code (eg: 2018incmp): ")
