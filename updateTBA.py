@@ -19,10 +19,17 @@ def video_id(value):
             return query.path.split('/')[2]
     return value
 
-vID = video_id(input("Video Link: "))
-link = input("Blue Alliance Match Link (eg.https://www.thebluealliance.com/match/2017gaalb_sf1m1) : ")
-codes = link.split("/")[-1].split("_")
-request_body = json.dumps({codes[-1]: vID})
-tbaID = input("TBA ID: ")
-tbaSecret = input("TBA Secret: ")
-post_video(tbaID, tbaSecret, request_body, codes[0], "match_video")
+if __name__ == "__main__":
+    loc = "match_video"
+    request_body = None
+    vID = video_id(input("Video Link: "))
+    link = input("Blue Alliance Match Link (eg.https://www.thebluealliance.com/match/2017gaalb_sf1m1) : ")
+    if "media" in link:
+        loc = "media"
+        request_body = json.dumps([vID])
+    else:
+        codes = link.split("/")[-1].split("_")
+        request_body = json.dumps({codes[-1]: vID})
+    tbaID = input("TBA ID: ")
+    tbaSecret = input("TBA Secret: ")
+    post_video(tbaID, tbaSecret, request_body, codes[0], loc)

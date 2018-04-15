@@ -21,32 +21,32 @@ def update_thumbnails(youtube, pID, thumbnail):
     ).execute()
     nextPageToken = playlistitems_list["nextPageToken"]
     while ('nextPageToken' in playlistitems_list):
-        print "getting next page"
+        print("getting next page")
         nextPageList = youtube.playlistItems().list(
             playlistId=pID,
             part="snippet",
             maxResults=50,
             pageToken=nextPageToken).execute()
-        print "got next page"
+        print("got next page")
         playlistitems_list["items"] = playlistitems_list["items"] + \
             nextPageList["items"]
         if "nextPageToken" not in nextPageList:
             playlistitems_list.pop('nextPageToken', None)
-            print "no more pages"
+            print("no more pages")
         else:
             nextPageToken = nextPageList['nextPageToken']
-            print "got next page token"
+            print("got next page token")
             # Print information about each video.
     errorvids = []
     for playlist_item in playlistitems_list["items"]:
         title = playlist_item["snippet"]["title"]
         video_id = playlist_item["snippet"]["resourceId"]["videoId"]
         try:
-        	update_thumbnail(youtube, video_id, thumbnail)
+            update_thumbnail(youtube, video_id, thumbnail)
         except HttpError as e:
             x = (title, video_id)
             errorvids.append(x)
-        	continue
+            continue
         print("thumbnail updated")
 
     for tup in errorvids:
@@ -57,5 +57,5 @@ if __name__ == '__main__':
     youtube = get_youtube_service()
     try:
         update_thumbnails(youtube, PLAYLISTID, THUMBNAIL)
-    except HttpError, e:
-        print "An HTTP error {} occurred:\n{}".format(e.resp.status, e.content)
+    except HttpError as e:
+        print("An HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
