@@ -90,6 +90,8 @@ def ceremonies_yt_title(options):
         else:
             title = options.ename + " - " + \
                 "Day {} Closing Ceremonies".format(options.eday)
+    elif options.ceremonies is 4:
+        title = options.ename + " - " + "Highlight Reel"
     return title
 
 
@@ -184,6 +186,11 @@ def ceremonies_filename(options):
             if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
                 if any(k in fl for k in (options.day.lower(), "day {}".format(options.eday))):
                     file = f
+    elif options.ceremonies is 4:
+        for f in options.files:
+            fl = f.lower()
+            if any(k in fl for k in ("highlight", "wrapup")):
+                file = f
     if file is None:
         raise Exception("No File Found")
     return file
@@ -433,18 +440,18 @@ def post_video(token, secret, match_video, event_key, loc):
 
 def init(options):
     options.privacy = VALID_PRIVACY_STATUSES[0]  # privacy is always public
-    options.day = dt.datetime.now().strftime(
-        "%A")  # weekday in english ex: "Monday"
-    options.files = list(reversed([f for f in os.listdir(options.where)
-                                   if os.path.isfile(os.path.join(options.where, f))]))  # magic
-    options.tags = DEFAULT_TAGS.format(
-        options.ecode)  # add the ecode to default tags
+    if DEBUG:
+        options.privacy = VALID_PRIVACY_STATUSES[1]  # set to unlisted if I can
+    options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
+    options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]))  # magic
+    options.tags = DEFAULT_TAGS.format(options.ecode)  # add the ecode to default tags
     # default category is science & technology
     options.category = DEFAULT_VIDEO_CATEGORY
     options.title = options.ename + " - " + QUAL  # default title
     if any(k == options.description for k in ("Add alternate description here.", "")):
-        # only change description if unchanged
         options.description = DEFAULT_DESCRIPTION
+    else:
+        options.description += CREDITS
     """ fix types except options.end"""
     options.ceremonies = int(options.ceremonies)
     options.tba = int(options.tba)
@@ -477,6 +484,7 @@ def init(options):
 
 
 def initialize_upload(youtube, spreadsheet, options):
+    mcode = None
     if not options.ceremonies:
         print("Initializing upload for {} match {}".format(
             options.mtype, options.mnum))

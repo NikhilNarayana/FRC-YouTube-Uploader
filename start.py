@@ -73,11 +73,15 @@ class FRC_Uploader(BaseWidget):
 
         self._button = ControlButton('Submit')
 
-        # Add Default Text
+        # Set TBA check
+        self._tba.value = True
+
+        # Set Default Text
         self._tbaID.value += "Go to thebluealliance.com/request/apiwrite to get keys"
         self._tbaSecret.value += "Go to thebluealliance.com/request/apiwrite to get keys"
         self._description.value += "Add alternate description here."
         self._mcode.value += "0"
+        self._mnum.value += "1"
         self._end.value += "Only for batch uploads"
 
         # Add ControlCombo values
@@ -139,7 +143,7 @@ class FRC_Uploader(BaseWidget):
                                 switcher[i].value = val
                         i = i + 1
                     break
-        except (IOError, FileNotFoundError) as e:
+        except (IOError, OSError, StopIteration) as e:
             print("No form_values.csv to read from, continuing with default values")
 
     def __buttonAction(self):
@@ -150,9 +154,9 @@ class FRC_Uploader(BaseWidget):
         try:
             reader = csv.reader(open('form_values.csv'))
             row = next(reader)
-        except (StopIteration, IOError, FileNotFoundError) as e:
-            with open("form_values.csv", "w+b") as csvf:  # if the file doesn't exist
-                csvf.write(''.join(str(x) for x in [","] * 20))
+        except (StopIteration, IOError, OSError) as e:
+            with open("form_values.csv", "w+") as csvf:  # if the file doesn't exist
+                csvf.write(''.join(str(x) for x in [","] * 18))
                 reader = csv.reader(open("form_values.csv"))
                 row = next(reader)
         options.then = then
@@ -197,6 +201,7 @@ class FRC_Uploader(BaseWidget):
 
     def writePrint(self, text):
         self._output.value += text
+        print(text, file=sys.__stdout__)
 
 
 def internet(host="www.google.com", port=80, timeout=4):
