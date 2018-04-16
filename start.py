@@ -151,58 +151,58 @@ class FRC_Uploader(BaseWidget):
 
     def __buttonAction(self):
         """Button action event"""
-        thra = threading.Thread(target=self.testprint)
-        thra.daemon = True
-        thra.start()
-        # then = datetime.now()
-        # options = Namespace()
-        # row = None
-        # try:
-        #     reader = csv.reader(open('form_values.csv'))
-        #     row = next(reader)
-        # except (StopIteration, IOError, OSError) as e:
-        #     with open("form_values.csv", "w+") as csvf:  # if the file doesn't exist
-        #         csvf.write(''.join(str(x) for x in [","] * 18))
-        #         reader = csv.reader(open("form_values.csv"))
-        #         row = next(reader)
-        # options.then = then
-        # options.where = row[0] = self._where.value
-        # options.prodteam = row[1] = self._prodteam.value
-        # options.twit = row[2] = self._twit.value
-        # options.fb = row[3] = self._fb.value
-        # options.weblink = row[4] = self._weblink.value
-        # options.ename = row[5] = self._ename.value
-        # options.ecode = row[6] = self._ecode.value
-        # options.pID = row[7] = self._pID.value
-        # options.tbaID = row[8] = self._tbaID.value
-        # options.tbaSecret = row[9] = self._tbaSecret.value
-        # options.description = row[10] = self._description.value
-        # options.mcode = row[11] = self._mcode.value
-        # options.mnum = row[12] = int(self._mnum.value)
-        # options.mtype = row[13] = self._mtype.value
-        # options.tiebreak, row[14] = (True, "yes") if self._tiebreak.value else (False, "no")
-        # options.tba, row[15] = (True, "yes") if self._tba.value else (False, "no")
-        # options.ceremonies = row[16] = self._ceremonies.value
-        # options.eday = row[17] = self._eday.value
-        # options.end = row[18] = self._end.value
-        # thr = threading.Thread(target=yup.init, args=(options,))
-        # thr.daemon = True
-        # thr.start()
-        # if int(self._ceremonies.value) == 0:
-        #     if self._end.value == "Only for batch uploads":
-        #         self._mnum.value = str(int(self._mnum.value) + 1)
-        #     else:
-        #         self._mnum.value = str(int(self._end.value) + 1)
-        #         self._end.value = "Only for batch uploads"
-        # elif int(self._ceremonies.value) == 2:
-        #     self._mnum.value = "1"
-        #     self._mtype.value = "qf"
-        # if self._mtype.value == "qm" and self._tiebreak.value:
-        #     self._tiebreak.value = False
-        # row[12] = int(self._mnum.value)
-        # row[18] = self._end.value
-        # writer = csv.writer(open('form_values.csv', 'w'))
-        # writer.writerow(row)
+        # thra = threading.Thread(target=self.testprint)
+        # thra.daemon = True
+        # thra.start()
+        then = datetime.now()
+        options = Namespace()
+        row = None
+        try:
+            reader = csv.reader(open('form_values.csv'))
+            row = next(reader)
+        except (StopIteration, IOError, OSError) as e:
+            with open("form_values.csv", "w+") as csvf:  # if the file doesn't exist
+                csvf.write(''.join(str(x) for x in [","] * 18))
+                reader = csv.reader(open("form_values.csv"))
+                row = next(reader)
+        options.then = then
+        options.where = row[0] = self._where.value
+        options.prodteam = row[1] = self._prodteam.value
+        options.twit = row[2] = self._twit.value
+        options.fb = row[3] = self._fb.value
+        options.weblink = row[4] = self._weblink.value
+        options.ename = row[5] = self._ename.value
+        options.ecode = row[6] = self._ecode.value
+        options.pID = row[7] = self._pID.value
+        options.tbaID = row[8] = self._tbaID.value
+        options.tbaSecret = row[9] = self._tbaSecret.value
+        options.description = row[10] = self._description.value
+        options.mcode = row[11] = self._mcode.value
+        options.mnum = row[12] = int(self._mnum.value)
+        options.mtype = row[13] = self._mtype.value
+        options.tiebreak, row[14] = (True, "yes") if self._tiebreak.value else (False, "no")
+        options.tba, row[15] = (True, "yes") if self._tba.value else (False, "no")
+        options.ceremonies = row[16] = self._ceremonies.value
+        options.eday = row[17] = self._eday.value
+        options.end = row[18] = self._end.value
+        thr = threading.Thread(target=yup.init, args=(options,))
+        thr.daemon = True
+        thr.start()
+        if int(self._ceremonies.value) == 0:
+            if self._end.value == "Only for batch uploads":
+                self._mnum.value = str(int(self._mnum.value) + 1)
+            else:
+                self._mnum.value = str(int(self._end.value) + 1)
+                self._end.value = "Only for batch uploads"
+        elif int(self._ceremonies.value) == 2:
+            self._mnum.value = "1"
+            self._mtype.value = "qf"
+        if self._mtype.value == "qm" and self._tiebreak.value:
+            self._tiebreak.value = False
+        row[12] = int(self._mnum.value)
+        row[18] = self._end.value
+        writer = csv.writer(open('form_values.csv', 'w'))
+        writer.writerow(row)
 
     def writePrint(self, text):
         self._output.value += text
