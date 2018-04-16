@@ -19,7 +19,7 @@ from argparse import Namespace
 from pyforms import BaseWidget
 from pyforms.controls import ControlText
 from pyforms.controls import ControlTextArea
-from pyforms.controls import ControlCombo
+from pyforms.controls import ControlCombo, ControlProgress
 from pyforms.controls import ControlButton, ControlCheckBox
 
 
@@ -62,6 +62,7 @@ class FRC_Uploader(BaseWidget):
         self._ceremonies = ControlCombo(" Ceremonies")
         self._eday = ControlCombo(" Event Day")
         self._end = ControlText(" Last Match Number")
+        self._prog = ControlProgress("Upload Progress")
 
         # Output Box
         self._output = ControlTextArea()
@@ -70,13 +71,14 @@ class FRC_Uploader(BaseWidget):
         self._scrollbutton = ControlButton("Toggle Auto Scroll")
         self._scrollbutton.value = self.__scrollOff
 
-
-        self.formset = [{"-Match Values": ["_mcode", "_mnum", "_mtype", "=", "_tiebreak", "||", "_tba", "=", "_ceremonies", "_eday", "_end"],
-                         "-Status Output-": ["_output", "=", "_scrollbutton"],
-                         "Event Values-": ["_where", "=", "_prodteam", "||", "_twit", "||", "_fb", "=", "_weblink", "||", "_ename", "||", "_ecode", "=", "_pID", "||", "_tbaID", "||", "_tbaSecret", "=", "_description"]},
-                        '=', (' ', '_button', ' ')]
-
+        # Button
         self._button = ControlButton('Submit')
+
+        # Form Layout
+        self.formset = [{"-Match Values": [(' ', "_mcode", ' '), (' ', "_mnum", ' '), (' ', "_mtype", ' '), (' ', "_tiebreak", "_tba", ' '), (' ', "_ceremonies", ' '), (' ', "_eday", ' '), (' ', "_end", ' ')],
+                         "-Status Output-": ["_output", (' ', '_scrollbutton', ' ')],
+                         "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"), ("_weblink", "_ename", "_ecode"), ("_pID", "_tbaID", "_tbaSecret"), "_description"]},
+                        (' ', '_button', ' ')]
 
         # Set TBA check
         self._tba.value = True
@@ -87,7 +89,7 @@ class FRC_Uploader(BaseWidget):
         self._description.value += "Add alternate description here."
         self._mcode.value += "0"
         self._mnum.value += "1"
-        self._end.value += "Only for batch uploads"
+        self._end.value += "For batch uploads"
 
         # Add ControlCombo values
         self._where += ("Parent Folder", "../")
@@ -108,6 +110,10 @@ class FRC_Uploader(BaseWidget):
 
         # Define the button action
         self._button.value = self.__buttonAction
+
+        # Hide Alternate Description Box
+        # self._description.hide()
+        # self._output.hide()
 
         # Get latest values from form_values.csv
         try:
@@ -166,6 +172,7 @@ class FRC_Uploader(BaseWidget):
             except (StopIteration, IOError, OSError) as e:
                 with open("form_values.csv", "w+") as csvf:  # if the file doesn't exist
                     csvf.write(''.join(str(x) for x in [","] * 18))
+                    csvf.close()
                     reader = csv.reader(open("form_values.csv"))
                     row = next(reader)
             options.then = then
@@ -192,11 +199,11 @@ class FRC_Uploader(BaseWidget):
             thr.daemon = True
             thr.start()
             if int(self._ceremonies.value) == 0:
-                if self._end.value == "Only for batch uploads":
+                if self._end.value == "For batch uploads":
                     self._mnum.value = str(int(self._mnum.value) + 1)
                 else:
                     self._mnum.value = str(int(self._end.value) + 1)
-                    self._end.value = "Only for batch uploads"
+                    self._end.value = "For batch uploads"
             elif int(self._ceremonies.value) == 2:
                 self._mnum.value = "1"
                 self._mtype.value = "qf"

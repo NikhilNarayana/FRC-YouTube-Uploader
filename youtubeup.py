@@ -547,7 +547,17 @@ def upload(insert_request, options):
     while True:
         try:
             status, response = insert_request.next_chunk()
-        except ACCEPTABLE_ERRNO as e:
+        except HttpError as e:
+            if e.resp.status in retry_status_codes:
+                print("A retriable HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
+        except retry_exceptions as e:
+            print("A retriable error occurred: {}".format(e))
+
+        except Exception as e:
+            if e in ACCEPTABLE_ERRNO:
+                print("Retriable Error occured, retrying now")
+            else:
+                print(e)
             pass
         # print("Status: ", end='')
         # print(status)
@@ -592,7 +602,7 @@ def post_upload(options, mcode, youtube, spreadsheet):
                    request_body, options.ecode, "media")
 
     wasBatch = "True" if any(options.end != y for y in (
-        "Only for batch uploads", "")) else "False"
+        "For batch uploads", "")) else "False"
     usedTBA = "True" if options.tba else "False"
     totalTime = dt.datetime.now() - options.then
     values = [[str(dt.datetime.now()), str(totalTime), "https://www.youtube.com/watch?v={}".format(
