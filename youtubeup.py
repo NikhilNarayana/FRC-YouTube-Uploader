@@ -2,9 +2,10 @@
 
 import os
 import re
-import hashlib
 import time
 import random
+import hashlib
+import errno
 import datetime as dt
 
 import tbapy
@@ -537,11 +538,19 @@ def initialize_upload(youtube, spreadsheet, options):
 
 
 def upload(insert_request, options):
+    ACCEPTABLE_ERRNO = (errno.EPIPE, errno.EINVAL, errno.ECONNRESET)
+    try:
+        ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED,)
+    except AttributeError:
+        pass  # Not windows
     print("Uploading {} of size {}".format(options.file, file_size(options.where + options.file)))
     while True:
-        status, response = insert_request.next_chunk()
-        print("Status: ", end='')
-        print(status)
+        try:
+            status, response = insert_request.next_chunk()
+        except ACCEPTABLE_ERRNO as e:
+            pass
+        # print("Status: ", end='')
+        # print(status)
         if response:
             if "id" in response:
                 print("Video link is https://www.youtube.com/watch?v={}".format(response['id']))

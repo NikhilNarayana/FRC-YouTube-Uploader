@@ -55,7 +55,10 @@ def update_thumbnails(youtube, pID, thumbnail):
 
 if __name__ == '__main__':
     youtube = get_youtube_service()
+    PID = input("Playlist Link: ")
+    THUMBNAIL = input("Thumbnail file name: ")
+    PID = PID[f:f+34]
     try:
-        update_thumbnails(youtube, PLAYLISTID, THUMBNAIL)
+        update_thumbnails(youtube, PID, THUMBNAIL)
     except HttpError as e:
         print("An HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
