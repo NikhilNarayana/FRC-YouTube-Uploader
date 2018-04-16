@@ -106,7 +106,7 @@ def quals_filename(options):
         if all([" " + str(options.mnum) + "." in fl and any(k in fl for k in ("qual", "qualification", "qm"))]):
             file = f
     if file is None:
-        raise Exception("No File Found")
+        print("No File Found")
     return file
 
 
@@ -126,7 +126,7 @@ def quarters_filename(options):
             if all(k in fl for k in ("quarter", "tiebreak", "final", " " + str(mnum) + ".")):
                 file = f
     if file is None:
-        raise Exception("No File Found")
+        print("No File Found")
     return file
 
 
@@ -145,7 +145,7 @@ def semis_filename(options):
             if all(k in fl for k in ("semi", "tiebreak", "final", " " + str(mnum) + ".")):
                 file = f
     if file is None:
-        raise Exception("No File Found")
+        print("No File Found")
     return file
 
 
@@ -164,7 +164,7 @@ def finals_filename(options):
                 if all(k not in fl for k in ("quarter", "semi")):
                     file = f
     if file is None:
-        raise Exception("No File Found")
+        print("No File Found")
     return file
 
 
@@ -193,7 +193,7 @@ def ceremonies_filename(options):
             if any(k in fl for k in ("highlight", "wrapup")):
                 file = f
     if file is None:
-        raise Exception("No File Found")
+        print("No File Found")
     return file
 
 
@@ -346,14 +346,17 @@ def upload_multiple_videos(youtube, spreadsheet, options):
                     options.mtype.upper(), options.mnum))
                 options.mnum = options.mnum + 1
                 options.file, options.yttitle = create_names(options)
-            conclusion = initialize_upload(youtube, spreadsheet, options)
-            if conclusion == "FAILED":
-                print("Try again")
-                return
-            print(conclusion)
-            options.then = dt.datetime.now()
-            options.mnum = options.mnum + 1
-            options.file, options.yttitle = create_names(options)
+            if options.file is None:
+                print("Can't upload")
+            else:
+                conclusion = initialize_upload(youtube, spreadsheet, options)
+                if conclusion == "FAILED":
+                    print("Try again")
+                    return
+                print(conclusion)
+                options.then = dt.datetime.now()
+                options.mnum = options.mnum + 1
+                options.file, options.yttitle = create_names(options)
         except HttpError as e:
             print("An HTTP error {} occurred:\n{}\n".format(
                 e.resp.status, e.content))
@@ -436,10 +439,8 @@ def post_video(token, secret, match_video, event_key, loc):
         print("Something went wrong")
 
 
-"""The program starts here"""
-
-
 def init(options):
+    """The program starts here, options is a Namespace() object"""
     options.privacy = VALID_PRIVACY_STATUSES[0]  # privacy is always public
     if DEBUG:
         options.privacy = VALID_PRIVACY_STATUSES[1]  # set to unlisted if I can
@@ -449,11 +450,12 @@ def init(options):
     # default category is science & technology
     options.category = DEFAULT_VIDEO_CATEGORY
     options.title = options.ename + " - " + QUAL  # default title
-    if any(k == options.description for k in ("Add alternate description here.", "")):
-        options.description = DEFAULT_DESCRIPTION
+    if any(k == options.description for k in ("Add alternate description here.", "", DEFAULT_DESCRIPTION)):
+        options.description = DEFAULT_DESCRIPTION + CREDITS
     else:
         options.description += CREDITS
-    """ fix types except options.end"""
+
+    # fix types except options.end
     options.ceremonies = int(options.ceremonies)
     options.mnum = int(options.mnum)
     options.eday = int(options.eday)
@@ -476,10 +478,14 @@ def init(options):
             try:
                 print(initialize_upload(youtube, spreadsheet, options))
             except HttpError as e:
-                print("An HTTP error {} occurred:\n{}".format(
-                    e.resp.status, e.content))
+                print("An HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
     else:
-        raise Exception("First match file must exist")
+        print("First file must exist")
+        print("Current settings:")
+        print("Match Type: {}".format(options.mtype))
+        print("Match Number: {}".format(options.mnum))
+        print("Please check that a file matches the match type and number")
+
 
 
 def initialize_upload(youtube, spreadsheet, options):

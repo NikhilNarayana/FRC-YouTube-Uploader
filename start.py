@@ -62,7 +62,8 @@ class FRC_Uploader(BaseWidget):
         self._ceremonies = ControlCombo(" Ceremonies")
         self._eday = ControlCombo(" Event Day")
         self._end = ControlText(" Last Match Number")
-        self._prog = ControlProgress("Upload Progress")
+        self._uploadprog = ControlProgress("Upload Progress")
+        self._queueprog = ControlProgress("Queue Progress")
 
         # Output Box
         self._output = ControlTextArea()
@@ -86,7 +87,7 @@ class FRC_Uploader(BaseWidget):
         # Set Default Text
         self._tbaID.value += "Go to thebluealliance.com/request/apiwrite to get keys"
         self._tbaSecret.value += "Go to thebluealliance.com/request/apiwrite to get keys"
-        self._description.value += "Add alternate description here."
+        self._description.value += DEFAULT_DESCRIPTION
         self._mcode.value += "0"
         self._mnum.value += "1"
         self._end.value += "For batch uploads"

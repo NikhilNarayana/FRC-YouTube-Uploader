@@ -27,9 +27,7 @@ Follow us on Twitter (@{twit}) and Facebook ({fb}).
 
 For more information and future event schedules, visit our website: {weblink}
 
-Thanks for watching!
-
-Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
+Thanks for watching!"""
 
 NO_TBA_DESCRIPTION = """Footage of the {ename} Event is courtesy of the {team}.
 
@@ -37,9 +35,7 @@ Follow us on Twitter (@{twit}) and Facebook ({fb}).
 
 For more information and future event schedules, visit our website: {weblink}
 
-Thanks for watching!
-
-Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
+Thanks for watching!"""
 
 CREDITS = """
 
