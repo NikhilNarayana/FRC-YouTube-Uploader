@@ -174,9 +174,8 @@ class FRC_Uploader(BaseWidget):
         options.mcode = row[11] = self._mcode.value
         options.mnum = row[12] = int(self._mnum.value)
         options.mtype = row[13] = self._mtype.value
-        options.tiebreak, row[14] = (
-            1, "yes") if self._tiebreak.value else (0, "no")
-        options.tba, row[15] = (1, "yes") if self._tba.value else (0, "no")
+        options.tiebreak, row[14] = (True, "yes") if self._tiebreak.value else (False, "no")
+        options.tba, row[15] = (True, "yes") if self._tba.value else (False, "no")
         options.ceremonies = row[16] = self._ceremonies.value
         options.eday = row[17] = self._eday.value
         options.end = row[18] = self._end.value
@@ -201,7 +200,7 @@ class FRC_Uploader(BaseWidget):
 
     def writePrint(self, text):
         self._output.value += text
-        print(text, file=sys.__stdout__)
+        print(text, file=sys.__stdout__, end= '')
 
 
 def internet(host="www.google.com", port=80, timeout=4):
