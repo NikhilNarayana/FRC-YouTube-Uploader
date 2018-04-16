@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
 import youtubeup as yup
-import argparse
-import csv
 from urllib.parse import *
 from youtubeAuthenticate import *
-import simplejson as json
 from consts import *
 
 data = """Red Alliance ({}, {}, {}) - {}
@@ -46,7 +43,6 @@ def video_id(value):
 
 
 def get_video_ids(youtube, pID):
-    next = False
     playlistitems_list = youtube.playlistItems().list(
         playlistId=pID,
         part="snippet",
@@ -87,30 +83,6 @@ def update_description(youtube, vID, ecode, mID, mnum):
     ).execute()
     print("Updated description of {}".format(vID))
 
-dataform = form.Form(
-    form.Textbox("pID",
-                 form.regexp(
-                     "^PL", "Must be a playlist ID, all of which start with 'PL'. Find it in the web address of the playlist page"),
-                 form.regexp("^\s*\S+\s*$", "Cannot contain spaces."),
-                 description="Playlist ID",
-                 size=41),
-    form.Textbox("vURL", description="Video URL", size=41),
-    form.Textbox("ecode", description="Event Code (ex. 2016arc)"),
-    form.Dropdown("mcode",
-                  [("qm", "Qualifications"), ("qf", "Quarterfinals"),
-                   ("sf", "Semifinals"), ("f1m", "Finals")],
-                  description="Match Type"),
-    form.Textbox("mnum",
-                 form.notnull,
-                 form.regexp("\d+", "Cannot contain letters"),
-                 form.Validator("Must be more than 0", lambda x: int(x) > 0),
-                 description="Match Number"),
-    form.Textbox("end",
-                 description="Last Match Number",
-                 value="Only for batch updates"),
-    validators=[form.Validator("Last Match Number must be greater than Match Number",
-                               lambda i: i.end == "Only for batch updates" or int(i.end) > int(i.mnum))])
-
 
 if __name__ == "__main__":
     ECODE = input("Event Code: ")
@@ -122,6 +94,6 @@ if __name__ == "__main__":
         ID = video_id(input("Video link: "))
     else:
         ID = input("Playlist Link: ")
-        ID = PID[f:f+34]
+        ID = PID[f:f + 34]
 
     run(youtube, ID, ECODE, MCODE, MNUM, END)
