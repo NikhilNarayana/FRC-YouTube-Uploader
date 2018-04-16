@@ -139,7 +139,7 @@ class FRC_Uploader(BaseWidget):
                                 switcher[i].value = val
                         i = i + 1
                     break
-        except IOError:
+        except (IOError, FileNotFoundError) as e:
             print("No form_values.csv to read from, continuing with default values")
 
     def __buttonAction(self):
@@ -150,7 +150,7 @@ class FRC_Uploader(BaseWidget):
         try:
             reader = csv.reader(open('form_values.csv'))
             row = next(reader)
-        except (StopIteration, IOError) as e:
+        except (StopIteration, IOError, FileNotFoundError) as e:
             with open("form_values.csv", "w+b") as csvf:  # if the file doesn't exist
                 csvf.write(''.join(str(x) for x in [","] * 20))
                 reader = csv.reader(open("form_values.csv"))

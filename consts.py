@@ -41,6 +41,10 @@ Thanks for watching!
 
 Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 
+CREDITS = """
+
+Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
+
 VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 
 spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
