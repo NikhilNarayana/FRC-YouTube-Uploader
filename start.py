@@ -178,7 +178,7 @@ class FRC_Uploader(BaseWidget):
         options.end = row[18] = self._end.value
         thr = threading.Thread(target=yup.init, args=(options,))
         thr.daemon = True
-        # thr.start()
+        thr.start()
         if int(self._ceremonies.value) == 0:
             if self._end.value == "Only for batch uploads":
                 self._mnum.value = str(int(self._mnum.value) + 1)
