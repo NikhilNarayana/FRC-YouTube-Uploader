@@ -1,4 +1,4 @@
-# FRC-CLI-YouTube-Uploader
+# FRC-YouTube-Uploader
 
 A YouTube Uploader for FRC Events
 
@@ -15,11 +15,11 @@ A YouTube Uploader for FRC Events
 ## How to Setup
 1. Install Python 3.6 for your OS with the PATH added and make sure there are no other versions of Python 3
 2. Download this repository into a subfolder to the folder that will contain the videos, make sure every event is in seperate folders
-3. Install the requirements for the script with `pip install -r /path/to/requirements.txt` and `pip3 install git+https://github.com/webpy/webpy#egg=web.py`, or `make` if supported by your OS
-4. Add the thumbnail to the same folder as `thumbnail.png` (not required)
+3. Install the requirements for the script with `pip install -r /path/to/requirements.txt` or `make` if supported by your OS
+4. Add the thumbnail to the same folder as `thumbnail.png` (not required, but suggested)
 5. Make your recording program follow this naming scheme: [MATCH TYPE] [MATCH NUM].[EXTENSION] ex. Qualification Match 1.mp4 Also use the Tiebreaker scheme when necessary
-5. Start the program by executing the .bat file for Windows or .sh file for Linux/macOS or by running `python3 start.py` on UNIX and `py start.py` on Windows.
-6. Add in the necessary info
+5. Start the program by running `python3 start.py` on UNIX and `py start.py` on Windows.
+6. Add in the necessary info in the Event Values and Match Values tabs
 7. Hit submit everytime a match finishes. No need to update any values unless you are entering eliminations or doing ceremonies
 8. Enjoy not having to deal with YouTube's front end 
 
@@ -53,7 +53,7 @@ Alliance Selection = `Alliance Selection.mp4` or `alliance selection.mp4`
 ### Web UI Breakdown
 ![alt text](http://i.imgur.com/IYaJSex.png?1)
 
-I focused on simplicty and usability. All the necessary details fit into one small space allowing you to easily place this anywhere on your screen without needing to see all of it.
+The focus is on simplicty and usability. All the necessary details fit into one small space allowing you to easily place this anywhere on your screen without needing to see all of it.
 
 ##### Match File Locations
 You can now pick whether the match files  are in the same folder as the scripts or the one above. Default is the one above (parent folder).
@@ -112,10 +112,17 @@ All the information collected is very simple and lacks sensetive data. If you wa
 
 
 ## Extra Scripts
+All scripts are written in python 3, so call them with py [SCRIPT] for Windows or python3 [SCRIPT] for UNIX/macOS
 ### updatePlaylistThumbnails.py
-This script expects two inputs, a playlist ID (`--pID`) and a thumbnail file name (`--tnail`). It will then update every the thumbnails of every video in that playlist to the one you provide. This makes it simple to update older playlists with a new thumbnail so you can keep your look consistent.
+This script will prompt for a playlist link and a file name for the thumbnail. It will then update every the thumbnails of every video in that playlist to the one you provide. This makes it simple to update older playlists with a new thumbnail so you can keep your look consistent.
 
 ### addTBAToDescription.py
-addTBA will add match information to the video description retroactively. This script runs similarly to `start.py`. You start it with `python addTBAToDescription.py` and navigate to `localhost:8080` to use to script. You have to provide the video url, event code, and match code.
+Currently being reworked
+
+### updateTBA.py
+Forcefully update thebluealliance.com with a match video. The prompts will ask you for the necessary links. If you want to post the event's opening ceremonies or other non-match videos please link to www.thebluealliance.com/event/[event code]#media.
+
+### playlistToTBA.py
+If for whatever reason you failed to post to TBA while using this uploader you can use this script afterwards to automatically link match videos to the event's page. Again the program will prompt you for links, once you do that it will take over and update TBA.
 
 These scripts are not used within start.py
