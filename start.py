@@ -260,7 +260,7 @@ def main():
     YA.get_youtube_service()
     YA.get_spreadsheet_service()
     if internet():
-        pyforms.start_app(FRC_Uploader, geometry=(100, 100, 400, 550))
+        pyforms.start_app(FRC_Uploader, geometry=(100, 100, 1, 1)) # 1, 1 shrinks it to the smallest possible size
     else:
         return
 
