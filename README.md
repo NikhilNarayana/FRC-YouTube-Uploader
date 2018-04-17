@@ -50,10 +50,9 @@ Closing Ceremonies = `Awards Ceremony.mp4` or `Closing Ceremonies.mp4`
 
 Alliance Selection = `Alliance Selection.mp4` or `alliance selection.mp4`
 
-### Web UI Breakdown
-![alt text](http://i.imgur.com/IYaJSex.png?1)
-
-The focus is on simplicty and usability. All the necessary details fit into one small space allowing you to easily place this anywhere on your screen without needing to see all of it.
+## UI Breakdown
+### Event Values
+![alt text](https://i.imgur.com/m5He8Ki.png)
 
 ##### Match File Locations
 You can now pick whether the match files  are in the same folder as the scripts or the one above. Default is the one above (parent folder).
@@ -68,13 +67,16 @@ You can name this as you wish, but know that it goes at the start of the video's
 Find this at TheBlueAlliance in the address bar of the event page. It generally follows [YEAR][EVENT_CODE] format such as 2016arc or 2016incmp.
 
 ##### Playlist ID
-You can find the playlist ID on the playlist page's web address. Every playlist ID starts with PL making them easy to identify. You will not be able to sumbit with invalid links.
+You can find the playlist ID on the playlist page's web address. Every playlist ID starts with PL making them easy to identify. A full link will be shortened after you submit.
 
 ##### TBA Event ID/Secret
-Both of these must be obtained by requesting them from www.thebluealliance.com/request/apiwrite for the keys to your event. If your event is not on TBA I suggest you just set `Use TBA` to False.
+Both of these must be obtained by requesting them from www.thebluealliance.com/request/apiwrite for the keys to your event. If your event is not on TBA I suggest you just uncheck `Use TBA`.
 
 ##### Video Description
-The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. The usual description is found in `youtubeup.py`. If you would rather not use that description feel free to input your own or ask me to create a specific description just for you.
+The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. If you would like to change the description you can rearrange it as you see fit, but you must keep anything in curly braces to prevent the program from blowing up in your face when you hit submit.
+
+### Match Values
+![alt text](https://i.imgur.com/FVH3wx6l.png)
 
 ##### Match Code
 This is an overriding function that will push any match you setup here to the correct TBA match and with the right info. This does not affect other parameters, you still need to set them up so it will find the correct match. For example, [2017 PCH Albany](https://www.thebluealliance.com/event/2017gaalb) had 5 replay matches in Semifinals 2, the matches that counted were matches 4-6 on TBA, but the FMS kept the naming scheme from matches 1-3. To fix this you can input the match info like it was for `SF2M1` and name the file `Semifinal Match 2.mp4`, but then set match code to `SF2M4`. That would get the right scores and then update the right TBA match. This should almost never be used outside of cases like this.
@@ -95,6 +97,10 @@ This is in conjunction with the above option. If you are not uploading live this
 ##### Last Match Number
 If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number, inclusive, will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
 
+### Status Output
+This will display any information you need to know about an ongoing upload, the same info will be written to the command prompt as a backup. It is currently set to auto scroll to the bottom, but if you hit an infinite loop just close the program and bring up the command prompt to find the error message.
+
+
 If you are still in need of assistance, feel free to contact me.
 
 ### Stats
@@ -107,7 +113,7 @@ All the information collected is very simple and lacks sensetive data. If you wa
 * Wes Jordan - Python TBA API Layer (https://github.com/Thing342/pyTBA) *no longer used*
 * tbapy -  New Python TBA API Layer
 * Josh Klar - Bug Fixes during 2017 St. Joseph District
-* Matthew Zacune - Testing
+* Matthew Zacune - Testing and Feature Ideas
 * Stack Exchange - Bug Fixes
 
 
@@ -117,7 +123,7 @@ All scripts are written in python 3, so call them with py [SCRIPT] for Windows o
 This script will prompt for a playlist link and a file name for the thumbnail. It will then update every the thumbnails of every video in that playlist to the one you provide. This makes it simple to update older playlists with a new thumbnail so you can keep your look consistent.
 
 ### addTBAToDescription.py
-Currently being reworked
+The script will update any description with the match's info at the top of the description. It will prompt you for a few pieces of information to get started, but should then do the rest on its own.
 
 ### updateTBA.py
 Forcefully update thebluealliance.com with a match video. The prompts will ask you for the necessary links. If you want to post the event's opening ceremonies or other non-match videos please link to www.thebluealliance.com/event/[event code]#media.
