@@ -5,6 +5,7 @@ from youtubeup import post_video
 import simplejson as json
 from urllib.parse import *
 
+
 def video_id(value):
     query = urlparse(value)
     if query.hostname == 'youtu.be':
@@ -19,9 +20,11 @@ def video_id(value):
             return query.path.split('/')[2]
     return value
 
+
 if __name__ == "__main__":
     loc = "match_video"
     request_body = None
+    codes = None
     vID = video_id(input("Video Link: "))
     link = input("Blue Alliance Match Link (eg.https://www.thebluealliance.com/match/2017gaalb_sf1m1) : ")
     if "media" in link:

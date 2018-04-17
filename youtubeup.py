@@ -414,8 +414,7 @@ def post_video(token, secret, match_video, event_key, loc):
     trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
     trusted_auth['X-TBA-Auth-Id'] = token
     m = hashlib.md5()
-    request_path = "/api/trusted/v1/event/{}/{}/add".format(
-        event_key, loc)
+    request_path = "/api/trusted/v1/event/{}/{}/add".format(event_key, loc)
     concat = secret + request_path + str(match_video)
     m.update(concat.encode("utf-8"))
     md5 = m.hexdigest()
@@ -425,15 +424,15 @@ def post_video(token, secret, match_video, event_key, loc):
         url = "http://localhost:8080/api/trusted/v1/event/{}/{}/add"
     url_str = url.format(event_key, loc)
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
-        raise Exception("""TBA ID and/or TBA secret missing.
-            Please set them in the UI""")
+        print("""TBA ID and/or TBA secret missing. Please set them in the UI""")
+        return
     r = s.post(url_str, data=match_video, headers=trusted_auth)
     while 405 == r.status_code:
         print("Failed to POST to TBA")
         print("Attempting to POST to TBA again")
         r = s.post(url_str, data=match_video, headers=trusted_auth)
     if r.status_code > 299:
-        raise Exception(r.text)
+        print(r.text)
     elif "Success" in r.text or r.status_code == 200:
         print("Successfully added to TBA")
     else:
@@ -464,6 +463,10 @@ def init(options):
 
     # seperate case to push to TBA
     if options.ceremonies != 0:
+        if options.tba:
+            options.post = True
+        else:
+            options.post = False
         options.tba = False
     if options.tiebreak:
         options.mnum = tiebreak_mnum(options.mnum, options.mtype)
@@ -604,7 +607,7 @@ def post_upload(options, mcode, youtube, spreadsheet):
         request_body = json.dumps({mcode: options.vid})
         post_video(options.tbaID, options.tbaSecret,
                    request_body, options.ecode, "match_videos")
-    elif options.ceremonies:
+    elif options.ceremonies and options.post:
         request_body = json.dumps([options.vid])
         post_video(options.tbaID, options.tbaSecret,
                    request_body, options.ecode, "media")
