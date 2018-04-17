@@ -94,6 +94,7 @@ if __name__ == "__main__":
         ID = video_id(input("Video link: "))
     else:
         ID = input("Playlist Link: ")
-        ID = PID[f:f + 34]
+        f = ID.find("PL")
+        ID = ID[f:f + 34]
 
     run(youtube, ID, ECODE, MCODE, MNUM, END)

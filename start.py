@@ -183,6 +183,8 @@ class FRC_Uploader(BaseWidget):
             options.weblink = row[4] = self._weblink.value
             options.ename = row[5] = self._ename.value
             options.ecode = row[6] = self._ecode.value
+            f = self._pID.find("PL")
+            self._pID.value = self._pID.value[f:f + 34]
             options.pID = row[7] = self._pID.value
             options.tbaID = row[8] = self._tbaID.value
             options.tbaSecret = row[9] = self._tbaSecret.value

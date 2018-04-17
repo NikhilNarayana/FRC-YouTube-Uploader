@@ -187,6 +187,8 @@ def ceremonies_filename(options):
             if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
                 if any(k in fl for k in (options.day.lower(), "day {}".format(options.eday))):
                     file = f
+                elif options.eday == 0:
+                    file = f
     elif options.ceremonies is 4:
         for f in options.files:
             fl = f.lower()
