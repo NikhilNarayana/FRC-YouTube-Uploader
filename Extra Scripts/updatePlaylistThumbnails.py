@@ -57,6 +57,7 @@ if __name__ == '__main__':
     youtube = get_youtube_service()
     PID = input("Playlist Link: ")
     THUMBNAIL = input("Thumbnail file name: ")
+    f = PID.find("PL")
     PID = PID[f:f+34]
     try:
         update_thumbnails(youtube, PID, THUMBNAIL)
