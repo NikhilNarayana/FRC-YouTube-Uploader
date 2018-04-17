@@ -443,7 +443,7 @@ def init(options):
     """The program starts here, options is a Namespace() object"""
     options.privacy = VALID_PRIVACY_STATUSES[0]  # privacy is always public
     if DEBUG:
-        options.privacy = VALID_PRIVACY_STATUSES[1]  # set to unlisted if I can
+        options.privacy = VALID_PRIVACY_STATUSES[1]  # set to unlisted if debugging
     options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
     options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]))  # magic
     options.tags = DEFAULT_TAGS.format(options.ecode)  # add the ecode to default tags

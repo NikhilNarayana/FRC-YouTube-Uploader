@@ -68,16 +68,13 @@ class FRC_Uploader(BaseWidget):
         # Output Box
         self._output = ControlTextArea()
         self._output.readonly = True
-        self._scroll = self._output._form.plainTextEdit.moveCursor
-        self._scrollbutton = ControlButton("Toggle Auto Scroll")
-        self._scrollbutton.value = self.__scrollOff
 
         # Button
         self._button = ControlButton('Submit')
 
         # Form Layout
         self.formset = [{"-Match Values": [(' ', "_mcode", ' '), (' ', "_mnum", ' '), (' ', "_mtype", ' '), (' ', "_tiebreak", "_tba", ' '), (' ', "_ceremonies", ' '), (' ', "_eday", ' '), (' ', "_end", ' ')],
-                         "-Status Output-": ["_output", (' ', '_scrollbutton', ' ')],
+                         "-Status Output-": ["_output"],
                          "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"), ("_weblink", "_ename", "_ecode"), ("_pID", "_tbaID", "_tbaSecret"), "_description"]},
                         (' ', '_button', ' ')]
 
@@ -155,27 +152,29 @@ class FRC_Uploader(BaseWidget):
                         i = i + 1
                     break
         except (IOError, OSError, StopIteration) as e:
-            print("No form_values.csv to read from, continuing with default values")
+            print("No form_values.csv to read from, continuing with default values and creating file")
+            with open("form_values.csv", "w+") as csvf:  # if the file doesn't exist
+                csvf.write(''.join(str(x) for x in [","] * 18))
 
     def __buttonAction(self):
         """Button action event"""
         if DEBUG:
-            thr = threading.Thread(target=self.__testprint)
-            thr.daemon = True
-            thr.start()
+            # Write test code here
+            # thr = threading.Thread(target=self.__testprint)
+            # thr.daemon = True
+            # thr.start()
+            pass
         else:
             then = datetime.now()
             options = Namespace()
-            row = None
+            reader = None
             try:
                 reader = csv.reader(open('form_values.csv'))
-                row = next(reader)
             except (StopIteration, IOError, OSError) as e:
                 with open("form_values.csv", "w+") as csvf:  # if the file doesn't exist
                     csvf.write(''.join(str(x) for x in [","] * 18))
-                    csvf.close()
-                    reader = csv.reader(open("form_values.csv"))
-                    row = next(reader)
+                reader = csv.reader(open("form_values.csv"))
+            row = next(reader)
             options.then = then
             options.where = row[0] = self._where.value
             options.prodteam = row[1] = self._prodteam.value
@@ -209,7 +208,7 @@ class FRC_Uploader(BaseWidget):
                 self._mnum.value = "1"
                 self._mtype.value = "qf"
             if self._mtype.value == "qm" and self._tiebreak.value:
-                self._tiebreak.value = False
+                row[14] = self._tiebreak.value = False
             row[12] = int(self._mnum.value)
             row[18] = self._end.value
             writer = csv.writer(open('form_values.csv', 'w'))
@@ -217,26 +216,13 @@ class FRC_Uploader(BaseWidget):
 
     def writePrint(self, text):
         self._output.value += text
-        if self._scroll:
-            self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
-        else:
-            self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.NoMove)
+        self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
         print(text, file=sys.__stdout__, end= '')
 
     def __testprint(self):
         for i in range(1000):
             print(i)
             sleep(.25)
-
-    def __scrollOn(self):
-        self._scroll = True
-        print("Auto scroll on")
-        self._scrollbutton.value = self.__scrollOff
-
-    def __scrollOff(self):
-        self._scroll = False
-        print("Auto scroll off")
-        self._scrollbutton.value = self.__scrollOn
 
 
 def internet(host="www.google.com", port=80, timeout=4):
@@ -257,11 +243,11 @@ def main():
     if "linux" in sys.platform:  # root needed for writing files
         if os.geteuid() != 0:
             print("Need sudo for writing files")
-            subprocess.call(['sudo', 'python', sys.argv[0]])
+            subprocess.call(['sudo', 'python3', sys.argv[0]])
     YA.get_youtube_service()
     YA.get_spreadsheet_service()
     if internet():
-        pyforms.start_app(FRC_Uploader, geometry=(100, 100, 1, 1)) # 1, 1 shrinks it to the smallest possible size
+        pyforms.start_app(FRC_Uploader, geometry=(100, 100, 1, 1))  # 1, 1 shrinks it to the smallest possible size
     else:
         return
 
