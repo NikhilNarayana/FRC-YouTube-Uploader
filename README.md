@@ -25,7 +25,7 @@ A YouTube Uploader for FRC Events
 
 ### File Name Examples
 
-File names are determined through substrings, you need the base of the match type and the match number at a minimum. Is this bad code design? Proabbly but it works and covers all known cases. Additionally all file names can be lowercase.
+File names are determined through substrings, you need the base of the match type and the match number at a minimum. Is this bad code design? Probably but it works and covers all known cases. Additionally all file names can be lowercase.
 Bases:
 
     Qualification -> qual
