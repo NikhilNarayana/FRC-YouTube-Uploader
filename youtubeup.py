@@ -423,10 +423,12 @@ def post_video(token, secret, match_video, event_key, loc):
     if DEBUG:
         url = "http://localhost:8080/api/trusted/v1/event/{}/{}/add"
     url_str = url.format(event_key, loc)
+    print(url_str)
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         print("""TBA ID and/or TBA secret missing. Please set them in the UI""")
         return
     r = s.post(url_str, data=match_video, headers=trusted_auth)
+    print(r.status_code)
     while 405 == r.status_code:
         print("Failed to POST to TBA")
         print("Attempting to POST to TBA again")
@@ -447,7 +449,7 @@ def init(options):
         options.privacy = VALID_PRIVACY_STATUSES[1]  # set to unlisted if debugging
     options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
     options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]))  # magic
-    options.tags = DEFAULT_TAGS.format(options.ecode)  # add the ecode to default tags
+    options.tags = DEFAULT_TAGS.format(options.ecode, game=GAMES[options.ecode[:4]])  # add the ecode and game to default tags
     # default category is science & technology
     options.category = DEFAULT_VIDEO_CATEGORY
     options.title = options.ename + " - " + QUAL  # default title
@@ -626,3 +628,8 @@ def post_upload(options, mcode, youtube, spreadsheet):
     except Exception as e:
         print("Failed to write to spreadsheet")
     return "DONE UPLOADING {}\n".format(options.file)
+
+
+def testfunc(optionslist):
+    for options in optionslist:
+        print(options)
