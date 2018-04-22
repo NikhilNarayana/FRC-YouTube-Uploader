@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import youtubeup as yup
+from .. import youtubeup as yup
 from urllib.parse import *
-from youtubeAuthenticate import *
-from consts import *
+from ..youtubeAuthenticate import *
+from ..consts import *
 
 data = """Red Alliance ({}, {}, {}) - {}
 Blue Alliance ({}, {}, {}) - {}

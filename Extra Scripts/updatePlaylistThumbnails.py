@@ -2,8 +2,8 @@
 
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
-from youtubeup import update_thumbnail
-from youtubeAuthenticate import get_youtube_service
+from ..youtubeup import update_thumbnail
+from ..youtubeAuthenticate import get_youtube_service
 
 THUMBNAIL = ""
 PLAYLISTID = ""
