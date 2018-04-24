@@ -42,6 +42,7 @@ class FRC_Uploader(BaseWidget):
         # Queue
         self._queue = Queue()
         self._firstrun = True
+
         # Create form fields
         # Event Values
         self._where = ControlCombo(" Match Files Location")
@@ -68,15 +69,17 @@ class FRC_Uploader(BaseWidget):
         # Output Box
         self._output = ControlTextArea()
         self._output.readonly = True
-        self._q = ControlList("Queue")
-        self._q.readonly = True
+        self._qview = ControlList("Queue")
+        self._qview.readonly = True
 
         # Button
         self._button = ControlButton('Submit')
+        self._ascrollbutton = ControlButton("Toggle Scroll")
+        self._autoscroll = True
 
         # Form Layout
         self.formset = [{"-Match Values": [(' ', "_mcode", ' '), (' ', "_mnum", ' '), (' ', "_mtype", ' '), (' ', "_tiebreak", "_tba", ' '), (' ', "_ceremonies", ' '), (' ', "_eday", ' '), (' ', "_end", ' ')],
-                         "-Status Output-": ["_output", "=", "_q"],
+                         "-Status Output-": ["_output", (' ', "_ascrollbutton", ' '), "=", "_qview"],
                          "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"), ("_weblink", "_ename", "_ecode"), ("_pID", "_tbaID", "_tbaSecret"), "_description"]},
                         (' ', '_button', ' ')]
 
@@ -110,6 +113,7 @@ class FRC_Uploader(BaseWidget):
 
         # Define the button action
         self._button.value = self.__buttonAction
+        self._ascrollbutton.value = self.__togglescroll
 
         # Hide Alternate Description Box
         # self._description.hide()
@@ -159,6 +163,9 @@ class FRC_Uploader(BaseWidget):
             with open("form_values.csv", "w+") as csvf:  # if the file doesn't exist
                 csvf.write(''.join(str(x) for x in [","] * 18))
 
+    def __togglescroll(self):
+        self._autoscroll = False if self._autoscroll else True
+
     def __buttonAction(self):
         """Button action event"""
         if DEBUG:
@@ -167,10 +174,10 @@ class FRC_Uploader(BaseWidget):
                 thr.daemon = True
                 thr.start()
                 self._firstrun = False
-            self._queue.put(self.testval)
-            self._q += ("{} Match {} to {}".format(self.testval, self.testval, self.testval),)
+            self._queue.put("{}".format(self.testval))
+            self._qview += ("{} Match {} to {}".format(self.testval, self.testval, self.testval),)
             self.testval += 1
-            self._q.resize_rows_contents()
+            self._qview.resize_rows_contents()
         else:
             options = Namespace()
             reader = None
@@ -203,10 +210,11 @@ class FRC_Uploader(BaseWidget):
             options.eday = row[17] = self._eday.value
             options.end = row[18] = self._end.value
             if self._end.value == "For batch uploads":
-                self._q += ("{} Match {}".format(options.mtype, options.mnum),)
+                self._qview += ("{} Match {}".format(options.mtype, options.mnum),)
             else:
-                self._q += ("{} Match {} to {}".format(options.mtype, options.mnum, options.end),)
+                self._qview += ("{} Match {} to {}".format(options.mtype, options.mnum, options.end),)
             self._queue.put(options)
+            self._qview.resize_rows_contents()
             if self._firstrun:
                 thr = threading.Thread(target=self._worker)
                 thr.daemon = True
@@ -229,22 +237,23 @@ class FRC_Uploader(BaseWidget):
             writer.writerow(row)
 
     def writePrint(self, text):
-        self._output.value += text
-        self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
-        print(text, file=sys.__stdout__, end= '')
+        self._output._form.plainTextEdit.insertPlainText(text)
+        if self._autoscroll:
+            self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
+        print(text, file=sys.__stdout__, end='')
 
     def _worker(self):
         if DEBUG:
             while True:
                 val = self._queue.get()
-                self._q -= 0
+                self._qview -= 0
                 print(val)
-                sleep(5)
+                sleep(2)
                 self._queue.task_done()
         else:
             while True:
                 options = self._queue.get()
-                self._q -= 0
+                self._qview -= 0
                 options.then = datetime.now()
                 yup.init(options)
                 self._queue.task_done()

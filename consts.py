@@ -2,8 +2,8 @@
 
 from youtubeAuthenticate import *
 
-# Default Variables 
-DEBUG = False # DON'T COMMIT THIS LINE IF TRUE
+# Default Variables
+DEBUG = False  # DON'T COMMIT THIS LINE IF TRUE
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_TAGS = """{}, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, {game}"""
