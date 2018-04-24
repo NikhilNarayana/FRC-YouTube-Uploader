@@ -5,12 +5,12 @@ import csv
 import sys
 import socket
 import threading
+from queue import Queue
 from time import sleep
 
 import youtubeAuthenticate as YA
 import youtubeup as yup
 from consts import *
-
 
 from PyQt5 import QtCore, QtGui
 from datetime import datetime
@@ -18,13 +18,12 @@ import pyforms
 from argparse import Namespace
 from pyforms import BaseWidget
 from pyforms.controls import ControlText
-from pyforms.controls import ControlTextArea
+from pyforms.controls import ControlTextArea, ControlList
 from pyforms.controls import ControlCombo, ControlProgress
 from pyforms.controls import ControlButton, ControlCheckBox
 
 
 class EmittingStream(QtCore.QObject):
-
     textWritten = QtCore.pyqtSignal(str)
 
     def write(self, text):
@@ -40,6 +39,9 @@ class FRC_Uploader(BaseWidget):
         super(FRC_Uploader, self).__init__("FRC YouTube Uploader")
         # Redirct print output
         sys.stdout = EmittingStream(textWritten=self.writePrint)
+        # Queue
+        self._queue = Queue()
+        self._firstrun = True
         # Create form fields
         # Event Values
         self._where = ControlCombo(" Match Files Location")
@@ -54,27 +56,27 @@ class FRC_Uploader(BaseWidget):
         self._tbaSecret = ControlText("TBA Secret")
         self._description = ControlTextArea(" Video Description")
         # Match Values
-        self._mcode = ControlText(" Match Code")
-        self._mnum = ControlText(" Match Number")
-        self._mtype = ControlCombo(" Match Type")
-        self._tiebreak = ControlCheckBox(" Tiebreaker")
+        self._mcode = ControlText("Match Code")
+        self._mnum = ControlText("Match Number")
+        self._mtype = ControlCombo("Match Type")
+        self._tiebreak = ControlCheckBox("Tiebreaker")
         self._tba = ControlCheckBox("Use TBA")
-        self._ceremonies = ControlCombo(" Ceremonies")
-        self._eday = ControlCombo(" Event Day")
-        self._end = ControlText(" Last Match Number")
-        self._uploadprog = ControlProgress("Upload Progress")
-        self._queueprog = ControlProgress("Queue Progress")
+        self._ceremonies = ControlCombo("Ceremonies")
+        self._eday = ControlCombo("Event Day")
+        self._end = ControlText("Last Match Number")
 
         # Output Box
         self._output = ControlTextArea()
         self._output.readonly = True
+        self._q = ControlList("Queue")
+        self._q.readonly = True
 
         # Button
         self._button = ControlButton('Submit')
 
         # Form Layout
         self.formset = [{"-Match Values": [(' ', "_mcode", ' '), (' ', "_mnum", ' '), (' ', "_mtype", ' '), (' ', "_tiebreak", "_tba", ' '), (' ', "_ceremonies", ' '), (' ', "_eday", ' '), (' ', "_end", ' ')],
-                         "-Status Output-": ["_output"],
+                         "-Status Output-": ["_output", "=", "_q"],
                          "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"), ("_weblink", "_ename", "_ecode"), ("_pID", "_tbaID", "_tbaSecret"), "_description"]},
                         (' ', '_button', ' ')]
 
@@ -112,6 +114,7 @@ class FRC_Uploader(BaseWidget):
         # Hide Alternate Description Box
         # self._description.hide()
         # self._output.hide()
+        self.testval = 0
 
         # Get latest values from form_values.csv
         try:
@@ -159,13 +162,16 @@ class FRC_Uploader(BaseWidget):
     def __buttonAction(self):
         """Button action event"""
         if DEBUG:
-            # Write test code here
-            # thr = threading.Thread(target=self.__testprint)
-            # thr.daemon = True
-            # thr.start()
-            pass
+            if self._firstrun:
+                thr = threading.Thread(target=self._worker)
+                thr.daemon = True
+                thr.start()
+                self._firstrun = False
+            self._queue.put(self.testval)
+            self._q += ("{} Match {} to {}".format(self.testval, self.testval, self.testval),)
+            self.testval += 1
+            self._q.resize_rows_contents()
         else:
-            then = datetime.now()
             options = Namespace()
             reader = None
             try:
@@ -175,7 +181,6 @@ class FRC_Uploader(BaseWidget):
                     csvf.write(''.join(str(x) for x in [","] * 18))
                 reader = csv.reader(open("form_values.csv"))
             row = next(reader)
-            options.then = then
             options.where = row[0] = self._where.value
             options.prodteam = row[1] = self._prodteam.value
             options.twit = row[2] = self._twit.value
@@ -197,9 +202,16 @@ class FRC_Uploader(BaseWidget):
             options.ceremonies = row[16] = self._ceremonies.value
             options.eday = row[17] = self._eday.value
             options.end = row[18] = self._end.value
-            thr = threading.Thread(target=yup.init, args=(options,))
-            thr.daemon = True
-            thr.start()
+            if self._end.value == "For batch uploads":
+                self._q += ("{} Match {}".format(options.mtype, options.mnum),)
+            else:
+                self._q += ("{} Match {} to {}".format(options.mtype, options.mnum, options.end),)
+            self._queue.put(options)
+            if self._firstrun:
+                thr = threading.Thread(target=self._worker)
+                thr.daemon = True
+                thr.start()
+                self._firstrun = False
             if int(self._ceremonies.value) == 0:
                 if self._end.value == "For batch uploads":
                     self._mnum.value = str(int(self._mnum.value) + 1)
@@ -221,10 +233,21 @@ class FRC_Uploader(BaseWidget):
         self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
         print(text, file=sys.__stdout__, end= '')
 
-    def __testprint(self):
-        for i in range(1000):
-            print(i)
-            sleep(.25)
+    def _worker(self):
+        if DEBUG:
+            while True:
+                val = self._queue.get()
+                self._q -= 0
+                print(val)
+                sleep(5)
+                self._queue.task_done()
+        else:
+            while True:
+                options = self._queue.get()
+                self._q -= 0
+                options.then = datetime.now()
+                yup.init(options)
+                self._queue.task_done()
 
 
 def internet(host="www.google.com", port=80, timeout=4):
