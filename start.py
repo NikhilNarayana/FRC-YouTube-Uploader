@@ -210,7 +210,9 @@ class FRC_Uploader(BaseWidget):
             options.ceremonies = row[16] = self._ceremonies.value
             options.eday = row[17] = self._eday.value
             options.end = row[18] = self._end.value
-            if self._end.value == "For batch uploads":
+            if options.end == "For batch uploads":
+                if options.ceremonies:
+                    self._qview += (options.ecode, cerem[options.ceremonies])
                 self._qview += (options.ecode, options.mtype, options.mnum)
             else:
                 self._qview += (options.ecode, options.mtype, options.mnum, options.end)

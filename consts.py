@@ -61,3 +61,4 @@ mcode = None
 youtube = get_youtube_service()
 spreadsheet = get_spreadsheet_service()
 sizes = ["bytes", "KB", "MB", "GB", "TB"]
+cerem = ["None", "Opening Ceremonies", "Alliance Selection", "Closing Ceremonies", "Highlight Reel"]
