@@ -254,9 +254,9 @@ class FRC_Uploader(BaseWidget):
         else:
             while True:
                 options = self._queue.get()
-                self._qview -= 0
                 options.then = datetime.now()
                 yup.init(options)
+                self._qview -= 0
                 self._queue.task_done()
 
 
