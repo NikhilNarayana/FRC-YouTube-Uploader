@@ -3,18 +3,23 @@
 A YouTube Uploader for FRC Events
 
 
+## Contributing
+PRs are appreciated and will be reviewed quickly, the only code quality standard I have is to follow PEP8 standard except for the line length. If you have trouble understanding my code just ask me.
+
+
 ## Current Feature Set:
-* Asynchronously Upload Videos (single or batch uploads possible)
+* Upload Videos (single or batch uploads possible)
+* Queue Videos to Upload
 * Add to a YouTube Playlist
 * Include match results from TBA in description
-* Add videos links to The Blue Alliance automatically
-* Mostly Automated, Non-Blocking Web Interface
-* Saves and Reads form values to and from CSV
+* Add videos links to The Blue Alliance
+* Mostly Automated, Non-Blocking Interface
+* Saves and Loads form values
 
 
 ## How to Setup
 1. Install Python 3.6 for your OS with the PATH added and make sure there are no other versions of Python 3
-2. Download this repository into a subfolder to the folder that will contain the videos, make sure every event is in seperate folders
+2. Download this repository into a subfolder of the folder that will contain the videos, make sure every event is in seperate folders.
 3. Install the requirements for the script with `pip install -r /path/to/requirements.txt` or `make` if supported by your OS
 4. Add the thumbnail to the same folder as `thumbnail.png` (not required, but suggested)
 5. Make your recording program follow this naming scheme: [MATCH TYPE] [MATCH NUM].[EXTENSION] ex. Qualification Match 1.mp4 Also use the Tiebreaker scheme when necessary
@@ -49,6 +54,8 @@ Opening Ceremonies = `Friday Opening Ceremonies.mp4` or `Day 1 Opening Ceremony.
 Closing Ceremonies = `Awards Ceremony.mp4` or `Closing Ceremonies.mp4`
 
 Alliance Selection = `Alliance Selection.mp4` or `alliance selection.mp4`
+
+Highlight Reel = `Highlight Reel.mp4` or `Wrapup Video.mp4`
 
 ## UI Breakdown
 ### Event Values
@@ -88,7 +95,8 @@ Fairly self-explanatory, just remember to reset the value when you go into each 
 All the non-default options in this dropdown will tell the program to ignore various parameters like `Match Number`. Uploading Alliance Selection will then update all the necessary form fields for entering elimination matches.
 For Opening Ceremonies you need to have `Day X` or put the current day of the week (eg. `Friday`) in the file name.
 For Closing Ceremonies you need to just have `Closing` or `Award` in the file name.
-For Alliance Selection you need to have the words `Alliance` and `Selection` in the file name.
+For Alliance Selection you need to have `Alliance` and `Selection` in the file name.
+For Highlight Reels you need to have `Highlight` or `Wrapup` in the file name
 All terms are matched in a substring so `Award` will match with `Awards` and same for others.
 
 ##### Event Day
@@ -98,7 +106,13 @@ This is in conjunction with the above option. If you are not uploading live this
 If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number, inclusive, will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
 
 ### Status Output
-This will display any information you need to know about an ongoing upload, the same info will be written to the command prompt as a backup. It is currently set to auto scroll to the bottom, but if you hit an infinite loop just close the program and bring up the command prompt to find the error message.
+![alt text](https://i.imgur.com/atKajjXl.png)
+
+##### Output
+This will display any information you need to know about an ongoing upload, the same info will be written to the command prompt as a backup. It is currently set to auto scroll to the bottom, but if you hit an infinite loop you can toggle the auto scrolling with the button shown.
+
+##### Queue
+The queue lets you hit submit a bunch of times to queue up jobs that can't be done with one submission such as all of qualifications and all of quarterfinals. The queue goes in the order you hit submit so don't worry about fixing your playlists afterwards. The top most item in the queue is the one being worked on.
 
 
 If you are still in need of assistance, feel free to contact me.
