@@ -71,6 +71,7 @@ class FRC_Uploader(BaseWidget):
         self._output.readonly = True
         self._qview = ControlList("Queue")
         self._qview.readonly = True
+        self._qview.horizontal_headers = ["Event Code", "Match Type", "Match #", "Last Match #"]
 
         # Button
         self._button = ControlButton('Submit')
@@ -175,7 +176,7 @@ class FRC_Uploader(BaseWidget):
                 thr.start()
                 self._firstrun = False
             self._queue.put("{}".format(self.testval))
-            self._qview += ("{} Match {} to {}".format(self.testval, self.testval, self.testval),)
+            self._qview += (self.testval, self.testval, self.testval, self.testval)
             self.testval += 1
             self._qview.resize_rows_contents()
         else:
@@ -210,9 +211,9 @@ class FRC_Uploader(BaseWidget):
             options.eday = row[17] = self._eday.value
             options.end = row[18] = self._end.value
             if self._end.value == "For batch uploads":
-                self._qview += ("{} Match {}".format(options.mtype, options.mnum),)
+                self._qview += (options.ecode, options.mtype, options.mnum)
             else:
-                self._qview += ("{} Match {} to {}".format(options.mtype, options.mnum, options.end),)
+                self._qview += (options.ecode, options.mtype, options.mnum, options.end)
             self._queue.put(options)
             self._qview.resize_rows_contents()
             if self._firstrun:
