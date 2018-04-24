@@ -7,6 +7,7 @@ import random
 import hashlib
 import errno
 import datetime as dt
+from decimal import Decimal
 
 import tbapy
 import requests
@@ -560,6 +561,9 @@ def upload(insert_request, options):
     while True:
         try:
             status, response = insert_request.next_chunk()
+            if status is not None:
+                percent = Decimal(int(status.resumable_progress) / int(status.total_size))
+                print("{}% uploaded".format(round(100 * percent, 2)))
         except HttpError as e:
             if e.resp.status in retry_status_codes:
                 print("A retriable HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
