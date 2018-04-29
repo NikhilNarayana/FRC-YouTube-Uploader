@@ -79,21 +79,18 @@ def ceremonies_yt_title(options):
     title = None
     if options.ceremonies is 1:
         if not options.eday:
-            title = options.ename + " - " + \
-                "{} Opening Ceremonies".format(options.day)
+            title = "{} - {} Opening Ceremonies".format(options.ename, options.day)
         else:
-            title = options.ename + " - " + \
-                "Day {} Opening Ceremonies".format(options.eday)
+            title = "{} - Day {} Opening Ceremonies".format(options.ename, options.eday)
     elif options.ceremonies is 2:
-        title = options.ename + " - " + "Alliance Selection"
+        title = "{} - Alliance Selection".format(options.ename)
     elif options.ceremonies is 3:
         if not options.eday:
-            title = options.ename + " - " + "Closing Ceremonies"
+            title = "{} - Closing Ceremonies".format(options.ename)
         else:
-            title = options.ename + " - " + \
-                "Day {} Closing Ceremonies".format(options.eday)
+            title = "{} - Day {} Closing Ceremonies".format(options.ename, options.eday)
     elif options.ceremonies is 4:
-        title = options.ename + " - " + "Highlight Reel"
+        title = "{} - Highlight Reel".format(options.ename)
     return title
 
 
@@ -106,6 +103,7 @@ def quals_filename(options):
         fl = f.lower()
         if all([" " + str(options.mnum) + "." in fl and any(k in fl for k in ("qual", "qualification", "qm"))]):
             file = f
+            break
     if file is None:
         print("No File Found")
     return file
@@ -116,16 +114,17 @@ def quarters_filename(options):
     if 1 <= options.mnum <= 8:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in (
-                    "quarter", "final", " " + str(options.mnum) + ".")):
+            if all(k in fl for k in ("quarter", "final", " " + str(options.mnum) + ".")):
                 if "tiebreak" not in fl:
                     file = f
+                    break
     elif 9 <= options.mnum <= 12:
         mnum = options.mnum - 8
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("quarter", "tiebreak", "final", " " + str(mnum) + ".")):
                 file = f
+                break
     if file is None:
         print("No File Found")
     return file
@@ -139,12 +138,14 @@ def semis_filename(options):
             if all(k in fl for k in ("semi", "final", " " + str(options.mnum) + ".")):
                 if "tiebreak" not in fl:
                     file = f
+                    break
     elif options.mnum <= 6:
         mnum = options.mnum - 4
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "tiebreak", "final", " " + str(mnum) + ".")):
                 file = f
+                break
     if file is None:
         print("No File Found")
     return file
@@ -158,12 +159,14 @@ def finals_filename(options):
             if all(k in fl for k in ("final", " " + str(options.mnum) + ".")):
                 if all(k not in fl for k in ("quarter", "semi")) and "tiebreak" not in fl:
                     file = f
+                    break
     elif options.mnum >= 3:
         for f in options.files:
             fl = f.lower()
             if "final" in fl and any(k in fl for k in ("tiebreak", " " + str(options.mnum) + ".")):
                 if all(k not in fl for k in ("quarter", "semi")):
                     file = f
+                    break
     if file is None:
         print("No File Found")
     return file
@@ -177,24 +180,29 @@ def ceremonies_filename(options):
             if all(k in fl for k in ("opening", "ceremon")):
                 if any(k in fl for k in (options.day.lower(), "day {}".format(options.eday))):
                     file = f
+                    break
     elif options.ceremonies is 2:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("alliance", "selection")):
                 file = f
+                break
     elif options.ceremonies is 3:
         for f in options.files:
             fl = f.lower()
             if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
                 if any(k in fl for k in (options.day.lower(), "day {}".format(options.eday))):
                     file = f
+                    break
                 elif options.eday == 0:
                     file = f
+                    break
     elif options.ceremonies is 4:
         for f in options.files:
             fl = f.lower()
-            if any(k in fl for k in ("highlight", "wrapup")):
+            if any(k in fl for k in ("highlight", "wrapup", "recap")):
                 file = f
+                break
     if file is None:
         print("No File Found")
     return file
