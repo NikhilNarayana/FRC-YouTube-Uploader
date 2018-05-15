@@ -17,7 +17,7 @@ from datetime import datetime
 import pyforms
 from argparse import Namespace
 from pyforms import BaseWidget
-from pyforms.controls import ControlText
+from pyforms.controls import ControlText, ControlDir
 from pyforms.controls import ControlTextArea, ControlList
 from pyforms.controls import ControlCombo, ControlProgress
 from pyforms.controls import ControlButton, ControlCheckBox
@@ -45,7 +45,7 @@ class FRC_Uploader(BaseWidget):
 
         # Create form fields
         # Event Values
-        self._where = ControlCombo(" Match Files Location")
+        self._where = ControlDir(" Match Files Location")
         self._prodteam = ControlText(" Production Team")
         self._twit = ControlText("Twitter Handle")
         self._fb = ControlText("Facebook Name")
@@ -96,8 +96,6 @@ class FRC_Uploader(BaseWidget):
         self._end.value += "For batch uploads"
 
         # Add ControlCombo values
-        self._where += ("Parent Folder", "../")
-        self._where += ("Same Folder", "")
         self._mtype += ("Qualifications", "qm")
         self._mtype += ("Quarterfinals", "qf")
         self._mtype += ("Semifinals", "sf")

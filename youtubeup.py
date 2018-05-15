@@ -422,17 +422,14 @@ def attempt_retry(error, retry, max_retries):
 def post_video(token, secret, match_video, event_key, loc):
     trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
     trusted_auth['X-TBA-Auth-Id'] = token
-    m = hashlib.md5()
     request_path = "/api/trusted/v1/event/{}/{}/add".format(event_key, loc)
     concat = secret + request_path + str(match_video)
-    m.update(concat.encode("utf-8"))
-    md5 = m.hexdigest()
+    md5 = hashlib.md5(concat.encode("utf-8")).hexdigest()
     trusted_auth['X-TBA-Auth-Sig'] = str(md5)
     url = "https://www.thebluealliance.com/api/trusted/v1/event/{}/{}/add"
     if DEBUG:
         url = "http://localhost:8080/api/trusted/v1/event/{}/{}/add"
     url_str = url.format(event_key, loc)
-    print(url_str)
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         print("""TBA ID and/or TBA secret missing. Please set them in the UI""")
         return
@@ -626,22 +623,14 @@ def post_upload(options, mcode, youtube, spreadsheet):
         post_video(options.tbaID, options.tbaSecret,
                    request_body, options.ecode, "media")
 
-    wasBatch = "True" if any(options.end != y for y in (
-        "For batch uploads", "")) else "False"
+    wasBatch = "True" if any(options.end != y for y in ("For batch uploads", "")) else "False"
     usedTBA = "True" if options.tba else "False"
     totalTime = dt.datetime.now() - options.then
-    values = [[str(dt.datetime.now()), str(totalTime), "https://www.youtube.com/watch?v={}".format(
-        options.vid), usedTBA, options.ename, wasBatch, mcode]]
+    values = [[str(dt.datetime.now()), str(totalTime), "https://www.youtube.com/watch?v={}".format(options.vid), usedTBA, options.ename, wasBatch, mcode]]
     sheetbody = {'values': values}
     try:
-        spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
-                                                   range=rowRange, valueInputOption="USER_ENTERED", body=sheetbody).execute()
+        spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="USER_ENTERED", body=sheetbody).execute()
         print("Added data to spreadsheet")
     except Exception as e:
         print("Failed to write to spreadsheet")
     return "DONE UPLOADING {}\n".format(options.file)
-
-
-def testfunc(optionslist):
-    for options in optionslist:
-        print(options)
