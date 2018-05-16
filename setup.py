@@ -59,5 +59,5 @@ setup(
         'urllib3==1.22',
         'visvis==1.10.0'
     ],
-    include_package_data=True,
+    data_files=[("share/frcuploader", ['client_secrets.json'])],
 )

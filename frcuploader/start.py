@@ -84,16 +84,19 @@ class FRC_Uploader(BaseWidget):
                          "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"), ("_weblink", "_ename", "_ecode"), ("_pID", "_tbaID", "_tbaSecret"), "_description"]},
                         (' ', '_button', ' ')]
 
+        # Main Menu Layout
+        self.mainmenu = [{'File': [{'Reset Form Values': self.__resetFormEvent}, {'Remove Youtube Credentials': self.__resetCredEvent}]}]
+
         # Set TBA check
         self._tba.value = True
 
         # Set Default Text
-        self._tbaID.value += "Go to thebluealliance.com/request/apiwrite to get keys"
-        self._tbaSecret.value += "Go to thebluealliance.com/request/apiwrite to get keys"
-        self._description.value += DEFAULT_DESCRIPTION
-        self._mcode.value += "0"
-        self._mnum.value += "1"
-        self._end.value += "For batch uploads"
+        self._tbaID.value = "Go to thebluealliance.com/request/apiwrite to get keys"
+        self._tbaSecret.value = "Go to thebluealliance.com/request/apiwrite to get keys"
+        self._description.value = DEFAULT_DESCRIPTION
+        self._mcode.value = "0"
+        self._mnum.value = "1"
+        self._end.value = "For batch uploads"
 
         # Add ControlCombo values
         self._mtype += ("Qualifications", "qm")
@@ -121,7 +124,7 @@ class FRC_Uploader(BaseWidget):
 
         # Get latest values from form_values.csv
         try:
-            with open('form_values.csv') as csvfile:
+            with open(os.path.join(os.path.expanduser("~"), ".form_values.csv")) as csvfile:
                 reader = csv.reader(csvfile, delimiter=',', quotechar='|')
                 i = 0
                 for row in reader:
@@ -159,7 +162,7 @@ class FRC_Uploader(BaseWidget):
                     break
         except (IOError, OSError, StopIteration) as e:
             print("No form_values.csv to read from, continuing with default values and creating file")
-            with open("form_values.csv", "w+") as csvf:  # if the file doesn't exist
+            with open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), "w+") as csvf:  # if the file doesn't exist
                 csvf.write(''.join(str(x) for x in [","] * 18))
 
     def __togglescroll(self):
@@ -181,11 +184,11 @@ class FRC_Uploader(BaseWidget):
             options = Namespace()
             reader = None
             try:
-                reader = csv.reader(open('form_values.csv'))
+                reader = csv.reader(open(os.path.join(os.path.expanduser("~"), ".form_values.csv")))
             except (StopIteration, IOError, OSError) as e:
-                with open("form_values.csv", "w+") as csvf:  # if the file doesn't exist
+                with open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), "w+") as csvf:  # if the file doesn't exist
                     csvf.write(''.join(str(x) for x in [","] * 18))
-                reader = csv.reader(open("form_values.csv"))
+                reader = csv.reader(open(os.path.join(os.path.expanduser("~"), ".form_values.csv")))
             row = next(reader)
             options.where = row[0] = self._where.value
             options.prodteam = row[1] = self._prodteam.value
@@ -234,7 +237,7 @@ class FRC_Uploader(BaseWidget):
                 row[14] = self._tiebreak.value = False
             row[12] = int(self._mnum.value)
             row[18] = self._end.value
-            writer = csv.writer(open('form_values.csv', 'w'))
+            writer = csv.writer(open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), 'w'))
             writer.writerow(row)
 
     def writePrint(self, text):
@@ -258,6 +261,33 @@ class FRC_Uploader(BaseWidget):
                 yup.init(options)
                 self._qview -= 0
                 self._queue.task_done()
+
+    def __resetFormEvent(self):
+        with open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), "w+") as csvf:  # if the file doesn't exist
+            csvf.write(''.join(str(x) for x in [","] * 18))
+        self._tbaID.value = "Go to thebluealliance.com/request/apiwrite to get keys"
+        self._tbaSecret.value = "Go to thebluealliance.com/request/apiwrite to get keys"
+        self._description.value = DEFAULT_DESCRIPTION
+        self._mcode.value = "0"
+        self._mnum.value = "1"
+        self._end.value = "For batch uploads"
+        self._mtype.value = "qm"
+        self._ceremonies.value = 0
+        self._eday.value = 0
+        self._tba.value = True
+        self._where.value = ""
+        self._prodteam.value = ""
+        self._twit.value = ""
+        self._fb.value = ""
+        self._weblink.value = ""
+        self._ename.value = ""
+        self._ecode.value = ""
+        self._pID.value = ""
+
+    def __resetCredEvent(self):
+        os.remove(os.path.join(os.path.expanduser("~"), ".oauth2-spreadsheet.json"))
+        os.remove(os.path.join(os.path.expanduser("~"), ".oauth2-youtube.json"))
+        sys.exit(0)
 
 
 def internet(host="www.google.com", port=80, timeout=4):

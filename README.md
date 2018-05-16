@@ -18,15 +18,16 @@ PRs are appreciated and will be reviewed quickly, the only code quality standard
 
 
 ## How to Setup
-1. Install Python 3.6 for your OS with the PATH added and make sure there are no other versions of Python 3
-2. Download this repository into a subfolder of the folder that will contain the videos, make sure every event is in seperate folders.
-3. Install the requirements for the script with `pip install -r /path/to/requirements.txt` or `make` if supported by your OS
-4. Add the thumbnail to the same folder as `thumbnail.png` (not required, but suggested)
-5. Make your recording program follow this naming scheme: [MATCH TYPE] [MATCH NUM].[EXTENSION] ex. Qualification Match 1.mp4 Also use the Tiebreaker scheme when necessary
-5. Start the program by running `python3 start.py` on UNIX and `py start.py` on Windows.
-6. Add in the necessary info in the Event Values and Match Values tabs
-7. Hit submit everytime a match finishes. No need to update any values unless you are entering eliminations or doing ceremonies
-8. Enjoy not having to deal with YouTube's front end 
+1. Install the latest version of Python 3 for your OS with the PATH added and make sure there are no other versions of Python 3
+2. Download this repository where ever you would like. I would highly suggest using git so you can pull from the main branch when necessary.
+3. Install the program by navigating to the folder and calling `pip install -U .` or `pip3 install -U .`.
+4. Create a folder for storing your match videos.
+5. Add the thumbnail to the match video folder as `thumbnail.png` (not required, but suggested).
+6. Make your recording program follow this naming scheme: [MATCH TYPE] \(TIEBREAKER\) [MATCH NUM].[EXTENSION] ex. Qualification Match 1.mp4.
+7. Start the program by running `frcuploader`.
+8. Add in the necessary info in the Event Values and Match Values tabs
+9. Hit submit everytime a match finishes. No need to update any values unless you are entering eliminations or doing ceremonies.
+10. Enjoy not having to deal with YouTube's front end 🎉.
 
 ### File Name Examples
 
@@ -62,7 +63,7 @@ Highlight Reel = `Highlight Reel.mp4` or `Wrapup Video.mp4`
 ![alt text](https://i.imgur.com/m5He8Ki.png)
 
 ##### Match File Locations
-You can now pick whether the match files  are in the same folder as the scripts or the one above. Default is the one above (parent folder).
+You can now pick where the match files are by clicking open and then navigating to the directory you would like to pull match videos from.
 
 ##### Production Team/Facebook Name/Twitter Handle/Website Link
 Constants that used to be in the script itself, you can now edit them as you see fit without going into the code.
@@ -114,6 +115,14 @@ This will display any information you need to know about an ongoing upload, the 
 ##### Queue
 The queue lets you hit submit a bunch of times to queue up jobs that can't be done with one submission such as all of qualifications and all of quarterfinals. The queue goes in the order you hit submit so don't worry about fixing your playlists afterwards. The top most item in the queue is the one being worked on.
 
+#### Menu Bar
+This is a bit different if you are on MacOS vs Windows. The menu bar is a part of the main window on Windows and it is a part of the native menu bar on MacOS.
+
+##### Reset Form Values
+Resets the form values to all the default values and resets the form value file.
+
+##### Remove Youtube Credentials
+Deletes the Youtube credentials and kills the program. Killing the program is intentional and necessary. You will be prompted for new credentials after you restart the program.
 
 If you are still in need of assistance, feel free to contact me.
 

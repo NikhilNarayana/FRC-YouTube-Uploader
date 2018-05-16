@@ -549,7 +549,7 @@ def initialize_upload(youtube, spreadsheet, options):
     insert_request = youtube.videos().insert(
         part=",".join(body.keys()),
         body=body,
-        media_body=MediaFileUpload(options.where + options.file,
+        media_body=MediaFileUpload(os.path.join(options.where + options.file),
                                    chunksize=10485760,
                                    resumable=True),)
     options.vid = upload(insert_request, options)
@@ -562,7 +562,7 @@ def upload(insert_request, options):
         ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED,)
     except AttributeError:
         pass  # Not windows
-    print("Uploading {} of size {}".format(options.file, file_size(options.where + options.file)))
+    print("Uploading {} of size {}".format(options.file, file_size(os.path.join(options.where + options.file))))
     while True:
         try:
             status, response = insert_request.next_chunk()
@@ -595,8 +595,10 @@ def upload(insert_request, options):
 
 def post_upload(options, mcode, youtube, spreadsheet):
     try:
-        if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):
-            update_thumbnail(youtube, options.vid, "thumbnail.png")
+        for file in options.files:
+            if "thumbnail.png" in file:
+                update_thumbnail(youtube, options.vid, file)
+                break
         else:
             print("thumbnail.png does not exist")
 

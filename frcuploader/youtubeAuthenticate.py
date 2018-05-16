@@ -5,6 +5,7 @@ try:
 except ImportError:
     import httplib
 import httplib2
+import sys
 import os
 
 from googleapiclient.discovery import build
@@ -21,23 +22,21 @@ RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
 
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
-CLIENT_SECRETS_FILE = "client_secrets.json"
+# MISSING_CLIENT_SECRETS_MESSAGE = """
+# WARNING: Please configure OAuth 2.0
 
-MISSING_CLIENT_SECRETS_MESSAGE = """
-WARNING: Please configure OAuth 2.0
+# To make this sample run you will need to populate the client_secrets.json file
+# found at:
 
-To make this sample run you will need to populate the client_secrets.json file
-found at:
+#    {}
 
-   {}
+# with information from the Developers Console
+# https://console.developers.google.com/
 
-with information from the Developers Console
-https://console.developers.google.com/
-
-For more information about the client_secrets.json file format, please visit:
-https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-""".format(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                        CLIENT_SECRETS_FILE)))
+# For more information about the client_secrets.json file format, please visit:
+# https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
+# """.format(os.path.abspath(os.path.join(os.path.dirname(__file__),
+#                                         CLIENT_SECRETS_FILE)))
 
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
@@ -47,10 +46,12 @@ SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
 
 
 def get_youtube_service():
-    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=YOUTUBE_UPLOAD_SCOPE, message=MISSING_CLIENT_SECRETS_MESSAGE)
+    CLIENT_SECRETS_FILE = get_secrets([sys.prefix, os.path.join(sys.prefix, "local"), "/usr", os.path.join("/usr", "local")], ["share/frcuploader/client_secrets.json", "client_secrets.json"])
+
+    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=YOUTUBE_UPLOAD_SCOPE)
 
     flow.user_agent = "FRC YouTube Uploader"
-    storage = Storage("oauth2-youtube.json")
+    storage = Storage(os.path.join(os.path.expanduser("~"), ".oauth2-youtube.json"))
     credentials = storage.get()
 
     flags = argparser.parse_args(args=[])
@@ -63,10 +64,13 @@ def get_youtube_service():
 
 
 def get_spreadsheet_service():
-    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=SPREADSHEETS_SCOPE, message=MISSING_CLIENT_SECRETS_MESSAGE)
+    CLIENT_SECRETS_FILE = get_secrets([sys.prefix, os.path.join(sys.prefix, "local"), "/usr", os.path.join("/usr", "local")], ["share/frcuploader/client_secrets.json", "client_secrets.json"])
+
+    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=SPREADSHEETS_SCOPE)
+
     flow.user_agent = "FRC YouTube Uploader"
 
-    storage = Storage("oauth2-spreadsheet.json")
+    storage = Storage(os.path.join(os.path.expanduser("~"), ".oauth2-spreadsheet.json"))
     credentials = storage.get()
 
     flags = argparser.parse_args(args=[])
@@ -89,3 +93,17 @@ def get_retry_exceptions():
 
 def get_max_retries():
     return 10
+
+
+def get_secrets(prefixes, relative_paths):
+    """
+    Taken from https://github.com/tokland/youtube-upload/blob/master/youtube_upload/main.py
+    Get the first existing filename of relative_path seeking on prefixes directories."""
+    try:
+        return os.path.join(sys._MEIPASS, relative_paths[-1]) # if I figure out how to use pyInstaller this will be useful
+    except Exception:
+        for prefix in prefixes:
+            for relative_path in relative_paths:
+                path = os.path.join(prefix, relative_path)
+                if os.path.exists(path):
+                    return path
