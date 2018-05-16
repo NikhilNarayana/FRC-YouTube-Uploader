@@ -18,8 +18,8 @@ PRs are appreciated and will be reviewed quickly, the only code quality standard
 
 
 ## How to Setup
-1. Install the latest version of Python 3 for your OS with the PATH added and make sure there are no other versions of Python 3
-2. Download this repository where ever you would like. I would highly suggest using git so you can pull from the main branch when necessary.
+1. Install the latest version of Python 3 for your OS with the PATH added and make sure there are no other versions of Python 3.
+2. Download this repository or the latest release to where ever you would like. I would highly suggest using git so you can pull from the main branch when necessary.
 3. Install the program by navigating to the folder and calling `pip install -U .` or `pip3 install -U .`.
 4. Create a folder for storing your match videos.
 5. Add the thumbnail to the match video folder as `thumbnail.png` (not required, but suggested).
@@ -149,7 +149,7 @@ This script will prompt for a playlist link and a file name for the thumbnail. I
 The script will update any description with the match's info at the top of the description. It will prompt you for a few pieces of information to get started, but should then do the rest on its own.
 
 ### updateTBA.py
-Forcefully update thebluealliance.com with a match video. The prompts will ask you for the necessary links. If you want to post the event's opening ceremonies or other non-match videos please link to www.thebluealliance.com/event/[event code]#media.
+Forcefully update thebluealliance.com with a match video. The prompts will ask you for the necessary links. If you want to post the event's opening ceremonies or other non-match videos please link to www.thebluealliance.com/event/[event_code]#media.
 
 ### playlistToTBA.py
 If for whatever reason you failed to post to TBA while using this uploader you can use this script afterwards to automatically link match videos to the event's page. Again the program will prompt you for links, once you do that it will take over and update TBA.
