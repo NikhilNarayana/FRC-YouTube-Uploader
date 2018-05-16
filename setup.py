@@ -24,7 +24,7 @@ setup(
     ],
     entry_points=dict(console_scripts=['frcuploader = frcuploader.start:main']),
     python_requires='~=3.3',
-    version='3.0',
+    version='3.1',
     packages=["frcuploader"],
     install_requires=[
         'AnyQt==0.0.8',
