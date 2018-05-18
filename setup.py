@@ -22,7 +22,7 @@ setup(
         'Programming Language :: Python :: 3.6.5',
         'Operating System :: POSIX',
     ],
-    entry_points=dict(console_scripts=['frcuploader = frcuploader.start:main']),
+    entry_points=dict(console_scripts=['frcuploader = frcuploader.main:main']),
     python_requires='~=3.3',
     version='3.1',
     packages=["frcuploader"],

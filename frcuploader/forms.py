@@ -3,20 +3,19 @@
 import os
 import csv
 import sys
-import socket
 import threading
-from queue import Queue
 from time import sleep
+from queue import Queue
 
-from . import youtubeAuthenticate as YA
+from .consts import DEFAULT_DESCRIPTION
 from . import youtubeup as yup
-from .consts import *
 
-from PyQt5 import QtCore, QtGui
 from datetime import datetime
-import pyforms
 from argparse import Namespace
+
 from pyforms import BaseWidget
+from PyQt5 import QtCore, QtGui
+from pyforms.controls import ControlNumber
 from pyforms.controls import ControlText, ControlDir
 from pyforms.controls import ControlTextArea, ControlList
 from pyforms.controls import ControlCombo, ControlProgress
@@ -58,7 +57,7 @@ class FRC_Uploader(BaseWidget):
         self._description = ControlTextArea(" Video Description")
         # Match Values
         self._mcode = ControlText("Match Code")
-        self._mnum = ControlText("Match Number")
+        self._mnum = ControlNumber("Match Number")
         self._mtype = ControlCombo("Match Type")
         self._tiebreak = ControlCheckBox("Tiebreaker")
         self._tba = ControlCheckBox("Use TBA")
@@ -95,7 +94,7 @@ class FRC_Uploader(BaseWidget):
         self._tbaSecret.value = "Go to thebluealliance.com/request/apiwrite to get keys"
         self._description.value = DEFAULT_DESCRIPTION
         self._mcode.value = "0"
-        self._mnum.value = "1"
+        self._mnum.value = 1
         self._end.value = "For batch uploads"
 
         # Add ControlCombo values
@@ -172,7 +171,7 @@ class FRC_Uploader(BaseWidget):
         """Button action event"""
         if DEBUG:
             if self._firstrun:
-                thr = threading.Thread(target=self._worker)
+                thr = threading.Thread(target=self.__worker)
                 thr.daemon = True
                 thr.start()
                 self._firstrun = False
@@ -220,18 +219,18 @@ class FRC_Uploader(BaseWidget):
             self._queue.put(options)
             self._qview.resize_rows_contents()
             if self._firstrun:
-                thr = threading.Thread(target=self._worker)
+                thr = threading.Thread(target=self.__worker)
                 thr.daemon = True
                 thr.start()
                 self._firstrun = False
             if int(self._ceremonies.value) == 0:
                 if self._end.value == "For batch uploads":
-                    self._mnum.value = str(int(self._mnum.value) + 1)
+                    self._mnum.value = int(self._mnum.value) + 1
                 else:
-                    self._mnum.value = str(int(self._end.value) + 1)
+                    self._mnum.value = int(self._end.value) + 1
                     self._end.value = "For batch uploads"
             elif int(self._ceremonies.value) == 2:
-                self._mnum.value = "1"
+                self._mnum.value = 1
                 self._mtype.value = "qf"
             if self._mtype.value == "qm" and self._tiebreak.value:
                 row[14] = self._tiebreak.value = False
@@ -246,7 +245,7 @@ class FRC_Uploader(BaseWidget):
             self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
         print(text, file=sys.__stdout__, end='')
 
-    def _worker(self):
+    def __worker(self):
         if DEBUG:
             while True:
                 val = self._queue.get()
@@ -263,13 +262,13 @@ class FRC_Uploader(BaseWidget):
                 self._queue.task_done()
 
     def __resetFormEvent(self):
-        with open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), "w+") as csvf:  # if the file doesn't exist
+        with open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), "w+") as csvf:
             csvf.write(''.join(str(x) for x in [","] * 18))
         self._tbaID.value = "Go to thebluealliance.com/request/apiwrite to get keys"
         self._tbaSecret.value = "Go to thebluealliance.com/request/apiwrite to get keys"
         self._description.value = DEFAULT_DESCRIPTION
         self._mcode.value = "0"
-        self._mnum.value = "1"
+        self._mnum.value = 1
         self._end.value = "For batch uploads"
         self._mtype.value = "qm"
         self._ceremonies.value = 0
@@ -288,34 +287,3 @@ class FRC_Uploader(BaseWidget):
         os.remove(os.path.join(os.path.expanduser("~"), ".oauth2-spreadsheet.json"))
         os.remove(os.path.join(os.path.expanduser("~"), ".oauth2-youtube.json"))
         sys.exit(0)
-
-
-def internet(host="www.google.com", port=80, timeout=4):
-    try:
-        host = socket.gethostbyname(host)
-        socket.setdefaulttimeout(timeout)
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((host, port))
-        s.close()
-        return True
-    except Exception as e:
-        print(e)
-        print("No internet!")
-        return False
-
-
-def main():
-    if "linux" in sys.platform:  # root needed for writing files
-        if os.geteuid() != 0:
-            print("Need sudo for writing files")
-            subprocess.call(['sudo', 'python3', sys.argv[0]])
-    YA.get_youtube_service()
-    YA.get_spreadsheet_service()
-    if internet():
-        pyforms.start_app(FRC_Uploader, geometry=(100, 100, 1, 1))  # 1, 1 shrinks it to the smallest possible size
-    else:
-        return
-
-
-if __name__ == "__main__":
-    main()
