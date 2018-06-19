@@ -7,7 +7,6 @@ import socket
 import pyforms
 
 from .forms import *
-from . import youtubeAuthenticate as YA
 
 
 def internet(host="www.google.com", port=80, timeout=4):
@@ -29,8 +28,6 @@ def main():
         if geteuid() != 0:
             print("Need sudo for writing files")
             subprocess.call(['sudo', 'python3', argv[0]])
-    YA.get_youtube_service()
-    YA.get_spreadsheet_service()
     if internet():
         pyforms.start_app(FRC_Uploader, geometry=(100, 100, 1, 1))  # 1, 1 shrinks it to the smallest possible size
     else:
