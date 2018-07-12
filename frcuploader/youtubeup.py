@@ -26,7 +26,6 @@ trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
 s = requests.Session()
 s = CacheControl(s, heuristic=ExpiresAfter(minutes=1))
 s.headers.update(app_id)
-
 """Utility Functions"""
 
 
@@ -323,14 +322,32 @@ def tba_results(options):
     return blue_data, red_data, mcode
 
 
-def create_description(options, blueScore, blue1, blue2, blue3, redScore, red1, red2, red3):
-    if all(x == -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
-        return NO_TBA_DESCRIPTION.format(ename=options.ename, team=options.prodteam, twit=options.twit,
-                                         fb=options.fb, weblink=options.weblink)
+def create_description(options, blueScore, blue1, blue2, blue3, redScore, red1,
+                       red2, red3):
+    if all(x == -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3,
+                             blueScore)):
+        return NO_TBA_DESCRIPTION.format(
+            ename=options.ename,
+            team=options.prodteam,
+            twit=options.twit,
+            fb=options.fb,
+            weblink=options.weblink)
     try:
-        return options.description.format(ename=options.ename, team=options.prodteam, red1=red1,
-                                          red2=red2, red3=red3, redscore=redScore, blue1=blue1, blue2=blue2, blue3=blue3,
-                                          bluescore=blueScore, ecode=options.ecode, twit=options.twit, fb=options.fb, weblink=options.weblink)
+        return options.description.format(
+            ename=options.ename,
+            team=options.prodteam,
+            red1=red1,
+            red2=red2,
+            red3=red3,
+            redscore=redScore,
+            blue1=blue1,
+            blue2=blue2,
+            blue3=blue3,
+            bluescore=blueScore,
+            ecode=options.ecode,
+            twit=options.twit,
+            fb=options.fb,
+            weblink=options.weblink)
     except TypeError as e:
         print(e)
         return options.description
@@ -397,8 +414,7 @@ def add_to_playlist(youtube, videoID, playlistID):
                         'videoId': videoID
                     }
                 }
-            }
-        ).execute()
+            }).execute()
         print("Added to playlist")
 
 
@@ -500,7 +516,6 @@ def init(options):
         print("Please check that a file matches the match type and number")
 
 
-
 def initialize_upload(youtube, spreadsheet, options):
     if not options.ceremonies:
         print("Initializing upload for {} match {}".format(
@@ -521,12 +536,8 @@ def initialize_upload(youtube, spreadsheet, options):
                 title=options.yttitle,
                 description=create_description(options, *blue_data, *red_data),
                 tags=tags,
-                categoryId=options.category
-            ),
-            status=dict(
-                privacyStatus=options.privacy
-            )
-        )
+                categoryId=options.category),
+            status=dict(privacyStatus=options.privacy))
     else:
         mcode = get_match_code(options.mtype, options.mnum, options.mcode)
 
@@ -539,19 +550,17 @@ def initialize_upload(youtube, spreadsheet, options):
                 description=create_description(
                     options, -1, -1, -1, -1, -1, -1, -1, -1),
                 tags=tags,
-                categoryId=options.category
-            ),
-            status=dict(
-                privacyStatus=options.privacy
-            )
-        )
+                categoryId=options.category),
+            status=dict(privacyStatus=options.privacy))
 
     insert_request = youtube.videos().insert(
         part=",".join(body.keys()),
         body=body,
-        media_body=MediaFileUpload(os.path.join(options.where + options.file),
-                                   chunksize=10485760,
-                                   resumable=True),)
+        media_body=MediaFileUpload(
+            os.path.join(options.where + options.file),
+            chunksize=10485760,
+            resumable=True),
+    )
     options.vid = upload(insert_request, options)
     return post_upload(options, mcode, youtube, spreadsheet)
 
@@ -559,19 +568,22 @@ def initialize_upload(youtube, spreadsheet, options):
 def upload(insert_request, options):
     ACCEPTABLE_ERRNO = (errno.EPIPE, errno.EINVAL, errno.ECONNRESET)
     try:
-        ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED,)
+        ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED, )
     except AttributeError:
         pass  # Not windows
-    print("Uploading {} of size {}".format(options.file, file_size(os.path.join(options.where + options.file))))
+    print("Uploading {} of size {}".format(
+        options.file, file_size(os.path.join(options.where + options.file))))
     while True:
         try:
             status, response = insert_request.next_chunk()
             if status is not None:
-                percent = Decimal(int(status.resumable_progress) / int(status.total_size))
+                percent = Decimal(
+                    int(status.resumable_progress) / int(status.total_size))
                 print("{}% uploaded".format(round(100 * percent, 2)))
         except HttpError as e:
             if e.resp.status in retry_status_codes:
-                print("A retriable HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
+                print("A retriable HTTP error {} occurred:\n{}".format(
+                    e.resp.status, e.content))
         except retry_exceptions as e:
             print("A retriable error occurred: {}".format(e))
 
@@ -631,7 +643,11 @@ def post_upload(options, mcode, youtube, spreadsheet):
     values = [[str(dt.datetime.now()), str(totalTime), "https://www.youtube.com/watch?v={}".format(options.vid), usedTBA, options.ename, wasBatch, mcode]]
     sheetbody = {'values': values}
     try:
-        spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID, range=rowRange, valueInputOption="USER_ENTERED", body=sheetbody).execute()
+        spreadsheet.spreadsheets().values().append(
+            spreadsheetId=spreadsheetID,
+            range=rowRange,
+            valueInputOption="USER_ENTERED",
+            body=sheetbody).execute()
         print("Added data to spreadsheet")
     except Exception as e:
         print("Failed to write to spreadsheet")

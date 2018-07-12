@@ -33,7 +33,6 @@ class EmittingStream(QtCore.QObject):
 
 
 class FRC_Uploader(BaseWidget):
-
     def __init__(self):
         super(FRC_Uploader, self).__init__("FRC YouTube Uploader")
         # Redirct print output
@@ -78,13 +77,26 @@ class FRC_Uploader(BaseWidget):
         self._autoscroll = True
 
         # Form Layout
-        self.formset = [{"-Match Values": [(' ', "_mcode", ' '), (' ', "_mnum", ' '), (' ', "_mtype", ' '), (' ', "_tiebreak", "_tba", ' '), (' ', "_ceremonies", ' '), (' ', "_eday", ' '), (' ', "_end", ' ')],
-                         "-Status Output-": ["_output", (' ', "_ascrollbutton", ' '), "=", "_qview"],
-                         "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"), ("_weblink", "_ename", "_ecode"), ("_pID", "_tbaID", "_tbaSecret"), "_description"]},
-                        (' ', '_button', ' ')]
+        self.formset = [{
+            "-Match Values":
+            [(' ', "_mcode", ' '), (' ', "_mnum", ' '), (' ', "_mtype", ' '),
+             (' ', "_tiebreak", "_tba", ' '), (' ', "_ceremonies", ' '),
+             (' ', "_eday", ' '), (' ', "_end", ' ')],
+            "-Status Output-":
+            ["_output", (' ', "_ascrollbutton", ' '), "=", "_qview"],
+            "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"),
+                              ("_weblink", "_ename", "_ecode"),
+                              ("_pID", "_tbaID", "_tbaSecret"), "_description"]
+        }, (' ', '_button', ' ')]
 
         # Main Menu Layout
-        self.mainmenu = [{'File': [{'Reset Form Values': self.__resetFormEvent}, {'Remove Youtube Credentials': self.__resetCredEvent}]}]
+        self.mainmenu = [{
+            'File': [{
+                'Reset Form Values': self.__resetFormEvent
+            }, {
+                'Remove Youtube Credentials': self.__resetCredEvent
+            }]
+        }]
 
         # Set TBA check
         self._tba.value = True

@@ -29,7 +29,8 @@ def main():
             print("Need sudo for writing files")
             subprocess.call(['sudo', 'python3', argv[0]])
     if internet():
-        pyforms.start_app(FRC_Uploader, geometry=(100, 100, 1, 1))  # 1, 1 shrinks it to the smallest possible size
+        pyforms.start_app(
+            FRC_Uploader, geometry=(100, 100, 1, 1))  # smallest size
     else:
         return
 

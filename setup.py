@@ -19,11 +19,13 @@ setup(
     keywords='frc robotics youtube uploader',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-        'Programming Language :: Python :: 3.6.5',
-        'Operating System :: POSIX',
+        'Programming Language :: Python :: 3.6',
+        'Operating System :: OS Independent',
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Natural Language :: English",
     ],
     entry_points=dict(console_scripts=['frcuploader = frcuploader.main:main']),
-    python_requires='~=3.3',
+    python_requires='~=3.5',
     version='3.1',
     packages=["frcuploader"],
     install_requires=[
@@ -59,5 +61,6 @@ setup(
         'urllib3==1.22',
         'visvis==1.10.0'
     ],
-    data_files=[("share/frcuploader", ['client_secrets.json'])],
+    data_files=[("share/frcuploader", ['frcuploader/client_secrets.json'])],
+    package_data={'frcuploader': ['frcuploader/client_secrets.json']},
 )
