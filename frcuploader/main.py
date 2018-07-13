@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from os import geteuid
 from sys import platform, argv
 import socket
 
@@ -25,6 +24,7 @@ def internet(host="www.google.com", port=80, timeout=4):
 
 def main():
     if "linux" in platform:  # root needed for writing files
+        from os import geteuid
         if geteuid() != 0:
             print("Need sudo for writing files")
             subprocess.call(['sudo', 'python3', argv[0]])
