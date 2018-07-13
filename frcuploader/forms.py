@@ -7,7 +7,7 @@ import threading
 from time import sleep
 from queue import Queue
 
-from .consts import DEFAULT_DESCRIPTION
+from .consts import DEFAULT_DESCRIPTION, DEBUG
 from . import youtubeup as yup
 
 from datetime import datetime
@@ -167,6 +167,8 @@ class FRC_Uploader(BaseWidget):
                                     switcher[i].value = False
                                 else:
                                     switcher[i].value = True
+                            elif i == 12:
+                                switcher[i].value = int(val)
                             else:
                                 switcher[i].value = val
                         i = i + 1

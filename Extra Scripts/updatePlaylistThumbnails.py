@@ -2,8 +2,8 @@
 
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
-from ..youtubeup import update_thumbnail
-from ..youtubeAuthenticate import get_youtube_service
+from youtubeAuthenticate import get_youtube_service
+from googleapiclient.http import MediaFileUpload
 
 THUMBNAIL = ""
 PLAYLISTID = ""
@@ -13,14 +13,19 @@ PLAYLISTID = ""
 # authenticated user's channel.
 
 
+def update_thumbnail(youtube, video_id, thumbnail):
+    youtube.thumbnails().set(
+        videoId=video_id,
+        media_body=thumbnail).execute()
+    print("Thumbnail added to video {}".format(video_id))
+
+
 def update_thumbnails(youtube, pID, thumbnail):
     playlistitems_list = youtube.playlistItems().list(
-        playlistId=pID,
-        part="snippet",
-        maxResults=50
-    ).execute()
-    nextPageToken = playlistitems_list["nextPageToken"]
+        playlistId=pID, part="snippet", maxResults=50).execute()
+    print(playlistitems_list)
     while ('nextPageToken' in playlistitems_list):
+        nextPageToken = playlistitems_list["nextPageToken"]
         print("getting next page")
         nextPageList = youtube.playlistItems().list(
             playlistId=pID,
