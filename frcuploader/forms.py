@@ -56,7 +56,7 @@ class FRC_Uploader(BaseWidget):
         self._description = ControlTextArea(" Video Description")
         # Match Values
         self._mcode = ControlText("Match Code")
-        self._mnum = ControlNumber("Match Number")
+        self._mnum = ControlNumber("Match Number", minimum=1, maximum=500)
         self._mtype = ControlCombo("Match Type")
         self._tiebreak = ControlCheckBox("Tiebreaker")
         self._tba = ControlCheckBox("Use TBA")
