@@ -82,6 +82,7 @@ Both of these must be obtained by requesting them from www.thebluealliance.com/r
 
 ##### Video Description
 The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. If you would like to change the description you can rearrange it as you see fit, but you must keep anything in curly braces to prevent the program from blowing up in your face when you hit submit.
+Right clicking on the `Video description` text will pop up a reset button if necessary.
 
 ### Match Values
 ![alt text](https://i.imgur.com/FVH3wx6l.png)
@@ -114,6 +115,7 @@ This will display any information you need to know about an ongoing upload, the 
 
 ##### Queue
 The queue lets you hit submit a bunch of times to queue up jobs that can't be done with one submission such as all of qualifications and all of quarterfinals. The queue goes in the order you hit submit so don't worry about fixing your playlists afterwards. The top most item in the queue is the one being worked on.
+Double clicking on a row in the Queue will remove it from the Queue. Be careful if you do this because you can't undo it unless you resubmit a new job.
 
 #### Menu Bar
 This is a bit different if you are on MacOS vs Windows. The menu bar is a part of the main window on Windows and it is a part of the native menu bar on MacOS.

@@ -36,9 +36,10 @@ class FRC_Uploader(BaseWidget):
     def __init__(self):
         super(FRC_Uploader, self).__init__("FRC YouTube Uploader")
         # Redirct print output
-        sys.stdout = EmittingStream(textWritten=self.writePrint)
+        sys.stdout = EmittingStream(textWritten=self.write_print)
         # Queue
         self._queue = Queue()
+        self._queueref = []
         self._firstrun = True
 
         # Create form fields
@@ -54,7 +55,7 @@ class FRC_Uploader(BaseWidget):
         self._tbaID = ControlText("TBA ID")
         self._tbaSecret = ControlText("TBA Secret")
         self._description = ControlTextArea(" Video Description")
-        self._description.add_popup_menu_option("Reset", function_action=self.__descrip_reset)
+        self._description.add_popup_menu_option("Reset", self.__reset_descrip_event)
 
         # Match Values
         self._mcode = ControlText("Match Code")
@@ -69,7 +70,8 @@ class FRC_Uploader(BaseWidget):
         # Output Box
         self._output = ControlTextArea()
         self._output.readonly = True
-        self._qview = ControlList("Queue")
+        self._qview = ControlList("Queue", select_entire_row=True)
+        self._qview.cell_double_clicked_event = self.__ignore_job
         self._qview.readonly = True
         self._qview.horizontal_headers = ["Event Code", "Match Type", "Match #", "Last Match #"]
 
@@ -94,9 +96,9 @@ class FRC_Uploader(BaseWidget):
         # Main Menu Layout
         self.mainmenu = [{
             'File': [{
-                'Reset Form Values': self.__resetFormEvent
+                'Reset Form Values': self.__reset_form_event
             }, {
-                'Remove Youtube Credentials': self.__resetCredEvent
+                'Remove Youtube Credentials': self.__reset_cred_event
             }]
         }]
 
@@ -127,7 +129,7 @@ class FRC_Uploader(BaseWidget):
         self._eday += ("3", 3)
 
         # Define the button action
-        self._button.value = self.__buttonAction
+        self._button.value = self.__button_action
         self._ascrollbutton.value = self.__togglescroll
 
         # Hide Alternate Description Box
@@ -183,7 +185,7 @@ class FRC_Uploader(BaseWidget):
     def __togglescroll(self):
         self._autoscroll = False if self._autoscroll else True
 
-    def __buttonAction(self):
+    def __button_action(self):
         """Button action event"""
         if DEBUG:
             if self._firstrun:
@@ -191,7 +193,8 @@ class FRC_Uploader(BaseWidget):
                 thr.daemon = True
                 thr.start()
                 self._firstrun = False
-            self._queue.put("{}".format(self.testval))
+            self._queue.put(str(self.testval))
+            self._queueref.append(str(self.testval))
             self._qview += (self.testval, self.testval, self.testval, self.testval)
             self.testval += 1
             self._qview.resize_rows_contents()
@@ -232,7 +235,9 @@ class FRC_Uploader(BaseWidget):
                 self._qview += (options.ecode, options.mtype, options.mnum)
             else:
                 self._qview += (options.ecode, options.mtype, options.mnum, options.end)
+            options.ignore = False
             self._queue.put(options)
+            self._queueref.append(options)
             self._qview.resize_rows_contents()
             if self._firstrun:
                 thr = threading.Thread(target=self.__worker)
@@ -255,7 +260,7 @@ class FRC_Uploader(BaseWidget):
             writer = csv.writer(open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), 'w'))
             writer.writerow(row)
 
-    def writePrint(self, text):
+    def write_print(self, text):
         self._output._form.plainTextEdit.insertPlainText(text)
         if self._autoscroll:
             self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
@@ -265,19 +270,23 @@ class FRC_Uploader(BaseWidget):
         if DEBUG:
             while True:
                 val = self._queue.get()
-                self._qview -= 0
-                print(val)
-                sleep(2)
+                if val in self._queueref:
+                    self._qview -= 0
+                    print(val)
+                    sleep(2)
+                    self._queueref.pop(0)
                 self._queue.task_done()
         else:
             while True:
                 options = self._queue.get()
-                options.then = datetime.now()
-                yup.init(options)
-                self._qview -= 0
+                if not options.ignore:
+                    options.then = datetime.now()
+                    yup.init(options)
+                    self._qview -= 0
+                    self._queueref.pop(0)
                 self._queue.task_done()
 
-    def __resetFormEvent(self):
+    def __reset_form_event(self):
         with open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), "w+") as csvf:
             csvf.write(''.join(str(x) for x in [","] * 18))
         self._tbaID.value = "Go to thebluealliance.com/request/apiwrite to get keys"
@@ -299,10 +308,16 @@ class FRC_Uploader(BaseWidget):
         self._ecode.value = ""
         self._pID.value = ""
 
-    def __resetCredEvent(self):
+    def __reset_cred_event(self):
         os.remove(os.path.join(os.path.expanduser("~"), ".oauth2-spreadsheet.json"))
         os.remove(os.path.join(os.path.expanduser("~"), ".oauth2-youtube.json"))
         sys.exit(0)
 
-    def __descrip_reset(self):
+    def __reset_descrip_event(self):
         self._description.value = DEFAULT_DESCRIPTION
+
+    def __ignore_job(self, row, column):
+        self._qview -= row
+        if not DEBUG:
+            self._queueref[row+1].ignore = True
+        self._queueref.pop(row+1)
