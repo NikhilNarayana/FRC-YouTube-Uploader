@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """ this script will take any playlist that uploaded videos using the uploader and link the matches to TBA"""
 
-import simplejson as json
-from ..youtubeAuthenticate import *
-from ..youtubeup import post_video, quarters_match_code, semis_match_code, finals_match_code, tiebreak_mnum
+import json
+from youtubeAuthenticate import *
+from youtubeup import post_video, quarters_match_code, semis_match_code, finals_match_code, tiebreak_mnum
 
 if __name__ == "__main__":
     PID = input("Link to Playlist: ")
