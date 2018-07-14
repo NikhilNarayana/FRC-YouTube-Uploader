@@ -54,6 +54,8 @@ class FRC_Uploader(BaseWidget):
         self._tbaID = ControlText("TBA ID")
         self._tbaSecret = ControlText("TBA Secret")
         self._description = ControlTextArea(" Video Description")
+        self._description.add_popup_menu_option("Reset", function_action=self.__descrip_reset)
+
         # Match Values
         self._mcode = ControlText("Match Code")
         self._mnum = ControlNumber("Match Number", minimum=1, maximum=500)
@@ -301,3 +303,6 @@ class FRC_Uploader(BaseWidget):
         os.remove(os.path.join(os.path.expanduser("~"), ".oauth2-spreadsheet.json"))
         os.remove(os.path.join(os.path.expanduser("~"), ".oauth2-youtube.json"))
         sys.exit(0)
+
+    def __descrip_reset(self):
+        self._description.value = DEFAULT_DESCRIPTION
