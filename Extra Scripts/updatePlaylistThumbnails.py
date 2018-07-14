@@ -24,8 +24,11 @@ def update_thumbnails(youtube, pID, thumbnail):
     playlistitems_list = youtube.playlistItems().list(
         playlistId=pID, part="snippet", maxResults=50).execute()
     print(playlistitems_list)
-    while ('nextPageToken' in playlistitems_list):
+    try:
         nextPageToken = playlistitems_list["nextPageToken"]
+    except KeyError as e:
+        print("Only one page")
+    while ('nextPageToken' in playlistitems_list):
         print("getting next page")
         nextPageList = youtube.playlistItems().list(
             playlistId=pID,

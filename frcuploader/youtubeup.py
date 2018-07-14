@@ -470,7 +470,7 @@ def init(options):
     if DEBUG:
         options.privacy = VALID_PRIVACY_STATUSES[1]  # set to unlisted if debugging
     options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
-    options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]))  # magic
+    options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]))
     options.tags = DEFAULT_TAGS.format(options.ecode, game=GAMES[options.ecode[:4]])  # add the ecode and game to default tags
     # default category is science & technology
     options.category = DEFAULT_VIDEO_CATEGORY
@@ -566,6 +566,7 @@ def initialize_upload(youtube, spreadsheet, options):
 
 
 def upload(insert_request, options):
+    response = None
     ACCEPTABLE_ERRNO = (errno.EPIPE, errno.EINVAL, errno.ECONNRESET)
     try:
         ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED, )
@@ -607,10 +608,8 @@ def upload(insert_request, options):
 
 def post_upload(options, mcode, youtube, spreadsheet):
     try:
-        for file in options.files:
-            if "thumbnail.png" in file:
-                update_thumbnail(youtube, options.vid, file)
-                break
+        if "thumbnail.png" in options.files:
+            update_thumbnail(youtube, options.vid, os.path.join(options.where + "thumbnail.png"))
         else:
             print("thumbnail.png does not exist")
 
