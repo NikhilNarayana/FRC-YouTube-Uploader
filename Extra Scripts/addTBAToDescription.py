@@ -18,8 +18,8 @@ def run(youtube, ID, ecode, mID, mnum, end):
     if end != 0:
         for vid in get_video_ids(youtube, ID):
             if int(mnum) <= int(end):
-                mnum = int(mnum) + 1
                 update_description(youtube, vid, ecode, mID, mnum)
+                mnum = int(mnum) + 1
     else:
         update_description(youtube, ID, ecode, mID, mnum)
     print("Updated all video descriptions")
