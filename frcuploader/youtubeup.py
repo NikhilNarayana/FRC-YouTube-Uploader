@@ -11,11 +11,11 @@ from decimal import Decimal
 
 import tbapy
 import requests
-import simplejson as json
+import json
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
-from consts import *
+from .consts import *
 
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import ExpiresAfter
@@ -26,7 +26,6 @@ trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
 s = requests.Session()
 s = CacheControl(s, heuristic=ExpiresAfter(minutes=1))
 s.headers.update(app_id)
-
 """Utility Functions"""
 
 
@@ -79,21 +78,18 @@ def ceremonies_yt_title(options):
     title = None
     if options.ceremonies is 1:
         if not options.eday:
-            title = options.ename + " - " + \
-                "{} Opening Ceremonies".format(options.day)
+            title = "{} - {} Opening Ceremonies".format(options.ename, options.day)
         else:
-            title = options.ename + " - " + \
-                "Day {} Opening Ceremonies".format(options.eday)
+            title = "{} - Day {} Opening Ceremonies".format(options.ename, options.eday)
     elif options.ceremonies is 2:
-        title = options.ename + " - " + "Alliance Selection"
+        title = "{} - Alliance Selection".format(options.ename)
     elif options.ceremonies is 3:
         if not options.eday:
-            title = options.ename + " - " + "Closing Ceremonies"
+            title = "{} - Closing Ceremonies".format(options.ename)
         else:
-            title = options.ename + " - " + \
-                "Day {} Closing Ceremonies".format(options.eday)
+            title = "{} - Day {} Closing Ceremonies".format(options.ename, options.eday)
     elif options.ceremonies is 4:
-        title = options.ename + " - " + "Highlight Reel"
+        title = "{} - Highlight Reel".format(options.ename)
     return title
 
 
@@ -106,6 +102,7 @@ def quals_filename(options):
         fl = f.lower()
         if all([" " + str(options.mnum) + "." in fl and any(k in fl for k in ("qual", "qualification", "qm"))]):
             file = f
+            break
     if file is None:
         print("No File Found")
     return file
@@ -116,16 +113,17 @@ def quarters_filename(options):
     if 1 <= options.mnum <= 8:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in (
-                    "quarter", "final", " " + str(options.mnum) + ".")):
+            if all(k in fl for k in ("quarter", "final", " " + str(options.mnum) + ".")):
                 if "tiebreak" not in fl:
                     file = f
+                    break
     elif 9 <= options.mnum <= 12:
         mnum = options.mnum - 8
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("quarter", "tiebreak", "final", " " + str(mnum) + ".")):
                 file = f
+                break
     if file is None:
         print("No File Found")
     return file
@@ -139,12 +137,14 @@ def semis_filename(options):
             if all(k in fl for k in ("semi", "final", " " + str(options.mnum) + ".")):
                 if "tiebreak" not in fl:
                     file = f
+                    break
     elif options.mnum <= 6:
         mnum = options.mnum - 4
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "tiebreak", "final", " " + str(mnum) + ".")):
                 file = f
+                break
     if file is None:
         print("No File Found")
     return file
@@ -158,12 +158,14 @@ def finals_filename(options):
             if all(k in fl for k in ("final", " " + str(options.mnum) + ".")):
                 if all(k not in fl for k in ("quarter", "semi")) and "tiebreak" not in fl:
                     file = f
+                    break
     elif options.mnum >= 3:
         for f in options.files:
             fl = f.lower()
             if "final" in fl and any(k in fl for k in ("tiebreak", " " + str(options.mnum) + ".")):
                 if all(k not in fl for k in ("quarter", "semi")):
                     file = f
+                    break
     if file is None:
         print("No File Found")
     return file
@@ -177,24 +179,29 @@ def ceremonies_filename(options):
             if all(k in fl for k in ("opening", "ceremon")):
                 if any(k in fl for k in (options.day.lower(), "day {}".format(options.eday))):
                     file = f
+                    break
     elif options.ceremonies is 2:
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("alliance", "selection")):
                 file = f
+                break
     elif options.ceremonies is 3:
         for f in options.files:
             fl = f.lower()
             if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
                 if any(k in fl for k in (options.day.lower(), "day {}".format(options.eday))):
                     file = f
+                    break
                 elif options.eday == 0:
                     file = f
+                    break
     elif options.ceremonies is 4:
         for f in options.files:
             fl = f.lower()
-            if any(k in fl for k in ("highlight", "wrapup")):
+            if any(k in fl for k in ("highlight", "wrapup", "recap")):
                 file = f
+                break
     if file is None:
         print("No File Found")
     return file
@@ -315,14 +322,32 @@ def tba_results(options):
     return blue_data, red_data, mcode
 
 
-def create_description(options, blueScore, blue1, blue2, blue3, redScore, red1, red2, red3):
-    if all(x == -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)):
-        return NO_TBA_DESCRIPTION.format(ename=options.ename, team=options.prodteam, twit=options.twit,
-                                         fb=options.fb, weblink=options.weblink)
+def create_description(options, blueScore, blue1, blue2, blue3, redScore, red1,
+                       red2, red3):
+    if all(x == -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3,
+                             blueScore)):
+        return NO_TBA_DESCRIPTION.format(
+            ename=options.ename,
+            team=options.prodteam,
+            twit=options.twit,
+            fb=options.fb,
+            weblink=options.weblink)
     try:
-        return options.description.format(ename=options.ename, team=options.prodteam, red1=red1,
-                                          red2=red2, red3=red3, redscore=redScore, blue1=blue1, blue2=blue2, blue3=blue3,
-                                          bluescore=blueScore, ecode=options.ecode, twit=options.twit, fb=options.fb, weblink=options.weblink)
+        return options.description.format(
+            ename=options.ename,
+            team=options.prodteam,
+            red1=red1,
+            red2=red2,
+            red3=red3,
+            redscore=redScore,
+            blue1=blue1,
+            blue2=blue2,
+            blue3=blue3,
+            bluescore=blueScore,
+            ecode=options.ecode,
+            twit=options.twit,
+            fb=options.fb,
+            weblink=options.weblink)
     except TypeError as e:
         print(e)
         return options.description
@@ -389,8 +414,7 @@ def add_to_playlist(youtube, videoID, playlistID):
                         'videoId': videoID
                     }
                 }
-            }
-        ).execute()
+            }).execute()
         print("Added to playlist")
 
 
@@ -414,17 +438,14 @@ def attempt_retry(error, retry, max_retries):
 def post_video(token, secret, match_video, event_key, loc):
     trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
     trusted_auth['X-TBA-Auth-Id'] = token
-    m = hashlib.md5()
     request_path = "/api/trusted/v1/event/{}/{}/add".format(event_key, loc)
     concat = secret + request_path + str(match_video)
-    m.update(concat.encode("utf-8"))
-    md5 = m.hexdigest()
+    md5 = hashlib.md5(concat.encode("utf-8")).hexdigest()
     trusted_auth['X-TBA-Auth-Sig'] = str(md5)
     url = "https://www.thebluealliance.com/api/trusted/v1/event/{}/{}/add"
     if DEBUG:
         url = "http://localhost:8080/api/trusted/v1/event/{}/{}/add"
     url_str = url.format(event_key, loc)
-    print(url_str)
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
         print("""TBA ID and/or TBA secret missing. Please set them in the UI""")
         return
@@ -449,7 +470,7 @@ def init(options):
     if DEBUG:
         options.privacy = VALID_PRIVACY_STATUSES[1]  # set to unlisted if debugging
     options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
-    options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]))  # magic
+    options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]))
     options.tags = DEFAULT_TAGS.format(options.ecode, game=GAMES[options.ecode[:4]])  # add the ecode and game to default tags
     # default category is science & technology
     options.category = DEFAULT_VIDEO_CATEGORY
@@ -495,7 +516,6 @@ def init(options):
         print("Please check that a file matches the match type and number")
 
 
-
 def initialize_upload(youtube, spreadsheet, options):
     if not options.ceremonies:
         print("Initializing upload for {} match {}".format(
@@ -516,12 +536,8 @@ def initialize_upload(youtube, spreadsheet, options):
                 title=options.yttitle,
                 description=create_description(options, *blue_data, *red_data),
                 tags=tags,
-                categoryId=options.category
-            ),
-            status=dict(
-                privacyStatus=options.privacy
-            )
-        )
+                categoryId=options.category),
+            status=dict(privacyStatus=options.privacy))
     else:
         mcode = get_match_code(options.mtype, options.mnum, options.mcode)
 
@@ -534,39 +550,41 @@ def initialize_upload(youtube, spreadsheet, options):
                 description=create_description(
                     options, -1, -1, -1, -1, -1, -1, -1, -1),
                 tags=tags,
-                categoryId=options.category
-            ),
-            status=dict(
-                privacyStatus=options.privacy
-            )
-        )
+                categoryId=options.category),
+            status=dict(privacyStatus=options.privacy))
 
     insert_request = youtube.videos().insert(
         part=",".join(body.keys()),
         body=body,
-        media_body=MediaFileUpload(options.where + options.file,
-                                   chunksize=10485760,
-                                   resumable=True),)
+        media_body=MediaFileUpload(
+            os.path.join(options.where + options.file),
+            chunksize=10485760,
+            resumable=True),
+    )
     options.vid = upload(insert_request, options)
     return post_upload(options, mcode, youtube, spreadsheet)
 
 
 def upload(insert_request, options):
+    response = None
     ACCEPTABLE_ERRNO = (errno.EPIPE, errno.EINVAL, errno.ECONNRESET)
     try:
-        ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED,)
+        ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED, )
     except AttributeError:
         pass  # Not windows
-    print("Uploading {} of size {}".format(options.file, file_size(options.where + options.file)))
+    print("Uploading {} of size {}".format(
+        options.file, file_size(os.path.join(options.where + options.file))))
     while True:
         try:
             status, response = insert_request.next_chunk()
             if status is not None:
-                percent = Decimal(int(status.resumable_progress) / int(status.total_size))
+                percent = Decimal(
+                    int(status.resumable_progress) / int(status.total_size))
                 print("{}% uploaded".format(round(100 * percent, 2)))
         except HttpError as e:
             if e.resp.status in retry_status_codes:
-                print("A retriable HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
+                print("A retriable HTTP error {} occurred:\n{}".format(
+                    e.resp.status, e.content))
         except retry_exceptions as e:
             print("A retriable error occurred: {}".format(e))
 
@@ -590,8 +608,8 @@ def upload(insert_request, options):
 
 def post_upload(options, mcode, youtube, spreadsheet):
     try:
-        if any("thumbnail" in file for file in [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]):
-            update_thumbnail(youtube, options.vid, "thumbnail.png")
+        if "thumbnail.png" in options.files:
+            update_thumbnail(youtube, options.vid, os.path.join(options.where + "thumbnail.png"))
         else:
             print("thumbnail.png does not exist")
 
@@ -618,22 +636,18 @@ def post_upload(options, mcode, youtube, spreadsheet):
         post_video(options.tbaID, options.tbaSecret,
                    request_body, options.ecode, "media")
 
-    wasBatch = "True" if any(options.end != y for y in (
-        "For batch uploads", "")) else "False"
+    wasBatch = "True" if any(options.end != y for y in ("For batch uploads", "")) else "False"
     usedTBA = "True" if options.tba else "False"
     totalTime = dt.datetime.now() - options.then
-    values = [[str(dt.datetime.now()), str(totalTime), "https://www.youtube.com/watch?v={}".format(
-        options.vid), usedTBA, options.ename, wasBatch, mcode]]
+    values = [[str(dt.datetime.now()), str(totalTime), "https://www.youtube.com/watch?v={}".format(options.vid), usedTBA, options.ename, wasBatch, mcode]]
     sheetbody = {'values': values}
     try:
-        spreadsheet.spreadsheets().values().append(spreadsheetId=spreadsheetID,
-                                                   range=rowRange, valueInputOption="USER_ENTERED", body=sheetbody).execute()
+        spreadsheet.spreadsheets().values().append(
+            spreadsheetId=spreadsheetID,
+            range=rowRange,
+            valueInputOption="USER_ENTERED",
+            body=sheetbody).execute()
         print("Added data to spreadsheet")
     except Exception as e:
         print("Failed to write to spreadsheet")
     return "DONE UPLOADING {}\n".format(options.file)
-
-
-def testfunc(optionslist):
-    for options in optionslist:
-        print(options)

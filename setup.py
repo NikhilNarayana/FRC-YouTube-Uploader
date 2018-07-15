@@ -9,20 +9,24 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_des = f.read()
 
 setup(
-    name='FRC Youtube Uploader',
+    name='FRCUploader',
     description="A YouTube Uploader with FIRST Robotics Competition in mind",
     long_description=long_des,
     url="https://github.com/NikhilNarayana/FRC-YouTube-Uploader",
     author="Nikhil Narayana",
     author_email="nikhil.narayana@live.com",
-    license="GPL 3.0",
+    license="GNU Public License v3.0",
     keywords='frc robotics youtube uploader',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-        'Programming Language :: Python :: 3.6.5',
+        'Programming Language :: Python :: 3.6',
+        'Operating System :: OS Independent',
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Natural Language :: English",
     ],
-    python_requires='~=3.3',
-    version='3.0',
+    entry_points=dict(console_scripts=['frcuploader = frcuploader.main:main']),
+    python_requires='~=3.5',
+    version='3.1',
     packages=["frcuploader"],
     install_requires=[
         'AnyQt==0.0.8',
@@ -50,7 +54,6 @@ setup(
         'QScintilla==2.10.4',
         'requests==2.18.4',
         'rsa==3.4.2',
-        'simplejson==3.13.2',
         'sip==4.19.8',
         'six==1.11.0',
         'tbapy==1.3.0',
@@ -58,5 +61,6 @@ setup(
         'urllib3==1.22',
         'visvis==1.10.0'
     ],
-    include_package_data=True,
+    data_files=[("share/frcuploader", ['frcuploader/client_secrets.json'])],
+    package_data={'frcuploader': ['frcuploader/client_secrets.json']},
 )
