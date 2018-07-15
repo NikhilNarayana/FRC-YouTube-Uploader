@@ -6,7 +6,7 @@ from .youtubeAuthenticate import *
 DEBUG = False  # DON'T COMMIT THIS LINE IF TRUE
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
-DEFAULT_TAGS = """{}, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, {game}"""
+DEFAULT_TAGS = "{}, frcuploader, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, {game}"
 QUAL = "Qualification Match {}"
 QUARTER = "Quarterfinal Match {}"
 QUARTERT = "Quarterfinal Tiebreaker {}"
@@ -43,7 +43,15 @@ Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTub
 
 VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 
-GAMES = {"2018": "FIRST Power Up, FIRST POWER UP", "2017": "FIRST Steamworks, FIRST STEAMworks", "2016": "FIRST Stronghold", "2015": "Recycle Rush", "2014": "Aerial Assist", "2013": "Ultimate Ascent"}
+GAMES = {
+	"2019": "FIRST Destination: Deep Space, Destination: Deep Space, Deep Space"
+    "2018": "FIRST Power Up, FIRST POWER UP",
+    "2017": "FIRST Steamworks, FIRST STEAMworks",
+    "2016": "FIRST Stronghold",
+    "2015": "Recycle Rush",
+    "2014": "Aerial Assist",
+    "2013": "Ultimate Ascent"
+}
 
 spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
 rowRange = "Data!A1:G1"
@@ -61,4 +69,6 @@ mcode = None
 youtube = get_youtube_service()
 spreadsheet = get_spreadsheet_service()
 sizes = ["bytes", "KB", "MB", "GB", "TB"]
-cerem = ["None", "Opening Ceremonies", "Alliance Selection", "Closing Ceremonies", "Highlight Reel"]
+cerem = [
+    "None", "Opening Ceremonies", "Alliance Selection", "Closing Ceremonies",
+    "Highlight Reel"]
