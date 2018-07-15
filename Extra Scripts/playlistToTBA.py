@@ -6,11 +6,11 @@ from youtubeAuthenticate import *
 from consts import DEFAULT_DESCRIPTION, CREDITS
 from youtubeup import post_video, quarters_match_code, semis_match_code, finals_match_code, tiebreak_mnum, get_match_results
 
-def update_description(youtube, snippet, vID, ecode, mcode):
+def update_description(youtube, snippet, vID, ecode, mcode, ename, team, twit, fb, weblink):
     description = DEFAULT_DESCRIPTION + CREDITS
     print(snippet)
     blue_data, red_data = get_match_results(ecode, mcode)
-    description = description.format(ecode="2018iri", ename="2018 Indiana Robotics Invitational", team="IndianaFIRST", twit="IndianaFIRST", fb="IndianaFIRST", weblink="www.indianafirst.org", red1=red_data[1], red2=red_data[2], red3=red_data[3], redscore=red_data[0], blue1=blue_data[1], blue2=blue_data[2], blue3=blue_data[3], bluescore=blue_data[0])
+    description = description.format(ecode=ecode, ename=ename, team=team, twit=twit, fb=fb, weblink=weblink, red1=red_data[1], red2=red_data[2], red3=red_data[3], redscore=red_data[0], blue1=blue_data[1], blue2=blue_data[2], blue3=blue_data[3], bluescore=blue_data[0])
     snippet['snippet']['description'] = description
     snippet['snippet']['categoryId'] = 28
     youtube.videos().update(
@@ -28,6 +28,11 @@ if __name__ == "__main__":
     TBAID = input("TBA ID: ")
     TBASECRET = input("TBA Secret: ")
     ecode = input("Event Code (eg: 2018incmp): ")
+    ename = input("Event Name: ")
+    team = input("Production Team Name: ")
+    twit = input("Twitter Handle: ")
+    fb = input("Facebook Name: ")
+    weblink = input("Website Link")
 
     if (TBAID == "" or TBASECRET == ""):
         print("Can't add to TBA without ID and Secret")
@@ -76,7 +81,7 @@ if __name__ == "__main__":
             body = json.dumps({mnum: video_id})
             print("Posting {}".format(mnum))
             post_video(TBAID, TBASECRET, body, ecode, "match_videos")
-            update_description(youtube, playlist_item, video_id, ecode, mnum)
+            update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif "Quarterfinal" in title:
             try:
                 num = int(title[title.find("Match") + 5:].split(" ")[1])
@@ -88,7 +93,7 @@ if __name__ == "__main__":
             body = json.dumps({mnum: video_id})
             print("Posting {}".format(mnum))
             post_video(TBAID, TBASECRET, body, ecode, "match_videos")
-            update_description(youtube, playlist_item, video_id, ecode, mnum)
+            update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif "Semifinal" in title:
             try:
                 num = int(title[title.find("Match") + 5:].split(" ")[1])
@@ -100,7 +105,7 @@ if __name__ == "__main__":
             body = json.dumps({mnum: video_id})
             print("Posting {}".format(mnum))
             post_video(TBAID, TBASECRET, body, ecode, "match_videos")
-            update_description(youtube, playlist_item, video_id, ecode, mnum)
+            update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif "Final" in title:
             try:
                 num = int(title[title.find("Match") + 5:].split(" ")[1])
@@ -112,7 +117,7 @@ if __name__ == "__main__":
             body = json.dumps({mnum: video_id})
             print("Posting {}".format(mnum))
             post_video(TBAID, TBASECRET, body, ecode, "match_videos")
-            update_description(youtube, playlist_item, video_id, ecode, mnum)
+            update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif any(k in title for k in ("Opening", "Closing", "Awards", "Alliance", "Highlight")):
             body = json.dumps([video_id])
             print("Posting {}".format(title))
