@@ -82,7 +82,7 @@ Both of these must be obtained by requesting them from www.thebluealliance.com/r
 
 ##### Video Description
 The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. If you would like to change the description you can rearrange it as you see fit, but you must keep anything in curly braces to prevent the program from blowing up in your face when you hit submit.
-Right clicking on the `Video description` text will pop up a reset button if necessary.
+Right clicking on the `Video Description` title text will bring up a reset button if necessary.
 
 ### Match Values
 ![alt text](https://i.imgur.com/FVH3wx6l.png)

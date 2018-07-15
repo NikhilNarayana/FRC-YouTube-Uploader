@@ -25,7 +25,7 @@ def internet(host="www.google.com", port=80, timeout=4):
 def main():
     if "linux" in platform:  # root needed for writing files
         from os import geteuid
-        if geteuid() != 0:
+        if geteuid():
             print("Need sudo for writing files")
             subprocess.call(['sudo', 'python3', argv[0]])
     if internet():

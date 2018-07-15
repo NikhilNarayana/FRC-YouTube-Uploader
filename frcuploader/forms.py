@@ -7,7 +7,7 @@ import threading
 from time import sleep
 from queue import Queue
 
-from .consts import DEFAULT_DESCRIPTION, DEBUG
+from .consts import DEFAULT_DESCRIPTION, DEBUG, cerem
 from . import youtubeup as yup
 
 from datetime import datetime
@@ -33,6 +33,11 @@ class EmittingStream(QtCore.QObject):
 
 
 class FRC_Uploader(BaseWidget):
+    """
+    GUI constructor.
+    Create the GUI using pyforms.start_app(FRC_Uploader)
+    """
+
     def __init__(self):
         super(FRC_Uploader, self).__init__("FRC YouTube Uploader")
         # Redirct print output
@@ -319,5 +324,5 @@ class FRC_Uploader(BaseWidget):
     def __ignore_job(self, row, column):
         self._qview -= row
         if not DEBUG:
-            self._queueref[row+1].ignore = True
-        self._queueref.pop(row+1)
+            self._queueref[row + 1].ignore = True
+        self._queueref.pop(row + 1)
