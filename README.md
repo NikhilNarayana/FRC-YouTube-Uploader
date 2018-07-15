@@ -9,7 +9,7 @@ PRs are appreciated and will be reviewed quickly, the only code quality standard
 
 ## Current Feature Set:
 * Upload Videos (single or batch uploads possible)
-* Queue Videos to Upload
+* Queue and Dequeue Videos to Upload
 * Add to a YouTube Playlist
 * Include match results from TBA in description
 * Add videos links to The Blue Alliance
@@ -120,6 +120,7 @@ This will display any information you need to know about an ongoing upload, the 
 
 ##### Queue
 The queue lets you hit submit a bunch of times to queue up jobs that can't be done with one submission such as all of qualifications and all of quarterfinals. The queue goes in the order you hit submit so don't worry about fixing your playlists afterwards. The top most item in the queue is the one being worked on.
+
 Double clicking on a row in the Queue will remove it from the Queue. Be careful because you can't undo it unless you resubmit a new job.
 
 #### Menu Bar
