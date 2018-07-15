@@ -2,15 +2,11 @@
 
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
-from youtubeAuthenticate import get_youtube_service
+from .youtubeAuthenticate import get_youtube_service
 from googleapiclient.http import MediaFileUpload
 
 THUMBNAIL = ""
 PLAYLISTID = ""
-# Thumbnail file to use
-
-# Retrieve the contentDetails part of the channel resource for the
-# authenticated user's channel.
 
 
 def update_thumbnail(youtube, video_id, thumbnail):
@@ -61,7 +57,7 @@ def update_thumbnails(youtube, pID, thumbnail):
         print(tup)
 
 
-if __name__ == '__main__':
+def main():
     youtube = get_youtube_service()
     PID = input("Playlist Link: ")
     THUMBNAIL = input("Thumbnail file name: ")

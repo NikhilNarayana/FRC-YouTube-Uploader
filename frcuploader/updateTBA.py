@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """This is a backup solution for if the main script doesn't update TBA properly"""
 
-from ..youtubeup import post_video
+from .youtubeup import post_video
 import simplejson as json
 from urllib.parse import *
 
@@ -21,7 +21,7 @@ def video_id(value):
     return value
 
 
-if __name__ == "__main__":
+def main():
     loc = "match_video"
     request_body = None
     codes = None

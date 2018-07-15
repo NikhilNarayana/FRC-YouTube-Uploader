@@ -148,21 +148,17 @@ All the information collected is very simple and lacks sensetive data. If you wa
 * tbapy -  New Python TBA API Layer
 * Josh Klar - Bug Fixes during 2017 St. Joseph District
 * Matthew Zacune - Testing and Feature Ideas
-* Stack Exchange - Bug Fixes
+* The Internet - Bug Fixes
 
 
 ## Extra Scripts
-All scripts are written in python 3, so call them with py [SCRIPT] for Windows or python3 [SCRIPT] for UNIX/macOS
-### updatePlaylistThumbnails.py
+All scripts are written in python 3 and be called as arguments to the main script as listed below.
+
+### updatePlaylistThumbnails.py (`frcuploader -t`)
 This script will prompt for a playlist link and a file name for the thumbnail. It will then update every the thumbnails of every video in that playlist to the one you provide. This makes it simple to update older playlists with a new thumbnail so you can keep your look consistent.
 
-### addTBAToDescription.py
-The script will update any description with the match's info at the top of the description. It will prompt you for a few pieces of information to get started, but should then do the rest on its own.
-
-### updateTBA.py
+### updateTBA.py (`frcuploader -u`)
 Forcefully update thebluealliance.com with a match video. The prompts will ask you for the necessary links. If you want to post the event's opening ceremonies or other non-match videos please link to www.thebluealliance.com/event/[event_code]#media.
 
-### playlistToTBA.py
+### playlistToTBA.py (`frcuploader -p`)
 If for whatever reason you failed to post to TBA while using this uploader you can use this script afterwards to automatically link match videos to the event's page. Again the program will prompt you for links, once you do that it will take over and update TBA.
-
-These scripts are not used within start.py

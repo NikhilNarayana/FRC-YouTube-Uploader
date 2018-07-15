@@ -44,7 +44,7 @@ Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTub
 VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 
 GAMES = {
-	"2019": "FIRST Destination: Deep Space, Destination: Deep Space, Deep Space"
+	"2019": "FIRST Destination: Deep Space, Destination: Deep Space, Deep Space",
     "2018": "FIRST Power Up, FIRST POWER UP",
     "2017": "FIRST Steamworks, FIRST STEAMworks",
     "2016": "FIRST Stronghold",

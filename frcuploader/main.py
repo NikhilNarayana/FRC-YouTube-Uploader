@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
-from sys import platform, argv
+from sys import platform, argv, exit
 import socket
 
 import pyforms
 
 from .forms import *
+from .updateTBA import main as utmain
+from .playlistToTBA import main as pttmain
+from .updatePlaylistThumbnails import main as uptmain
 
 
 def internet(host="www.google.com", port=80, timeout=4):
@@ -23,6 +26,23 @@ def internet(host="www.google.com", port=80, timeout=4):
 
 
 def main():
+    if len(argv) > 1:
+        if "-p" in argv:
+            pttmain()
+            exit(0)
+        elif "-u" in argv:
+            utmain()
+            exit(0)
+        elif "-t" in argv:
+            uptmain()
+            exit(0)
+        else:
+            print("Not a valid option")
+            print("Valid options include [-p|-u|-t]")
+            print("-p will load playlistToTBA")
+            print("-u will load updateTBA")
+            print("-t will load updatePlaylistThumbnails")
+            exit(0)
     if "linux" in platform:  # root needed for writing files
         from os import geteuid
         if geteuid():

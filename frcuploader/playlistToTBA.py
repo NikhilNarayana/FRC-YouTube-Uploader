@@ -2,9 +2,9 @@
 """ this script will take any playlist that uploaded videos using the uploader and link the matches to TBA"""
 
 import json
-from youtubeAuthenticate import *
-from consts import DEFAULT_DESCRIPTION, CREDITS
-from youtubeup import post_video, quarters_match_code, semis_match_code, finals_match_code, tiebreak_mnum, get_match_results
+from .youtubeAuthenticate import *
+from .consts import DEFAULT_DESCRIPTION, CREDITS
+from .youtubeup import post_video, quarters_match_code, semis_match_code, finals_match_code, tiebreak_mnum, get_match_results
 
 def update_description(youtube, snippet, vID, ecode, mcode, ename, team, twit, fb, weblink):
     description = DEFAULT_DESCRIPTION + CREDITS
@@ -21,7 +21,7 @@ def update_description(youtube, snippet, vID, ecode, mcode, ename, team, twit, f
     ).execute()
     print("Updated description of {}".format(vID))
 
-if __name__ == "__main__":
+def main():
     PID = input("Link to Playlist: ")
     f = PID.find("PL")
     PID = PID[f:f + 34]
