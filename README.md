@@ -18,9 +18,9 @@ PRs are appreciated and will be reviewed quickly, the only code quality standard
 
 
 ## How to Setup
-1. Install the latest version of Python 3 for your OS with the PATH added and make sure there are no other versions of Python 3.
+1. Install [Python 3.6.6](https://www.python.org/downloads/release/python-366/) for your OS with the PATH added and make sure there are no other versions of Python 3.
 2. Download this repository or the latest release to where ever you would like. I would highly suggest using git so you can pull from the main branch when necessary.
-3. Install the program by navigating to the folder and calling `pip install -U .` or `pip3 install -U .`.
+3. Install the program by navigating to the folder and calling `pip install -U .` or `pip3 install -U .`
 4. Create a folder for storing your match videos.
 5. Add the thumbnail to the match video folder as `thumbnail.png` (not required, but suggested).
 6. Make your recording program follow this naming scheme: [MATCH TYPE] \(TIEBREAKER\) [MATCH NUM].[EXTENSION] ex. Qualification Match 1.mp4.
@@ -72,22 +72,27 @@ Constants that used to be in the script itself, you can now edit them as you see
 You can name this as you wish, but know that it goes at the start of the video's YouTube Title, if you don't like this I can make a toggle. Generally includes [YEAR] [NAME OF EVENT]
 
 ##### Event Code
-Find this at TheBlueAlliance in the address bar of the event page. It generally follows [YEAR][EVENT_CODE] format such as 2016arc or 2016incmp.
+Find this at TheBlueAlliance in the address bar of the event page. It generally follows [YEAR][EVENT_CODE] format such as 2018arc or 2016incmp.
 
 ##### Playlist ID
-You can find the playlist ID on the playlist page's web address. Every playlist ID starts with PL making them easy to identify. A full link will be shortened after you submit.
+You can find the playlist ID on the playlist page's web address. Every playlist ID starts with PL making them easy to identify. A full link will be shortened after you submit it.
 
 ##### TBA Event ID/Secret
-Both of these must be obtained by requesting them from www.thebluealliance.com/request/apiwrite for the keys to your event. If your event is not on TBA I suggest you just uncheck `Use TBA`.
+www.thebluealliance.com/request/apiwrite
+
+Both of these must be obtained by requesting them from the link above for the keys to your event. If your event is not on TBA I suggest you just uncheck `Use TBA`.
 
 ##### Video Description
 The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. If you would like to change the description you can rearrange it as you see fit, but you must keep anything in curly braces to prevent the program from blowing up in your face when you hit submit.
+
 Right clicking on the `Video Description` title text will bring up a reset button if necessary.
 
 ### Match Values
 ![alt text](https://i.imgur.com/FVH3wx6l.png)
 
 ##### Match Code
+This is hidden by default and can be accessed by toggling it in the menu bar.
+
 This is an overriding function that will push any match you setup here to the correct TBA match and with the right info. This does not affect other parameters, you still need to set them up so it will find the correct match. For example, [2017 PCH Albany](https://www.thebluealliance.com/event/2017gaalb) had 5 replay matches in Semifinals 2, the matches that counted were matches 4-6 on TBA, but the FMS kept the naming scheme from matches 1-3. To fix this you can input the match info like it was for `SF2M1` and name the file `Semifinal Match 2.mp4`, but then set match code to `SF2M4`. That would get the right scores and then update the right TBA match. This should almost never be used outside of cases like this.
 
 ##### Match Number
@@ -125,6 +130,9 @@ Resets the form values to all the default values and resets the form value file.
 
 ##### Remove Youtube Credentials
 Deletes the Youtube credentials and kills the program. Killing the program is intentional and necessary. You will be prompted for new credentials after you restart the program.
+
+##### Show/Hide Match Code
+Will toggle the match code's visiblity.
 
 If you are still in need of assistance, feel free to contact me.
 

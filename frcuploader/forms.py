@@ -63,7 +63,7 @@ class FRC_Uploader(BaseWidget):
         self._description.add_popup_menu_option("Reset", self.__reset_descrip_event)
 
         # Match Values
-        self._mcode = ControlText("Match Code")
+        self._mcode = ControlText("Match Code", visible=False, helptext="READ THE INSTRUCTIONS TO FIND OUT HOW TO USE THIS!")
         self._mnum = ControlNumber("Match Number", minimum=1, maximum=500)
         self._mtype = ControlCombo("Match Type")
         self._tiebreak = ControlCheckBox("Tiebreaker")
@@ -100,11 +100,11 @@ class FRC_Uploader(BaseWidget):
 
         # Main Menu Layout
         self.mainmenu = [{
-            'File': [{
+            'Settings': [{
                 'Reset Form Values': self.__reset_form_event
             }, {
                 'Remove Youtube Credentials': self.__reset_cred_event
-            }]
+            }, {'Show/Hide Match Code': self.__toggle_match_code}]
         }]
 
         # Set TBA check
@@ -326,3 +326,9 @@ class FRC_Uploader(BaseWidget):
         if not DEBUG:
             self._queueref[row + 1].ignore = True
         self._queueref.pop(row + 1)
+
+    def __toggle_match_code(self):
+        if self._mcode.visible: 
+            self._mcode.hide()
+        else:
+            self._mcode.show()
