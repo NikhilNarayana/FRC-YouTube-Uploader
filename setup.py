@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
@@ -5,13 +6,14 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 long_des = ""
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md')) as f:
     long_des = f.read()
 
 setup(
     name='FRCUploader',
     description="A YouTube Uploader with FIRST Robotics Competition in mind",
     long_description=long_des,
+    long_description_content_type="text/markdown",
     url="https://github.com/NikhilNarayana/FRC-YouTube-Uploader",
     author="Nikhil Narayana",
     author_email="nikhil.narayana@live.com",
