@@ -19,8 +19,7 @@ PRs are appreciated and will be reviewed quickly, the only code quality standard
 
 ## How to Setup
 1. Install [Python 3.6.6](https://www.python.org/downloads/release/python-366/) for your OS with the PATH added and make sure there are no other versions of Python 3.
-2. Install the program with `pip3 install -U FRCUploader`
-2a. If you want untested features you can download the repo and install with `pip3 install -U /path/to/repo`
+2. Install the program with `pip3 install -U FRCUploader`. If you want untested features you can download the repo and install with `pip3 install -U /path/to/repo`
 3. Create a folder for storing your match videos.
 4. Add the thumbnail to the match video folder as `thumbnail.png` (not required, but suggested).
 5. Make your recording program follow this naming scheme: [MATCH TYPE] \(TIEBREAKER\) [MATCH NUM].[EXTENSION] ex. Qualification Match 1.mp4.
@@ -152,7 +151,7 @@ All the information collected is very simple and lacks sensetive data. If you wa
 
 
 ## Extra Scripts
-All scripts are written in python 3 and be called as arguments to the main script as listed below.
+All scripts are written in python 3 and can be called as arguments to the main script as listed below.
 
 ### updatePlaylistThumbnails.py (`frcuploader -t`)
 This script will prompt for a playlist link and a file name for the thumbnail. It will then update every the thumbnails of every video in that playlist to the one you provide. This makes it simple to update older playlists with a new thumbnail so you can keep your look consistent.
