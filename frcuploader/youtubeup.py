@@ -435,7 +435,7 @@ def attempt_retry(error, retry, max_retries):
 """TBA Trusted API"""
 
 
-def post_video(token, secret, match_video, event_key, loc):
+def post_video(token, secret, match_video, event_key, loc="match_videos"):
     trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
     trusted_auth['X-TBA-Auth-Id'] = token
     request_path = "/api/trusted/v1/event/{}/{}/add".format(event_key, loc)
@@ -630,7 +630,7 @@ def post_upload(options, mcode, youtube, spreadsheet):
     if options.tba:
         request_body = json.dumps({mcode: options.vid})
         post_video(options.tbaID, options.tbaSecret,
-                   request_body, options.ecode, "match_videos")
+                   request_body, options.ecode)
     elif options.ceremonies and options.post:
         request_body = json.dumps([options.vid])
         post_video(options.tbaID, options.tbaSecret,

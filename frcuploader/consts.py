@@ -29,7 +29,7 @@ For more information and future event schedules, visit our website: {weblink}
 
 Thanks for watching!"""
 
-NO_TBA_DESCRIPTION = """Footage of the {ename} Event is courtesy of the {team}.
+NO_TBA_DESCRIPTION = """Footage of the {ename} Event is courtesy of {team}.
 
 Follow us on Twitter (@{twit}) and Facebook ({fb}).
 
@@ -39,7 +39,7 @@ Thanks for watching!"""
 
 CREDITS = """
 
-Uploaded with FRC-Youtube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
+Uploaded with FRC-YouTube-Uploader (https://github.com/NikhilNarayana/FRC-YouTube-Uploader) by Nikhil Narayana"""
 
 VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 

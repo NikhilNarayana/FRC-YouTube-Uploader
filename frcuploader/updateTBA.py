@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """This is a backup solution for if the main script doesn't update TBA properly"""
 
-from .youtubeup import post_video
-import simplejson as json
+import json
 from urllib.parse import *
+
+from .youtubeup import post_video
 
 
 def video_id(value):
