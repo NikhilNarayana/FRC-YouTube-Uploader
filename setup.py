@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from setuptools import setup, find_packages
-from codecs import open
 from os import path
 
 here = path.abspath(path.dirname(__file__))
@@ -28,7 +27,7 @@ setup(
     ],
     entry_points=dict(console_scripts=['frcuploader = frcuploader.main:main']),
     python_requires='~=3.5',
-    version='3.1.3',
+    version='3.1.5',
     packages=["frcuploader"],
     install_requires=[
         'CacheControl',
@@ -38,6 +37,7 @@ setup(
         'msgpack-python',
         'numpy',
         'oauth2client',
+        'Pyforms-Lite',
         'PyQt5',
         'PyQt5-sip',
         'python-dateutil',
