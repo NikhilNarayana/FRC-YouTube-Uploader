@@ -13,13 +13,13 @@ from . import youtubeup as yup
 from datetime import datetime
 from argparse import Namespace
 
-from pyforms import BaseWidget
+from pyforms_lite import BaseWidget
 from PyQt5 import QtCore, QtGui
-from pyforms.controls import ControlNumber
-from pyforms.controls import ControlText, ControlDir
-from pyforms.controls import ControlTextArea, ControlList
-from pyforms.controls import ControlCombo, ControlProgress
-from pyforms.controls import ControlButton, ControlCheckBox
+from pyforms_lite.controls import ControlNumber
+from pyforms_lite.controls import ControlText, ControlDir
+from pyforms_lite.controls import ControlTextArea, ControlList
+from pyforms_lite.controls import ControlCombo, ControlProgress
+from pyforms_lite.controls import ControlButton, ControlCheckBox
 
 
 class EmittingStream(QtCore.QObject):
@@ -35,7 +35,7 @@ class EmittingStream(QtCore.QObject):
 class FRC_Uploader(BaseWidget):
     """
     GUI constructor.
-    Create the GUI using pyforms.start_app(FRC_Uploader)
+    Create the GUI using pyforms_lite.start_app(FRC_Uploader)
     """
 
     def __init__(self):
