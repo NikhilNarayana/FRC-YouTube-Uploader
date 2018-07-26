@@ -3,7 +3,7 @@
 from sys import platform, argv, exit
 import socket
 
-import pyforms
+import pyforms_lite
 
 from .forms import *
 from .updateTBA import main as utmain
@@ -50,7 +50,7 @@ def main():
             subprocess.call(['sudo', 'python3', argv[0]])
     if internet():
         try:
-            pyforms.start_app(
+            pyforms_lite.start_app(
                 FRC_Uploader, geometry=(100, 100, 1, 1))  # smallest size
         except Exception as e:
             print(e)
