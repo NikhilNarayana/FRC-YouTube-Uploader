@@ -12,6 +12,9 @@ from .updatePlaylistThumbnails import main as uptmain
 
 
 def internet(host="www.google.com", port=80, timeout=4):
+    """
+    Quick way to check if you are connected to the internet by connecting to google
+    """
     try:
         host = socket.gethostbyname(host)
         socket.setdefaulttimeout(timeout)

@@ -23,6 +23,9 @@ from pyforms_lite.controls import ControlButton, ControlCheckBox
 
 
 class EmittingStream(QtCore.QObject):
+    """
+    Capture any uses of print so it can be printed to a custom text box
+    """
     textWritten = QtCore.pyqtSignal(str)
 
     def write(self, text):

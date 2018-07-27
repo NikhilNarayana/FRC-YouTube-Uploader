@@ -7,6 +7,9 @@ from .consts import DEFAULT_DESCRIPTION, CREDITS
 from .youtubeup import post_video, quarters_match_code, semis_match_code, finals_match_code, tiebreak_mnum, get_match_results
 
 def update_description(youtube, snippet, vID, ecode, mcode, ename, team, twit, fb, weblink):
+    """
+    Creates an updated TBA Description and updates the video
+    """
     description = DEFAULT_DESCRIPTION + CREDITS
     print(snippet)
     blue_data, red_data = get_match_results(ecode, mcode)
@@ -19,7 +22,7 @@ def update_description(youtube, snippet, vID, ecode, mcode, ename, team, twit, f
             snippet=snippet['snippet'],
             id=vID)
     ).execute()
-    print("Updated description of {}".format(vID))
+    print(f"Updated description of {vID}")
 
 def main():
     PID = input("Link to Playlist: ")
@@ -73,13 +76,12 @@ def main():
         if "Qual" in title:
             mnum = None
             try:
-                mnum = "qm{}".format(
-                    title[title.find("Match") + 5:].split(" ")[1])
+                mnum = f"qm{title[title.find('Match') + 5:].split(' ')[1]}"
             except IndexError as e:
                 print(title)
                 print(e)
             body = json.dumps({mnum: video_id})
-            print("Posting {}".format(mnum))
+            print(f"Posting {mnum}")
             post_video(TBAID, TBASECRET, body, ecode, "match_videos")
             update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif "Quarterfinal" in title:
@@ -91,7 +93,7 @@ def main():
                 num = tiebreak_mnum(num, "qf")
             mnum = quarters_match_code("qf", num)
             body = json.dumps({mnum: video_id})
-            print("Posting {}".format(mnum))
+            print(f"Posting {mnum}")
             post_video(TBAID, TBASECRET, body, ecode, "match_videos")
             update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif "Semifinal" in title:
@@ -103,7 +105,7 @@ def main():
                 num = tiebreak_mnum(num, "sf")
             mnum = semis_match_code("sf", num)
             body = json.dumps({mnum: video_id})
-            print("Posting {}".format(mnum))
+            print(f"Posting {mnum}")
             post_video(TBAID, TBASECRET, body, ecode, "match_videos")
             update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif "Final" in title:
@@ -115,12 +117,12 @@ def main():
                 num = tiebreak_mnum(num, "f1m")
             mnum = finals_match_code("f1m", num)
             body = json.dumps({mnum: video_id})
-            print("Posting {}".format(mnum))
+            print(f"Posting {mnum}")
             post_video(TBAID, TBASECRET, body, ecode, "match_videos")
             update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif any(k in title for k in ("Opening", "Closing", "Awards", "Alliance", "Highlight")):
             body = json.dumps([video_id])
-            print("Posting {}".format(title))
+            print(f"Posting {title}")
             post_video(TBAID, TBASECRET, body, ecode, "media")
         else:
             print("I don't know what this is")

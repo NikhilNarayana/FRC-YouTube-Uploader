@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import tbapy
 
 from .youtubeAuthenticate import *
 
@@ -7,13 +8,6 @@ DEBUG = False  # DON'T COMMIT THIS LINE IF TRUE
 DEFAULT_VIDEO_CATEGORY = 28
 DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_TAGS = "{}, frcuploader, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, {game}"
-QUAL = "Qualification Match {}"
-QUARTER = "Quarterfinal Match {}"
-QUARTERT = "Quarterfinal Tiebreaker {}"
-SEMI = "Semifinal Match {}"
-SEMIT = "Semifinal Tiebreaker {}"
-FINALS = "Final Match {}"
-FINALST = "Final Tiebreaker"
 EXTENSION = ".mp4"
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = """Footage of the {ename} is courtesy of {team}.
@@ -68,6 +62,8 @@ tags = None
 mcode = None
 youtube = get_youtube_service()
 spreadsheet = get_spreadsheet_service()
+tba = tbapy.TBA(
+        "wvIxtt5Qvbr2qJtqW7ZsZ4vNppolYy0zMNQduH8LdYA7v2o1myt8ZbEOHAwzRuqf")
 sizes = ["bytes", "KB", "MB", "GB", "TB"]
 cerem = [
     "None", "Opening Ceremonies", "Alliance Selection", "Closing Ceremonies",

@@ -13,7 +13,7 @@ def update_thumbnail(youtube, video_id, thumbnail):
     youtube.thumbnails().set(
         videoId=video_id,
         media_body=thumbnail).execute()
-    print("Thumbnail added to video {}".format(video_id))
+    print(f"Thumbnail added to video {video_id}")
 
 
 def update_thumbnails(youtube, pID, thumbnail):
@@ -66,4 +66,4 @@ def main():
     try:
         update_thumbnails(youtube, PID, THUMBNAIL)
     except HttpError as e:
-        print("An HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
+        print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
