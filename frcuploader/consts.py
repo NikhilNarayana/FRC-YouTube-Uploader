@@ -5,10 +5,7 @@ from .youtubeAuthenticate import *
 
 # Default Variables
 DEBUG = False  # DON'T COMMIT THIS LINE IF TRUE
-DEFAULT_VIDEO_CATEGORY = 28
-DEFAULT_THUMBNAIL = "thumbnail.png"
 DEFAULT_TAGS = "{}, frcuploader, FIRST, omgrobots, FRC, FIRST Robotics Competition, robots, Robotics, {game}"
-EXTENSION = ".mp4"
 MATCH_TYPE = ["qm", "qf", "sf", "f1m"]
 DEFAULT_DESCRIPTION = """Footage of the {ename} is courtesy of {team}.
 

@@ -475,7 +475,7 @@ def init(options):
         options.ecode, game=GAMES[
             options.ecode[:4]])  # add the ecode and game to default tags
     # default category is science & technology
-    options.category = DEFAULT_VIDEO_CATEGORY
+    options.category = 28
     options.title = options.ename + f" - Qualification Match {options.mnum}"  # default title
     if any(k == options.description
            for k in ("Add alternate description here.", "",
