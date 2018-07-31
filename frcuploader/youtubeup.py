@@ -291,9 +291,7 @@ def get_match_code(mtype, mnum, mcode):
 def get_match_results(event_key, match_key):
     match_data = tba.match("_".join([event_key, match_key]))
     if match_data is None:
-        raise ValueError(
-            """{} {} does not exist on TBA. Please use a match that exists""".
-            format(event_key, match_key))
+        raise ValueError(f"{event_key} {match_key} does not exist on TBA. Please use a match that exists")
     blue_data, red_data = parse_data(match_data)
     while (blue_data[0] == -1 or red_data[0] == -1):
         print("Waiting 1 minute for TBA to update scores")

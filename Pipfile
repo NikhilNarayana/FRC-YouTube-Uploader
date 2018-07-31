@@ -4,10 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-cachecontrol = "*"
+tbapy = "*"
 google-api-python-client = "*"
 "oauth2client" = "*"
 pyforms-lite = "*"
-tbapy = "*"
+cachecontrol = "*"
 
 [dev-packages]
+
+[requires]
+python_version = "3.7"
