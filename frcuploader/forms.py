@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 import os
-import csv
 import sys
+import json
 import threading
 from time import sleep
 from queue import Queue
 
-from .consts import DEFAULT_DESCRIPTION, DEBUG, cerem
+from .consts import DEFAULT_DESCRIPTION, cerem
 from . import youtubeup as yup
 
 from datetime import datetime
@@ -145,10 +145,10 @@ class FRC_Uploader(BaseWidget):
         # self._output.hide()
         self.testval = 0
 
-        # Get latest values from form_values.csv
+        # Get latest values from form_values.txt
         try:
-            with open(os.path.join(os.path.expanduser("~"), ".form_values.csv")) as csvfile:
-                reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+            with open(os.path.join(os.path.expanduser("~"), ".form_values.txt")) as f:
+                reader = json.loads(f.read())
                 i = 0
                 for row in reader:
                     for val in row:
@@ -186,87 +186,68 @@ class FRC_Uploader(BaseWidget):
                         i = i + 1
                     break
         except (IOError, OSError, StopIteration) as e:
-            print("No form_values.csv to read from, continuing with default values and creating file")
-            with open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), "w+") as csvf:  # if the file doesn't exist
-                csvf.write(''.join(str(x) for x in [","] * 18))
+            print("No form_values.txt to read from, continuing with default values and creating file")
+            with open(os.path.join(os.path.expanduser("~"), ".form_values.txt"), "w+") as f:  # if the file doesn't exist
+                f.write("No Data")
 
     def __togglescroll(self):
         self._autoscroll = False if self._autoscroll else True
 
     def __button_action(self):
         """Button action event"""
-        if DEBUG:
-            if self._firstrun:
-                thr = threading.Thread(target=self.__worker)
-                thr.daemon = True
-                thr.start()
-                self._firstrun = False
-            self._queue.put(str(self.testval))
-            self._queueref.append(str(self.testval))
-            self._qview += (self.testval, self.testval, self.testval, self.testval)
-            self.testval += 1
-            self._qview.resize_rows_contents()
+        options = Namespace()
+        row = [0] * 19
+        options.where = row[0] = self._where.value
+        options.prodteam = row[1] = self._prodteam.value
+        options.twit = row[2] = self._twit.value
+        options.fb = row[3] = self._fb.value
+        options.weblink = row[4] = self._weblink.value
+        options.ename = row[5] = self._ename.value
+        options.ecode = row[6] = self._ecode.value
+        f = self._pID.value.find("PL")
+        self._pID.value = self._pID.value[f:f + 34]
+        options.pID = row[7] = self._pID.value
+        options.tbaID = row[8] = self._tbaID.value
+        options.tbaSecret = row[9] = self._tbaSecret.value
+        options.description = row[10] = self._description.value
+        options.mcode = row[11] = self._mcode.value
+        options.mnum = row[12] = int(self._mnum.value)
+        options.mtype = row[13] = self._mtype.value
+        options.tiebreak, row[14] = (True, "yes") if self._tiebreak.value else (False, "no")
+        options.tba, row[15] = (True, "yes") if self._tba.value else (False, "no")
+        options.ceremonies = row[16] = self._ceremonies.value
+        options.eday = row[17] = self._eday.value
+        options.end = row[18] = self._end.value
+        options.ignore = False
+        if options.end == "For batch uploads":
+            if options.ceremonies:
+                self._qview += (options.ecode, cerem[options.ceremonies])
+            self._qview += (options.ecode, options.mtype, options.mnum)
         else:
-            options = Namespace()
-            reader = None
-            try:
-                reader = csv.reader(open(os.path.join(os.path.expanduser("~"), ".form_values.csv")))
-            except (StopIteration, IOError, OSError) as e:
-                with open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), "w+") as csvf:  # if the file doesn't exist
-                    csvf.write(''.join(str(x) for x in [","] * 18))
-                reader = csv.reader(open(os.path.join(os.path.expanduser("~"), ".form_values.csv")))
-            row = next(reader)
-            options.where = row[0] = self._where.value
-            options.prodteam = row[1] = self._prodteam.value
-            options.twit = row[2] = self._twit.value
-            options.fb = row[3] = self._fb.value
-            options.weblink = row[4] = self._weblink.value
-            options.ename = row[5] = self._ename.value
-            options.ecode = row[6] = self._ecode.value
-            f = self._pID.value.find("PL")
-            self._pID.value = self._pID.value[f:f + 34]
-            options.pID = row[7] = self._pID.value
-            options.tbaID = row[8] = self._tbaID.value
-            options.tbaSecret = row[9] = self._tbaSecret.value
-            options.description = row[10] = self._description.value
-            options.mcode = row[11] = self._mcode.value
-            options.mnum = row[12] = int(self._mnum.value)
-            options.mtype = row[13] = self._mtype.value
-            options.tiebreak, row[14] = (True, "yes") if self._tiebreak.value else (False, "no")
-            options.tba, row[15] = (True, "yes") if self._tba.value else (False, "no")
-            options.ceremonies = row[16] = self._ceremonies.value
-            options.eday = row[17] = self._eday.value
-            options.end = row[18] = self._end.value
-            if options.end == "For batch uploads":
-                if options.ceremonies:
-                    self._qview += (options.ecode, cerem[options.ceremonies])
-                self._qview += (options.ecode, options.mtype, options.mnum)
+            self._qview += (options.ecode, options.mtype, options.mnum, options.end)
+        self._queue.put(options)
+        self._queueref.append(options)
+        self._qview.resize_rows_contents()
+        if self._firstrun:
+            thr = threading.Thread(target=self.__worker)
+            thr.daemon = True
+            thr.start()
+            self._firstrun = False
+        if int(self._ceremonies.value) == 0:
+            if self._end.value == "For batch uploads":
+                self._mnum.value = int(self._mnum.value) + 1
             else:
-                self._qview += (options.ecode, options.mtype, options.mnum, options.end)
-            options.ignore = False
-            self._queue.put(options)
-            self._queueref.append(options)
-            self._qview.resize_rows_contents()
-            if self._firstrun:
-                thr = threading.Thread(target=self.__worker)
-                thr.daemon = True
-                thr.start()
-                self._firstrun = False
-            if int(self._ceremonies.value) == 0:
-                if self._end.value == "For batch uploads":
-                    self._mnum.value = int(self._mnum.value) + 1
-                else:
-                    self._mnum.value = int(self._end.value) + 1
-                    self._end.value = "For batch uploads"
-            elif int(self._ceremonies.value) == 2:
-                self._mnum.value = 1
-                self._mtype.value = "qf"
-            if self._mtype.value == "qm" and self._tiebreak.value:
-                row[14] = self._tiebreak.value = False
-            row[12] = int(self._mnum.value)
-            row[18] = self._end.value
-            writer = csv.writer(open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), 'w'))
-            writer.writerow(row)
+                self._mnum.value = int(self._end.value) + 1
+                self._end.value = "For batch uploads"
+        elif int(self._ceremonies.value) == 2:
+            self._mnum.value = 1
+            self._mtype.value = "qf"
+        if self._mtype.value == "qm" and self._tiebreak.value:
+            row[14] = self._tiebreak.value = False
+        row[12] = int(self._mnum.value)
+        row[18] = self._end.value
+        with open(os.path.join(os.path.expanduser("~"), ".form_values.txt"), 'w') as f:
+            f.write(json.dumps(row))
 
     def write_print(self, text):
         self._output._form.plainTextEdit.insertPlainText(text)
@@ -275,28 +256,18 @@ class FRC_Uploader(BaseWidget):
         print(text, file=sys.__stdout__, end='')
 
     def __worker(self):
-        if DEBUG:
-            while True:
-                val = self._queue.get()
-                if val in self._queueref:
-                    self._qview -= 0
-                    print(val)
-                    sleep(2)
-                    self._queueref.pop(0)
-                self._queue.task_done()
-        else:
-            while True:
-                options = self._queue.get()
-                if not options.ignore:
-                    options.then = datetime.now()
-                    yup.init(options)
-                    self._qview -= 0
-                    self._queueref.pop(0)
-                self._queue.task_done()
+        while True:
+            options = self._queue.get()
+            if not options.ignore:
+                options.then = datetime.now()
+                yup.init(options)
+                self._qview -= 0
+                self._queueref.pop(0)
+            self._queue.task_done()
 
     def __reset_form_event(self):
-        with open(os.path.join(os.path.expanduser("~"), ".form_values.csv"), "w+") as csvf:
-            csvf.write(''.join(str(x) for x in [","] * 18))
+        with open(os.path.join(os.path.expanduser("~"), ".form_values.txt"), "w+") as f:
+            f.write("No Data")
         self._tbaID.value = "Go to thebluealliance.com/request/apiwrite to get keys"
         self._tbaSecret.value = "Go to thebluealliance.com/request/apiwrite to get keys"
         self._description.value = DEFAULT_DESCRIPTION
@@ -326,9 +297,8 @@ class FRC_Uploader(BaseWidget):
 
     def __ignore_job(self, row, column):
         self._qview -= row
-        if not DEBUG:
-            self._queueref[row + 1].ignore = True
-        self._queueref.pop(row + 1)
+        self._queueref[row].ignore = True
+        self._queueref.pop(row)
 
     def __toggle_match_code(self):
         if self._mcode.visible: 
