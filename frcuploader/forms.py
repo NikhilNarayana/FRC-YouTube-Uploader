@@ -7,6 +7,7 @@ import threading
 from time import sleep
 from queue import Queue
 
+from .viewer import OptionsViewer
 from .consts import DEFAULT_DESCRIPTION, cerem
 from . import youtubeup as yup
 
@@ -76,10 +77,8 @@ class FRC_Uploader(BaseWidget):
         self._end = ControlText("Last Match Number")
 
         # Output Box
-        self._output = ControlTextArea()
-        self._output.readonly = True
-        self._qview = ControlList("Queue", select_entire_row=True)
-        self._qview.cell_double_clicked_event = self.__ignore_job
+        self._qview = ControlList(select_entire_row=True)
+        self._qview.cell_double_clicked_event = self.__show_o_view
         self._qview.readonly = True
         self._qview.horizontal_headers = ["Event Code", "Match Type", "Match #", "Last Match #"]
 
@@ -94,8 +93,8 @@ class FRC_Uploader(BaseWidget):
             [(' ', "_mcode", ' '), (' ', "_mnum", ' '), (' ', "_mtype", ' '),
              (' ', "_tiebreak", "_tba", ' '), (' ', "_ceremonies", ' '),
              (' ', "_eday", ' '), (' ', "_end", ' ')],
-            "-Status Output-":
-            ["_output", (' ', "_ascrollbutton", ' '), "=", "_qview"],
+            "-Queue-":
+            ["_qview"],
             "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"),
                               ("_weblink", "_ename", "_ecode"),
                               ("_pID", "_tbaID", "_tbaSecret"), "_description"]
@@ -145,56 +144,55 @@ class FRC_Uploader(BaseWidget):
         # self._output.hide()
         self.testval = 0
 
-        # Get latest values from form_values.txt
+        # Get latest values from frc_form_values.json
         try:
-            with open(os.path.join(os.path.expanduser("~"), ".form_values.txt")) as f:
-                reader = json.loads(f.read())
+            with open(os.path.join(os.path.expanduser("~"), ".frc_form_values.json")) as f:
+                values = json.load(f)
                 i = 0
-                for row in reader:
-                    for val in row:
-                        if val is not "":
-                            switcher = {
-                                0: self._where,
-                                1: self._prodteam,
-                                2: self._twit,
-                                3: self._fb,
-                                4: self._weblink,
-                                5: self._ename,
-                                6: self._ecode,
-                                7: self._pID,
-                                8: self._tbaID,
-                                9: self._tbaSecret,
-                                10: self._description,
-                                11: self._mcode,
-                                12: self._mnum,
-                                13: self._mtype,
-                                14: self._tiebreak,
-                                15: self._tba,
-                                16: self._ceremonies,
-                                17: self._eday,
-                                18: self._end,
-                            }
-                            if any(i == k for k in (14, 15)):
-                                if val == "no":
-                                    switcher[i].value = False
-                                else:
-                                    switcher[i].value = True
-                            elif i == 12:
-                                switcher[i].value = int(val)
+                for val in values:
+                    if val is not "":
+                        switcher = {
+                            0: self._where,
+                            1: self._prodteam,
+                            2: self._twit,
+                            3: self._fb,
+                            4: self._weblink,
+                            5: self._ename,
+                            6: self._ecode,
+                            7: self._pID,
+                            8: self._tbaID,
+                            9: self._tbaSecret,
+                            10: self._description,
+                            11: self._mcode,
+                            12: self._mnum,
+                            13: self._mtype,
+                            14: self._tiebreak,
+                            15: self._tba,
+                            16: self._ceremonies,
+                            17: self._eday,
+                            18: self._end,
+                        }
+                        if any(i == k for k in (14, 15)):
+                            if val == "no":
+                                switcher[i].value = False
                             else:
-                                switcher[i].value = val
-                        i = i + 1
-                    break
+                                switcher[i].value = True
+                        elif i == 12:
+                            switcher[i].value = int(val)
+                        else:
+                            switcher[i].value = val
+                    i = i + 1
         except (IOError, OSError, StopIteration) as e:
-            print("No form_values.txt to read from, continuing with default values and creating file")
-            with open(os.path.join(os.path.expanduser("~"), ".form_values.txt"), "w+") as f:  # if the file doesn't exist
-                f.write("No Data")
+            print("No frc_form_values.json to read from, continuing with default values and creating file")
+            with open(os.path.join(os.path.expanduser("~"), ".frc_form_values.json"), "w+") as f:  # if the file doesn't exist
+                f.write(json.dumps(["No Data"]))
 
     def __togglescroll(self):
         self._autoscroll = False if self._autoscroll else True
 
     def __button_action(self):
-        """Button action event"""
+        """Manipulates and transforms data from the forms into usable
+           data that can be used for uploading videos"""
         options = Namespace()
         row = [0] * 19
         options.where = row[0] = self._where.value
@@ -219,10 +217,13 @@ class FRC_Uploader(BaseWidget):
         options.eday = row[17] = self._eday.value
         options.end = row[18] = self._end.value
         options.ignore = False
+        options.output = ControlTextArea()
+        options.output.readonly = True
         if options.end == "For batch uploads":
             if options.ceremonies:
-                self._qview += (options.ecode, cerem[options.ceremonies])
-            self._qview += (options.ecode, options.mtype, options.mnum)
+                self._qview += (options.ecode, cerem[options.ceremonies], "N/A", "N/A")
+            else:
+                self._qview += (options.ecode, options.mtype, options.mnum, "N/A")
         else:
             self._qview += (options.ecode, options.mtype, options.mnum, options.end)
         self._queue.put(options)
@@ -246,19 +247,23 @@ class FRC_Uploader(BaseWidget):
             row[14] = self._tiebreak.value = False
         row[12] = int(self._mnum.value)
         row[18] = self._end.value
-        with open(os.path.join(os.path.expanduser("~"), ".form_values.txt"), 'w') as f:
+        with open(os.path.join(os.path.expanduser("~"), ".frc_form_values.json"), 'w') as f:
             f.write(json.dumps(row))
 
     def write_print(self, text):
-        self._output._form.plainTextEdit.insertPlainText(text)
-        if self._autoscroll:
-            self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
+        try:
+            self._queueref[0].output._form.plainTextEdit.insertPlainText(text)
+            if self._autoscroll:
+                self._queueref[0].output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
+        except IndexError:
+            pass
         print(text, file=sys.__stdout__, end='')
 
     def __worker(self):
         while True:
             options = self._queue.get()
             if not options.ignore:
+                sleep(100000)
                 options.then = datetime.now()
                 yup.init(options)
                 self._qview -= 0
@@ -266,8 +271,8 @@ class FRC_Uploader(BaseWidget):
             self._queue.task_done()
 
     def __reset_form_event(self):
-        with open(os.path.join(os.path.expanduser("~"), ".form_values.txt"), "w+") as f:
-            f.write("No Data")
+        with open(os.path.join(os.path.expanduser("~"), ".frc_form_values.json"), "w+") as f:
+            f.write(json.dumps(["No Data"]))
         self._tbaID.value = "Go to thebluealliance.com/request/apiwrite to get keys"
         self._tbaSecret.value = "Go to thebluealliance.com/request/apiwrite to get keys"
         self._description.value = DEFAULT_DESCRIPTION
@@ -288,17 +293,17 @@ class FRC_Uploader(BaseWidget):
         self._pID.value = ""
 
     def __reset_cred_event(self):
-        os.remove(os.path.join(os.path.expanduser("~"), ".oauth2-spreadsheet.json"))
-        os.remove(os.path.join(os.path.expanduser("~"), ".oauth2-youtube.json"))
+        os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-spreadsheet.json"))
+        os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-youtube.json"))
         sys.exit(0)
 
     def __reset_descrip_event(self):
         self._description.value = DEFAULT_DESCRIPTION
 
-    def __ignore_job(self, row, column):
-        self._qview -= row
-        self._queueref[row].ignore = True
-        self._queueref.pop(row)
+    def __show_o_view(self, row, column):
+        win = OptionsViewer(row, self._queueref[row])
+        win.parent = self
+        win.show()
 
     def __toggle_match_code(self):
         if self._mcode.visible: 
