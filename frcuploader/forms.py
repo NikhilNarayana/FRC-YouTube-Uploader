@@ -263,7 +263,6 @@ class FRC_Uploader(BaseWidget):
         while True:
             options = self._queue.get()
             if not options.ignore:
-                sleep(100000)
                 options.then = datetime.now()
                 yup.init(options)
                 self._qview -= 0
