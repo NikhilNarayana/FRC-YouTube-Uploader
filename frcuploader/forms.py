@@ -7,7 +7,6 @@ import threading
 from time import sleep
 from queue import Queue
 
-from .viewer import OptionsViewer
 from .consts import DEFAULT_DESCRIPTION, cerem
 from . import youtubeup as yup
 
@@ -77,8 +76,10 @@ class FRC_Uploader(BaseWidget):
         self._end = ControlText("Last Match Number")
 
         # Output Box
-        self._qview = ControlList(select_entire_row=True)
-        self._qview.cell_double_clicked_event = self.__show_o_view
+        self._output = ControlTextArea()
+        self._output.readonly = True
+        self._qview = ControlList("Queue", select_entire_row=True)
+        self._qview.cell_double_clicked_event = self.__ignore_job
         self._qview.readonly = True
         self._qview.horizontal_headers = ["Event Code", "Match Type", "Match #", "Last Match #"]
 
@@ -93,8 +94,8 @@ class FRC_Uploader(BaseWidget):
             [(' ', "_mcode", ' '), (' ', "_mnum", ' '), (' ', "_mtype", ' '),
              (' ', "_tiebreak", "_tba", ' '), (' ', "_ceremonies", ' '),
              (' ', "_eday", ' '), (' ', "_end", ' ')],
-            "-Queue-":
-            ["_qview"],
+            "-Status Output-":
+            ["_output", (' ', "_ascrollbutton", ' '), "=", "_qview"],
             "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"),
                               ("_weblink", "_ename", "_ecode"),
                               ("_pID", "_tbaID", "_tbaSecret"), "_description"]
@@ -217,8 +218,6 @@ class FRC_Uploader(BaseWidget):
         options.eday = row[17] = self._eday.value
         options.end = row[18] = self._end.value
         options.ignore = False
-        options.output = ControlTextArea()
-        options.output.readonly = True
         if options.end == "For batch uploads":
             if options.ceremonies:
                 self._qview += (options.ecode, cerem[options.ceremonies], "N/A", "N/A")
@@ -251,12 +250,9 @@ class FRC_Uploader(BaseWidget):
             f.write(json.dumps(row))
 
     def write_print(self, text):
-        try:
-            self._queueref[0].output._form.plainTextEdit.insertPlainText(text)
-            if self._autoscroll:
-                self._queueref[0].output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
-        except IndexError:
-            pass
+        self._output._form.plainTextEdit.insertPlainText(text)
+        if self._autoscroll:
+            self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
         print(text, file=sys.__stdout__, end='')
 
     def __worker(self):
@@ -299,10 +295,10 @@ class FRC_Uploader(BaseWidget):
     def __reset_descrip_event(self):
         self._description.value = DEFAULT_DESCRIPTION
 
-    def __show_o_view(self, row, column):
-        win = OptionsViewer(row, self._queueref[row])
-        win.parent = self
-        win.show()
+    def __ignore_job(self, row, column):
+        self._qview -= row
+        self._queueref[row].ignore = True
+        self._queueref.pop(row)
 
     def __toggle_match_code(self):
         if self._mcode.visible: 
