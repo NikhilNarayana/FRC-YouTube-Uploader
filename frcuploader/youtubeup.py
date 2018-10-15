@@ -2,6 +2,7 @@
 
 import os
 import re
+import sys
 import time
 import errno
 import random
@@ -460,24 +461,14 @@ def init(options):
     """The program starts here, options is a Namespace() object"""
     options.privacy = VALID_PRIVACY_STATUSES[0]  # privacy is always public
     if DEBUG:
-        options.privacy = VALID_PRIVACY_STATUSES[
-            1]  # set to unlisted if debugging
-    options.day = dt.datetime.now().strftime(
-        "%A")  # weekday in english ex: "Monday"
-    options.files = list(
-        reversed([
-            f for f in os.listdir(options.where)
-            if os.path.isfile(os.path.join(options.where, f))
-        ]))
-    options.tags = DEFAULT_TAGS.format(
-        options.ecode, game=GAMES[
-            options.ecode[:4]])  # add the ecode and game to default tags
+        options.privacy = VALID_PRIVACY_STATUSES[1]  # set to unlisted if debugging
+    options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
+    options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]))
+    options.tags = DEFAULT_TAGS.format(options.ecode, game=GAMES[options.ecode[:4]])  # add the ecode and game to default tags
     # default category is science & technology
     options.category = 28
     options.title = options.ename + f" - Qualification Match {options.mnum}"  # default title
-    if any(k == options.description
-           for k in ("Add alternate description here.", "",
-                     DEFAULT_DESCRIPTION)):
+    if any(k == options.description for k in ("Add alternate description here.", "", DEFAULT_DESCRIPTION)):
         options.description = DEFAULT_DESCRIPTION + CREDITS
     else:
         options.description += CREDITS
@@ -557,7 +548,7 @@ def initialize_upload(youtube, spreadsheet, options):
         part=",".join(body.keys()),
         body=body,
         media_body=MediaFileUpload(
-            os.path.join(options.where + options.file),
+            os.path.join(options.where, options.file),
             chunksize=10485760,
             resumable=True),
     )
@@ -572,7 +563,7 @@ def upload(insert_request, options):
         ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED, )
     except AttributeError:
         pass  # Not windows
-    print(f"Uploading {options.file} of size {file_size(os.path.join(options.where + options.file))}")
+    print(f"Uploading {options.file} of size {file_size(os.path.join(options.where, options.file))}")
     while True:
         try:
             status, response = insert_request.next_chunk()
@@ -609,7 +600,7 @@ def post_upload(options, mcode, youtube, spreadsheet):
     try:
         if "thumbnail.png" in options.files:
             update_thumbnail(youtube, options.vid,
-                             os.path.join(options.where + "thumbnail.png"))
+                             os.path.join(options.where, "thumbnail.png"))
         else:
             print("thumbnail.png does not exist")
 

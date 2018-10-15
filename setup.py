@@ -27,7 +27,7 @@ setup(
     ],
     entry_points=dict(console_scripts=['frcuploader = frcuploader.main:main']),
     python_requires='~=3.5',
-    version='3.2.3',
+    version='3.2.4',
     packages=["frcuploader"],
     install_requires=[
         'CacheControl',
