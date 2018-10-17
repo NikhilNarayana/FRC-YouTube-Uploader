@@ -366,25 +366,18 @@ def tiebreak_mnum(mnum, mtype):
 
 def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
+        options.then = dt.datetime.now()
+        options.file, options.yttitle = create_names(options)
+        options.mnum = options.mnum + 1
+        while options.file is None and options.mnum < options.end:
+            print(f"{options.mtype.upper()} Match {options.mnum} is missing")
+            options.then = dt.datetime.now()
+            options.file, options.yttitle = create_names(options)
+            options.mnum = options.mnum + 1
         try:
-            while options.file is None and options.mnum < options.end:
-                print(f"{options.mtype.upper()} Match {options.mnum} is missing")
-                options.mnum = options.mnum + 1
-                options.file, options.yttitle = create_names(options)
-            if options.file is None:
-                print("Can't upload")
-            else:
-                conclusion = initialize_upload(youtube, spreadsheet, options)
-                if conclusion == "FAILED":
-                    print("Try again")
-                    return
-                print(conclusion)
-                options.then = dt.datetime.now()
-                options.mnum = options.mnum + 1
-                if options.mnum <= options.end:
-                    options.file, options.yttitle = create_names(options)
+            print(initialize_upload(youtube, spreadsheet, options))
         except HttpError as e:
-            print(f"An HTTP error {e.resp.status} occurred:\n{e.content}\n")
+            print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
     print("All matches have been uploaded")
 
 
@@ -440,7 +433,7 @@ def post_video(token, secret, match_video, event_key, loc="match_videos"):
     if DEBUG:
         url_str = f"http://localhost:8080/api/trusted/v1/event/{event_key}/{loc}/add"
     if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
-        print("""TBA ID and/or TBA secret missing. Please set them in the UI""")
+        print("TBA ID and/or TBA secret missing. Please set them in the UI")
         return
     r = s.post(url_str, data=match_video, headers=trusted_auth)
     print(r.status_code)
