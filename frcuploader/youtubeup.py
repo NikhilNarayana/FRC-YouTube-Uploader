@@ -105,8 +105,6 @@ def quals_filename(options):
         if all([" " + str(options.mnum) + "." in fl and any(k in fl for k in ("qual", "qualification", "qm"))]):
             file = f
             break
-    if file is None:
-        print("No File Found")
     return file
 
 
@@ -126,8 +124,6 @@ def quarters_filename(options):
             if all(k in fl for k in ("quarter", "tiebreak", "final", " " + str(mnum) + ".")):
                 file = f
                 break
-    if file is None:
-        print("No File Found")
     return file
 
 
@@ -147,8 +143,6 @@ def semis_filename(options):
             if all(k in fl for k in ("semi", "tiebreak", "final", " " + str(mnum) + ".")):
                 file = f
                 break
-    if file is None:
-        print("No File Found")
     return file
 
 
@@ -168,8 +162,6 @@ def finals_filename(options):
                 if all(k not in fl for k in ("quarter", "semi")):
                     file = f
                     break
-    if file is None:
-        print("No File Found")
     return file
 
 
@@ -205,8 +197,6 @@ def ceremonies_filename(options):
             if any(k in fl for k in ("highlight", "wrapup", "recap")):
                 file = f
                 break
-    if file is None:
-        print("No File Found")
     return file
 
 
@@ -370,6 +360,8 @@ def upload_multiple_videos(youtube, spreadsheet, options):
     while options.mnum <= options.end:
         options.then = dt.datetime.now()
         options.file, options.yttitle = create_names(options)
+        if options.file is None:
+            print("No File Found")
         options.mnum = options.mnum + 1
         while options.file is None and options.mnum < options.end:
             print(f"{options.mtype.upper()} Match {options.mnum} is missing")
@@ -497,11 +489,13 @@ def init(options):
             except HttpError as e:
                 print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
     else:
-        print("First file must exist")
-        print("Current settings:")
-        print(f"Match Type: {options.mtype}")
-        print(f"Match Number: {options.mnum}")
-        print("Please check that a file matches the match type and number")
+        print("Using the newest file in the directory")
+        options.file = max(options.files, key=os.path.getctime)
+        print(f"Found {options.file}")
+        try:
+            print(initialize_upload(youtube, spreadsheet, options))
+        except HttpError as e:
+            print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
 
 
 def initialize_upload(youtube, spreadsheet, options):
