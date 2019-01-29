@@ -65,4 +65,4 @@ tba = tbapy.TBA("wvIxtt5Qvbr2qJtqW7ZsZ4vNppolYy0zMNQduH8LdYA7v2o1myt8ZbEOHAwzRuq
 sizes = ("bytes", "KB", "MB", "GB", "TB")
 cerem = ("None", "Opening Ceremonies", "Alliance Selection", "Closing Ceremonies", "Highlight Reel")
 queue_values = os.path.join(os.path.expanduser("~"), ".frc_queue_values.txt")
-form_values = os.path.join(os.path.expanduser("~"), '.smash_form_values.json')
+form_values = os.path.join(os.path.expanduser("~"), '.frc_form_values.json')
