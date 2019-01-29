@@ -3,11 +3,12 @@
 import os
 import sys
 import json
+import pickle
 import threading
 from time import sleep
 from queue import Queue
 
-from .consts import DEFAULT_DESCRIPTION, cerem
+from . import consts
 from . import youtubeup as yup
 
 from datetime import datetime
@@ -48,7 +49,6 @@ class FRC_Uploader(BaseWidget):
         # Queue
         self._queue = Queue()
         self._queueref = []
-        self._firstrun = True
 
         # Create form fields
         # Event Values
@@ -73,7 +73,7 @@ class FRC_Uploader(BaseWidget):
         self._tba = ControlCheckBox("Use TBA")
         self._ceremonies = ControlCombo("Ceremonies")
         self._eday = ControlCombo("Event Day")
-        self._end = ControlText("Last Match Number")
+        self._end = ControlNumber("Last Match Number", minimum=0, maximum=500)
 
         # Output Box
         self._output = ControlTextArea()
@@ -103,12 +103,8 @@ class FRC_Uploader(BaseWidget):
 
         # Main Menu Layout
         self.mainmenu = [{
-            'Settings': [{
-                'Reset Form Values': self.__reset_form_event
-            }, {
-                'Remove Youtube Credentials': self.__reset_cred_event
-            }, {'Show/Hide Match Code': self.__toggle_match_code}]
-        }]
+            'Settings': [{'Reset Form Values': self.__reset_form_event}, {'Remove Youtube Credentials': self.__reset_cred_event}, {'Show/Hide Match Code': self.__toggle_match_code}],
+            'Queue': [{'Toggle Uploads': self.__toggle_worker}, {'Save Queue': self.__save_queue}, {'Load Queue': self.__load_queue}]}]
 
         # Set TBA check
         self._tba.value = True
@@ -116,10 +112,9 @@ class FRC_Uploader(BaseWidget):
         # Set Default Text
         self._tbaID.value = "Go to thebluealliance.com/request/apiwrite to get keys"
         self._tbaSecret.value = "Go to thebluealliance.com/request/apiwrite to get keys"
-        self._description.value = DEFAULT_DESCRIPTION
+        self._description.value = consts.DEFAULT_DESCRIPTION
         self._mcode.value = "0"
         self._mnum.value = 1
-        self._end.value = "For batch uploads"
 
         # Add ControlCombo values
         self._mtype += ("Qualifications", "qm")
@@ -147,7 +142,7 @@ class FRC_Uploader(BaseWidget):
 
         # Get latest values from frc_form_values.json
         try:
-            with open(os.path.join(os.path.expanduser("~"), ".frc_form_values.json")) as f:
+            with open(consts.form_values) as f:
                 values = json.load(f)
                 i = 0
                 for val in values:
@@ -178,15 +173,18 @@ class FRC_Uploader(BaseWidget):
                                 switcher[i].value = False
                             else:
                                 switcher[i].value = True
-                        elif i == 12:
-                            switcher[i].value = int(val)
+                        elif i == 12 or i == 18:
+                            try:
+                                switcher[i].value = int(val)
+                            except Exception as e:
+                                pass
                         else:
                             switcher[i].value = val
                     i = i + 1
         except (IOError, OSError, StopIteration) as e:
             print("No frc_form_values.json to read from, continuing with default values and creating file")
-            with open(os.path.join(os.path.expanduser("~"), ".frc_form_values.json"), "w+") as f:  # if the file doesn't exist
-                f.write(json.dumps(["No Data"]))
+            with open(consts.form_values, "w+") as f:  # if the file doesn't exist
+                f.write(json.dumps([]))
 
     def __togglescroll(self):
         self._autoscroll = False if self._autoscroll else True
@@ -218,9 +216,9 @@ class FRC_Uploader(BaseWidget):
         options.eday = row[17] = self._eday.value
         options.end = row[18] = self._end.value
         options.ignore = False
-        if options.end == "For batch uploads":
+        if not options.end:
             if options.ceremonies:
-                self._qview += (options.ecode, cerem[options.ceremonies], "N/A", "N/A")
+                self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A", "N/A")
             else:
                 self._qview += (options.ecode, options.mtype, options.mnum, "N/A")
         else:
@@ -228,25 +226,25 @@ class FRC_Uploader(BaseWidget):
         self._queue.put(options)
         self._queueref.append(options)
         self._qview.resize_rows_contents()
-        if self._firstrun:
+        if consts.firstrun:
             thr = threading.Thread(target=self.__worker)
             thr.daemon = True
             thr.start()
-            self._firstrun = False
-        if int(self._ceremonies.value) == 0:
-            if self._end.value == "For batch uploads":
+            consts.firstrun = False
+        if not self._ceremonies.value:
+            if not self._end.value:
                 self._mnum.value = int(self._mnum.value) + 1
             else:
-                self._mnum.value = int(self._end.value) + 1
-                self._end.value = "For batch uploads"
-        elif int(self._ceremonies.value) == 2:
+                self._mnum.value = self._end.value + 1
+                self._end.value = 0
+        elif self._ceremonies.value == 2:
             self._mnum.value = 1
             self._mtype.value = "qf"
         if self._mtype.value == "qm" and self._tiebreak.value:
             row[14] = self._tiebreak.value = False
-        row[12] = int(self._mnum.value)
+        row[12] = self._mnum.value
         row[18] = self._end.value
-        with open(os.path.join(os.path.expanduser("~"), ".frc_form_values.json"), 'w') as f:
+        with open(consts.form_values, 'w') as f:
             f.write(json.dumps(row))
 
     def write_print(self, text):
@@ -265,15 +263,51 @@ class FRC_Uploader(BaseWidget):
                 self._queueref.pop(0)
             self._queue.task_done()
 
+    def __toggle_worker(self):
+        if not consts.stop_thread:
+            print("Stopping Uploads")
+            consts.stop_thread = True
+            consts.firstrun = False
+        else:
+            print("Ready to Upload")
+            consts.stop_thread = False
+            consts.firstrun = True
+
+    def __save_queue(self):
+        with open(consts.queue_values, "wb") as f:
+            f.write(pickle.dumps(self._queueref))
+
+    def __load_queue(self):
+        try:
+            with open(consts.queue_values, "rb") as f:
+                self._queueref = pickle.load(f)
+        except Exception as e:
+            print("You need to save a queue before loading a queue")
+        for options in self._queueref:
+            if not options.end:
+                if options.ceremonies:
+                    self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A", "N/A")
+                else:
+                    self._qview += (options.ecode, options.mtype, options.mnum, "N/A")
+            else:
+                self._qview += (options.ecode, options.mtype, options.mnum, options.end)
+            self._queue.put(options)
+            self._qview.resize_rows_contents()
+        thr = threading.Thread(target=self.__worker)
+        thr.daemon = True
+        consts.firstrun = False
+        consts.stop_thread = False
+        thr.start()
+
     def __reset_form_event(self):
-        with open(os.path.join(os.path.expanduser("~"), ".frc_form_values.json"), "w+") as f:
-            f.write(json.dumps(["No Data"]))
+        with open(consts.form_values, "w+") as f:
+            f.write(json.dumps([]))
         self._tbaID.value = "Go to thebluealliance.com/request/apiwrite to get keys"
         self._tbaSecret.value = "Go to thebluealliance.com/request/apiwrite to get keys"
-        self._description.value = DEFAULT_DESCRIPTION
+        self._description.value = consts.DEFAULT_DESCRIPTION
         self._mcode.value = "0"
         self._mnum.value = 1
-        self._end.value = "For batch uploads"
+        self._end.value = 0
         self._mtype.value = "qm"
         self._ceremonies.value = 0
         self._eday.value = 0
@@ -293,7 +327,7 @@ class FRC_Uploader(BaseWidget):
         sys.exit(0)
 
     def __reset_descrip_event(self):
-        self._description.value = DEFAULT_DESCRIPTION
+        self._description.value = consts.DEFAULT_DESCRIPTION
 
     def __ignore_job(self, row, column):
         self._qview -= row

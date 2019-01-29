@@ -26,6 +26,8 @@ trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
 s = requests.Session()
 s = CacheControl(s, heuristic=ExpiresAfter(minutes=1))
 s.headers.update(app_id)
+
+
 """Utility Functions"""
 
 

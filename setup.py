@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 from os import path
 
 here = path.abspath(path.dirname(__file__))
+version = '3.3.0'
 
 long_des = ""
 with open(path.join(here, 'README.md')) as f:
@@ -27,7 +28,7 @@ setup(
     ],
     entry_points=dict(console_scripts=['frcuploader = frcuploader.main:main']),
     python_requires='~=3.5',
-    version='3.2.4',
+    version=version,
     packages=["frcuploader"],
     install_requires=[
         'CacheControl',
