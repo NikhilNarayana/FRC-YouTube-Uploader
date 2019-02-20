@@ -132,8 +132,6 @@ def get_spreadsheet_service():
     storage = Storage(os.path.join(os.path.expanduser("~"), ".frc-oauth2-spreadsheet.json"))
     credentials = storage.get()
 
-    flags = argparser.parse_args(args=[])
-
     if credentials is None or credentials.invalid:
         credentials = run_flow(flow, storage, flags)
 

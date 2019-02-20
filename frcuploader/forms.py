@@ -11,6 +11,7 @@ from queue import Queue
 from . import consts
 from . import utils
 
+import requests
 from datetime import datetime
 from argparse import Namespace
 
@@ -121,7 +122,7 @@ class FRC_Uploader(BaseWidget):
 
         # Main Menu Layout
         self.mainmenu = [{
-            'Settings': [{'Reset Form Values': self.__reset_form_event}, {'Remove Youtube Credentials': self.__reset_cred_event}, {'Show/Hide Match Code': self.__toggle_match_code}],
+            'Settings': [{'Reset Form Values': self.__reset_form_event}, {'Youtube Log Out': self.__reset_cred_event}, {'Show/Hide Match Code': self.__toggle_match_code}],
             'Queue': [{'Toggle Uploads': self.__toggle_worker}, {'Save Queue': self.__save_queue}, {'Load Queue': self.__load_queue}]}]
 
         # Set TBA check
