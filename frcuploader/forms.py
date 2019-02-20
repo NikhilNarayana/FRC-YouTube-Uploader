@@ -9,7 +9,7 @@ from time import sleep
 from queue import Queue
 
 from . import consts
-from . import youtubeup as yup
+from . import utils
 
 from datetime import datetime
 from argparse import Namespace
@@ -43,12 +43,30 @@ class FRC_Uploader(BaseWidget):
     """
 
     def __init__(self):
+        try:  # check if the user can update the app
+            latest_version = requests.get('https://pypi.python.org/pypi/frcuploader/json').json()['info']['version']
+            if (consts.__version__ != latest_version):
+                if "linux" in sys.platform:
+                    self.message(f"Current Version: {consts.__version__}\nVersion {latest_version} is available.", title="FRCUploader")
+                else:
+                    resp = self.question(f"Current Version: {consts.__version__}\nVersion {latest_version} is available. Would you like to update?", title="FRCUploader")
+                    if resp == "yes":
+                        subprocess.call(('pip3', 'install', '-U', 'frcuploader'))
+                        print("You can now restart the app to use the new version")
+        except Exception as e:
+            print(e)
         super(FRC_Uploader, self).__init__("FRC YouTube Uploader")
+
         # Redirct print output
         sys.stdout = EmittingStream(textWritten=self.write_print)
+
         # Queue
         self._queue = Queue()
         self._queueref = []
+
+        # Redirect error output to a file
+        if not sys.stderr:
+            sys.stderr = open(consts.log_file, "a")
 
         # Create form fields
         # Event Values
@@ -135,9 +153,6 @@ class FRC_Uploader(BaseWidget):
         self._button.value = self.__button_action
         self._ascrollbutton.value = self.__togglescroll
 
-        # Hide Alternate Description Box
-        # self._description.hide()
-        # self._output.hide()
         self.testval = 0
 
         # Get latest values from frc_form_values.json
@@ -258,7 +273,7 @@ class FRC_Uploader(BaseWidget):
             options = self._queue.get()
             if not options.ignore:
                 options.then = datetime.now()
-                yup.init(options)
+                utils.init(options)
                 self._qview -= 0
                 self._queueref.pop(0)
             self._queue.task_done()
@@ -322,9 +337,13 @@ class FRC_Uploader(BaseWidget):
         self._pID.value = ""
 
     def __reset_cred_event(self):
-        os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-spreadsheet.json"))
-        os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-youtube.json"))
-        sys.exit(0)
+        title = consts.youtube.channels().list(part='snippet', mine=True).execute()
+        title = title['items'][0]['snippet']['title']
+        resp = self.question(f"You are currently logged into {title}\nWould you like to log out?", title="FRCUploader")
+        if resp == "yes":
+            os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-spreadsheet.json"))
+            os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-youtube.json"))
+            sys.exit(0)
 
     def __reset_descrip_event(self):
         self._description.value = consts.DEFAULT_DESCRIPTION
@@ -335,7 +354,7 @@ class FRC_Uploader(BaseWidget):
         self._queueref.pop(row)
 
     def __toggle_match_code(self):
-        if self._mcode.visible: 
+        if self._mcode.visible:
             self._mcode.hide()
         else:
             self._mcode.show()

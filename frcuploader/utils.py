@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import json
 import time
 import errno
 import random
@@ -10,12 +11,12 @@ import hashlib
 import datetime as dt
 from decimal import Decimal
 
-import json
 import requests
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 from .consts import *
+from .youtube import upload
 
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import ExpiresAfter
@@ -99,7 +100,7 @@ def ceremonies_yt_title(options):
 
 
 def quals_filename(options):
-    file = None
+    file = max(options.files, key=os.path.getctime)
     for f in options.files:
         fl = f.lower()
         if all([" " + str(options.mnum) + "." in fl and any(k in fl for k in ("qual", "qualification", "qm"))]):
@@ -109,7 +110,7 @@ def quals_filename(options):
 
 
 def quarters_filename(options):
-    file = None
+    file = max(options.files, key=os.path.getctime)
     if 1 <= options.mnum <= 8:
         for f in options.files:
             fl = f.lower()
@@ -128,7 +129,7 @@ def quarters_filename(options):
 
 
 def semis_filename(options):
-    file = None
+    file = max(options.files, key=os.path.getctime)
     if options.mnum <= 4:
         for f in options.files:
             fl = f.lower()
@@ -147,7 +148,7 @@ def semis_filename(options):
 
 
 def finals_filename(options):
-    file = None
+    file = max(options.files, key=os.path.getctime)
     if options.mnum <= 2:
         for f in options.files:
             fl = f.lower()
@@ -166,7 +167,7 @@ def finals_filename(options):
 
 
 def ceremonies_filename(options):
-    file = None
+    file = max(options.files, key=os.path.getctime)
     if options.ceremonies is 1:
         for f in options.files:
             fl = f.lower()
@@ -399,20 +400,6 @@ def add_to_playlist(youtube, videoID, playlistID):
         print("Added to playlist")
 
 
-def attempt_retry(error, retry, max_retries):
-    if error is not None:
-        print(error)
-        retry += 1
-        if retry > max_retries:
-            exit("No longer attempting to retry.")
-
-        max_sleep = 2**retry
-        sleep_seconds = random.random() * max_sleep
-        print(f"Sleeping {sleep_seconds} seconds and then retrying...")
-        time.sleep(sleep_seconds)
-        return None
-
-
 """TBA Trusted API"""
 
 
@@ -533,56 +520,8 @@ def initialize_upload(youtube, spreadsheet, options):
                 categoryId=options.category),
             status=dict(privacyStatus=options.privacy))
 
-    insert_request = youtube.videos().insert(
-        part=",".join(body.keys()),
-        body=body,
-        media_body=MediaFileUpload(
-            os.path.join(options.where, options.file),
-            chunksize=10485760,
-            resumable=True),
-    )
-    options.vid = upload(insert_request, options)
+    options.vid = upload(youtube, body, os.path.join(options.where, options.file))
     return post_upload(options, mcode, youtube, spreadsheet)
-
-
-def upload(insert_request, options):
-    response = None
-    ACCEPTABLE_ERRNO = (errno.EPIPE, errno.EINVAL, errno.ECONNRESET)
-    try:
-        ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED, )
-    except AttributeError:
-        pass  # Not windows
-    print(f"Uploading {options.file} of size {file_size(os.path.join(options.where, options.file))}")
-    while True:
-        try:
-            status, response = insert_request.next_chunk()
-            if status is not None:
-                percent = Decimal(
-                    int(status.resumable_progress) / int(status.total_size))
-                print(f"{round(100 * percent, 2)}% uploaded")
-        except HttpError as e:
-            if e.resp.status in retry_status_codes:
-                print("A retriable HTTP error {e.resp.status} occurred:\n{e.content}")
-        except retry_exceptions as e:
-            print(f"A retriable error occurred: {e}")
-
-        except Exception as e:
-            if e in ACCEPTABLE_ERRNO:
-                print("Retriable Error occured, retrying now")
-            else:
-                print(e)
-            pass
-        # print("Status: ", end='')
-        # print(status)
-        if response:
-            if "id" in response:
-                print(
-                    f"Video link is https://www.youtube.com/watch?v={response['id']}")
-                return response['id']
-            else:
-                print(response)
-                print(status)
-                exit("Upload failed, no id in response")
 
 
 def post_upload(options, mcode, youtube, spreadsheet):
@@ -592,17 +531,14 @@ def post_upload(options, mcode, youtube, spreadsheet):
                              os.path.join(options.where, "thumbnail.png"))
         else:
             print("thumbnail.png does not exist")
-
     except HttpError as e:
         if e.resp.status in retry_status_codes:
             error = f"A retriable HTTP error {e.resp.status} occurred:\n{e.content}"
-
     except retry_exceptions as e:
         error = f"A retriable error occurred: {e}"
 
     try:
         add_to_playlist(youtube, options.vid, options.pID)
-
     except Exception as e:
         print("Failed to post to playlist")
 
