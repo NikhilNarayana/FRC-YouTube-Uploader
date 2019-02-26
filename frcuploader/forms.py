@@ -48,12 +48,12 @@ class FRC_Uploader(BaseWidget):
             latest_version = requests.get('https://pypi.python.org/pypi/frcuploader/json').json()['info']['version']
             if (consts.__version__ != latest_version):
                 if "linux" in sys.platform:
-                    self.message(f"Current Version: {consts.__version__}\nVersion {latest_version} is available.", title="FRCUploader")
+                    self.message(f"Current Version: {consts.__version__}\nVersion {latest_version} is available.\n You can update with this command: pip3 install -U frcuploader=={latest_version}", title="FRCUploader")
                 else:
                     resp = self.question(f"Current Version: {consts.__version__}\nVersion {latest_version} is available. Would you like to update?", title="FRCUploader")
                     if resp == "yes":
-                        subprocess.call(('pip3', 'install', '-U', 'frcuploader'))
-                        print("You can now restart the app to use the new version")
+                        subprocess.call(('pip3', 'install', '-U', f'frcuploader=={latest_version}'))
+                        self.message("You can now restart the app to use the new version", title="FRCUploader")
         except Exception as e:
             print(e)
         super(FRC_Uploader, self).__init__("FRC YouTube Uploader")
