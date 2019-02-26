@@ -44,8 +44,8 @@ def upload(yt, body, file):
             media_body=MediaFileUpload(file,
                                        chunksize=104857600,
                                        resumable=True),)
-        ret, vid = upload_service(insert_request)
-    return ret, vid
+        vid = upload_service(insert_request)
+    return vid
 
 
 def upload_service(insert_request):
@@ -68,7 +68,7 @@ def upload_service(insert_request):
                     print(f"A retriable HTTP error {e.resp.status} occurred:\n{e.content}")
                 elif "503" in e.content:
                     print("Backend Error: will attempt to retry upload")
-                    return False, None
+                    return None
             except retry_exceptions as e:
                 print(f"A retriable error occurred: {e}")
 
@@ -81,11 +81,11 @@ def upload_service(insert_request):
             if response:
                 if "id" in response:
                     print(f"Video link is https://www.youtube.com/watch?v={response['id']}")
-                    return True, response['id']
+                    return response['id']
                 else:
                     print(response)
                     print(status)
-                    return False, None
+                    return None
 
 
 def get_youtube_service():
@@ -133,7 +133,7 @@ def get_spreadsheet_service():
     credentials = storage.get()
 
     if credentials is None or credentials.invalid:
-        credentials = run_flow(flow, storage, flags)
+        credentials = run_flow(flow, storage)
 
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?version=v4')

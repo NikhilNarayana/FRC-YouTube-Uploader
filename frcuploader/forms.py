@@ -72,6 +72,7 @@ class FRC_Uploader(BaseWidget):
         # Create form fields
         # Event Values
         self._where = ControlDir(" Match Files Location")
+        self._newest = ControlCheckBox("Get Newest File")
         self._prodteam = ControlText(" Production Team")
         self._twit = ControlText("Twitter Handle")
         self._fb = ControlText("Facebook Name")
@@ -81,6 +82,7 @@ class FRC_Uploader(BaseWidget):
         self._pID = ControlText(" Playlist ID")
         self._tbaID = ControlText("TBA ID")
         self._tbaSecret = ControlText("TBA Secret")
+        self._privacy = ControlCombo("Video Privacy Status")
         self._description = ControlTextArea(" Video Description")
         self._description.add_popup_menu_option("Reset", self.__reset_descrip_event)
 
@@ -115,9 +117,9 @@ class FRC_Uploader(BaseWidget):
              (' ', "_eday", ' '), (' ', "_end", ' ')],
             "-Status Output-":
             ["_output", (' ', "_ascrollbutton", ' '), "=", "_qview"],
-            "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"),
+            "Event Values-": [("_where", "_newest"), ("_prodteam", "_twit", "_fb"),
                               ("_weblink", "_ename", "_ecode"),
-                              ("_pID", "_tbaID", "_tbaSecret"), "_description"]
+                              ("_pID", "_tbaID", "_tbaSecret"), ("_privacy", " "), "_description"]
         }, (' ', '_button', ' ')]
 
         # Main Menu Layout
@@ -136,6 +138,8 @@ class FRC_Uploader(BaseWidget):
         self._mnum.value = 1
 
         # Add ControlCombo values
+        for t in consts.VALID_PRIVACY_STATUSES:
+            self._privacy += t
         self._mtype += ("Qualifications", "qm")
         self._mtype += ("Quarterfinals", "qf")
         self._mtype += ("Semifinals", "sf")
@@ -161,30 +165,34 @@ class FRC_Uploader(BaseWidget):
             with open(consts.form_values) as f:
                 values = json.load(f)
                 i = 0
+                switcher = {
+                    0: self._where,
+                    1: self._prodteam,
+                    2: self._twit,
+                    3: self._fb,
+                    4: self._weblink,
+                    5: self._ename,
+                    6: self._ecode,
+                    7: self._pID,
+                    8: self._tbaID,
+                    9: self._tbaSecret,
+                    10: self._description,
+                    11: self._mcode,
+                    12: self._mnum,
+                    13: self._mtype,
+                    14: self._tiebreak,
+                    15: self._tba,
+                    16: self._ceremonies,
+                    17: self._eday,
+                    18: self._end,
+                    19: self._newest,
+                    20: self._privacy,
+                }
                 for val in values:
+                    if i > 19:
+                        break
                     if val is not "":
-                        switcher = {
-                            0: self._where,
-                            1: self._prodteam,
-                            2: self._twit,
-                            3: self._fb,
-                            4: self._weblink,
-                            5: self._ename,
-                            6: self._ecode,
-                            7: self._pID,
-                            8: self._tbaID,
-                            9: self._tbaSecret,
-                            10: self._description,
-                            11: self._mcode,
-                            12: self._mnum,
-                            13: self._mtype,
-                            14: self._tiebreak,
-                            15: self._tba,
-                            16: self._ceremonies,
-                            17: self._eday,
-                            18: self._end,
-                        }
-                        if any(i == k for k in (14, 15)):
+                        if any(i == k for k in (14, 15, 19)):
                             if val == "no":
                                 switcher[i].value = False
                             else:
@@ -209,7 +217,7 @@ class FRC_Uploader(BaseWidget):
         """Manipulates and transforms data from the forms into usable
            data that can be used for uploading videos"""
         options = Namespace()
-        row = [0] * 19
+        row = [0] * 21
         options.where = row[0] = self._where.value
         options.prodteam = row[1] = self._prodteam.value
         options.twit = row[2] = self._twit.value
@@ -231,6 +239,8 @@ class FRC_Uploader(BaseWidget):
         options.ceremonies = row[16] = self._ceremonies.value
         options.eday = row[17] = self._eday.value
         options.end = row[18] = self._end.value
+        options.newest, row[19] = (True, "yes") if self._newest.value else (False, "no")
+        options.privacy = row[20] = self._privacy.value
         options.ignore = False
         if not options.end:
             if options.ceremonies:
@@ -299,6 +309,7 @@ class FRC_Uploader(BaseWidget):
                 self._queueref = pickle.load(f)
         except Exception as e:
             print("You need to save a queue before loading a queue")
+            return
         for options in self._queueref:
             if not options.end:
                 if options.ceremonies:
