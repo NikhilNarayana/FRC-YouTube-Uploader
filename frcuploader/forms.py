@@ -45,7 +45,7 @@ class FRC_Uploader(BaseWidget):
 
     def __init__(self):
         try:  # check if the user can update the app
-            latest_version = requests.get('https://pypi.python.org/pypi/frcuploader/json').json()['info']['version']
+            latest_version = requests.get('https://pypi.org/pypi/FRCUploader/json').json()['info']['version']
             if (consts.__version__ != latest_version):
                 if "linux" in sys.platform:
                     self.message(f"Current Version: {consts.__version__}\nVersion {latest_version} is available.\n You can update with this command: pip3 install -U frcuploader=={latest_version}", title="FRCUploader")
