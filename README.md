@@ -18,7 +18,7 @@ PRs are appreciated and will be reviewed quickly, the only code quality standard
 
 
 ## How to Setup
-1. Install [Python 3.7.1](https://www.python.org/downloads/release/python-371/) for your OS with the PATH added and make sure there are no other versions of Python 3.
+1. Install [Python 3.7.2](https://www.python.org/downloads/release/python-372/) for your OS with the PATH added and make sure there are no other versions of Python 3.
 2. Install the program with `pip3 install -U FRCUploader`. If you want untested features you can download the repo and install with `pip3 install -U /path/to/repo`
 3. Create a folder for storing your match videos.
 4. Add the thumbnail to the match video folder as `thumbnail.png` (not required, but suggested).
@@ -61,8 +61,11 @@ Highlight Reel = `Highlight Reel.mp4` or `Wrapup Video.mp4`
 ### Event Values
 ![alt text](https://i.imgur.com/m5He8Ki.png)
 
-##### Match File Locations
-You can now pick where the match files are by clicking open and then navigating to the directory you would like to pull match videos from.
+##### Match File Location
+Select the root directory for files by clicking open and then navigating to the directory you would like to pull match videos from.
+
+##### Get Newest File
+If your recording program doesn't support setting the file names with the necessary info each time you can use this simply get the newest file in the directory instead. This is great for programs like OBS, XSplit, and vMix.
 
 ##### Production Team/Facebook Name/Twitter Handle/Website Link
 Constants that used to be in the script itself, you can now edit them as you see fit without going into the code.
@@ -80,6 +83,9 @@ You can find the playlist ID on the playlist page's web address. Every playlist 
 www.thebluealliance.com/request/apiwrite
 
 Both of these must be obtained by requesting them from the link above for the keys to your event. If your event is not on TBA I suggest you just uncheck `Use TBA`.
+
+##### Video Privacy Status
+Select the privacy status you would like to upload with. If your channel allows monetization and you would like to monetize the videos, you should set the privacy status to `unlisted` and then update monetization later.
 
 ##### Video Description
 The description used in the program is fairly lengthy, but adds a lot of info that can be nice to have. If you would like to change the description you can rearrange it as you see fit, but you must keep anything in curly braces to prevent the program from blowing up in your face when you hit submit.
@@ -109,7 +115,7 @@ All terms are matched in a substring so `Award` will match with `Awards` and sam
 This is in conjunction with the above option. If you are not uploading live this is very important, you need to name the ceremony files with Day 1, 2, or 3 based on when they were in your event. Then select the same value in this dropdown and the program will find the correct one. Only Opening and Closing Ceremonies are affected, there is only one Alliance Selection so it don't change anything for that. If you are uploading live, I suggest you leave this at `Ignore` and just set the file name to include the current day name.
 
 ##### Last Match Number
-If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number, inclusive, will be uploaded and added to TBA. It will then replace this textbox with the original string and update Match Number to the last match uploaded + 1.
+If you want to batch upload a number of files you can do so with this. Every match between `Match Number` and this number, inclusive, will be uploaded and added to TBA. It will then replace this field with 0 and update Match Number to the last match uploaded + 1.
 
 ### Status Output
 ![alt text](https://i.imgur.com/atKajjXl.png)
@@ -133,6 +139,9 @@ Deletes the Youtube credentials and kills the program. Killing the program is in
 
 ##### Show/Hide Match Code
 Will toggle the match code's visiblity.
+
+##### Toggle Uploads/Save Queue/Load Queue
+These three options are meant to be used together to provide an easy way to upload matches after an event, especially if you choose to use `Get Newest File`. Before submitting any uploads, you should select `Toggle Uploads` and then just submit as necessary. You can choose to save the queue after every submission or save at the very end. When you decide to finally upload you can just open the program, select `Load Queue`, and wait for the uploads to finish. **Note** the filesystem and computer used to upload must be maintained for the uploads to work.
 
 If you are still in need of assistance, feel free to contact me.
 
