@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
+import pkg_resources
+
+from .youtube import *
+
 import tbapy
 
-from .youtubeAuthenticate import *
+__version__ = pkg_resources.require("FRCUploader")[0].version
 
 # Default Variables
 DEBUG = False  # DON'T COMMIT THIS LINE IF TRUE
@@ -66,3 +70,4 @@ sizes = ("bytes", "KB", "MB", "GB", "TB")
 cerem = ("None", "Opening Ceremonies", "Alliance Selection", "Closing Ceremonies", "Highlight Reel")
 queue_values = os.path.join(os.path.expanduser("~"), ".frc_queue_values.txt")
 form_values = os.path.join(os.path.expanduser("~"), '.frc_form_values.json')
+log_file = os.path.join(os.path.expanduser("~"), ".smash_log.txt")

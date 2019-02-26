@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import json
 import time
 import errno
 import random
@@ -10,12 +11,12 @@ import hashlib
 import datetime as dt
 from decimal import Decimal
 
-import json
 import requests
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 from .consts import *
+from .youtube import upload
 
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import ExpiresAfter
@@ -96,6 +97,10 @@ def ceremonies_yt_title(options):
 
 
 """File Location Functions"""
+
+
+def get_newest_file(options):
+    return max([os.path.join(options.where, f) for f in options.files], key=os.path.getctime)
 
 
 def quals_filename(options):
@@ -215,7 +220,10 @@ def create_names(options):
             "f1m": finals_yt_title,
         }
         try:
-            return fname[options.mtype](options), yt[options.mtype](options)
+            if options.newest:
+                return get_newest_file(options), yt[options.mtype](options)
+            else:
+                return fname[options.mtype](options), yt[options.mtype](options)
         except KeyError:
             print(options.mtype)
     else:
@@ -356,7 +364,7 @@ def tiebreak_mnum(mnum, mtype):
 """Additional YouTube Functions"""
 
 
-def upload_multiple_videos(youtube, spreadsheet, options):
+def upload_multiple_videos(options):
     while options.mnum <= options.end:
         options.then = dt.datetime.now()
         options.file, options.yttitle = create_names(options)
@@ -369,21 +377,21 @@ def upload_multiple_videos(youtube, spreadsheet, options):
             options.file, options.yttitle = create_names(options)
             options.mnum = options.mnum + 1
         try:
-            print(initialize_upload(youtube, spreadsheet, options))
+            print(initialize_upload(options))
         except HttpError as e:
             print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
     print("All matches have been uploaded")
 
 
-def update_thumbnail(youtube, video_id, thumbnail):
+def update_thumbnail(video_id, thumbnail):
     youtube.thumbnails().set(videoId=video_id, media_body=thumbnail).execute()
     print(f"Thumbnail added to video {video_id}")
 
 
-def add_to_playlist(youtube, videoID, playlistID):
+def add_to_playlist(videoID, playlistID):
     if type(videoID) is list:  # Recursively add videos if videoID is list
         for vid in videoID:
-            add_video_to_playlist(youtube, vid, playlistID)
+            add_video_to_playlist(vid, playlistID)
     else:
         youtube.playlistItems().insert(
             part="snippet",
@@ -397,20 +405,6 @@ def add_to_playlist(youtube, videoID, playlistID):
                 }
             }).execute()
         print("Added to playlist")
-
-
-def attempt_retry(error, retry, max_retries):
-    if error is not None:
-        print(error)
-        retry += 1
-        if retry > max_retries:
-            exit("No longer attempting to retry.")
-
-        max_sleep = 2**retry
-        sleep_seconds = random.random() * max_sleep
-        print(f"Sleeping {sleep_seconds} seconds and then retrying...")
-        time.sleep(sleep_seconds)
-        return None
 
 
 """TBA Trusted API"""
@@ -446,11 +440,8 @@ def post_video(token, secret, match_video, event_key, loc="match_videos"):
 
 def init(options):
     """The program starts here, options is a Namespace() object"""
-    options.privacy = VALID_PRIVACY_STATUSES[0]  # privacy is always public
-    if DEBUG:
-        options.privacy = VALID_PRIVACY_STATUSES[1]  # set to unlisted if debugging
     options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
-    options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f))]))
+    options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.')]))
     options.tags = DEFAULT_TAGS.format(options.ecode, game=GAMES[options.ecode[:4]])  # add the ecode and game to default tags
     # default category is science & technology
     options.category = 28
@@ -479,26 +470,19 @@ def init(options):
 
     if options.file is not None:
         print(f"Found {options.file} to upload")
-        try:
-            if int(options.end) > options.mnum:
-                options.end = int(options.end)
-                upload_multiple_videos(youtube, spreadsheet, options)
-        except ValueError:
+        if options.end > options.mnum:
+            upload_multiple_videos(options)
+        else:
             try:
-                print(initialize_upload(youtube, spreadsheet, options))
+                print(initialize_upload(options))
             except HttpError as e:
                 print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
     else:
-        print("Using the newest file in the directory")
-        options.file = max(options.files, key=os.path.getctime)
-        print(f"Found {options.file}")
-        try:
-            print(initialize_upload(youtube, spreadsheet, options))
-        except HttpError as e:
-            print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
+        print("No file found")
+        return
 
 
-def initialize_upload(youtube, spreadsheet, options):
+def initialize_upload(options):
     if not options.ceremonies:
         print(f"Initializing upload for {options.mtype} match {options.mnum}")
     else:
@@ -532,78 +516,29 @@ def initialize_upload(youtube, spreadsheet, options):
                 tags=tags,
                 categoryId=options.category),
             status=dict(privacyStatus=options.privacy))
-
-    insert_request = youtube.videos().insert(
-        part=",".join(body.keys()),
-        body=body,
-        media_body=MediaFileUpload(
-            os.path.join(options.where, options.file),
-            chunksize=10485760,
-            resumable=True),
-    )
-    options.vid = upload(insert_request, options)
-    return post_upload(options, mcode, youtube, spreadsheet)
+    if options.newest:
+        options.vid = upload(youtube, body, options.file)
+    else:
+        options.vid = upload(youtube, body, os.path.join(options.where, options.file))
+    return post_upload(options, mcode)
 
 
-def upload(insert_request, options):
-    response = None
-    ACCEPTABLE_ERRNO = (errno.EPIPE, errno.EINVAL, errno.ECONNRESET)
-    try:
-        ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED, )
-    except AttributeError:
-        pass  # Not windows
-    print(f"Uploading {options.file} of size {file_size(os.path.join(options.where, options.file))}")
-    while True:
-        try:
-            status, response = insert_request.next_chunk()
-            if status is not None:
-                percent = Decimal(
-                    int(status.resumable_progress) / int(status.total_size))
-                print(f"{round(100 * percent, 2)}% uploaded")
-        except HttpError as e:
-            if e.resp.status in retry_status_codes:
-                print("A retriable HTTP error {e.resp.status} occurred:\n{e.content}")
-        except retry_exceptions as e:
-            print(f"A retriable error occurred: {e}")
-
-        except Exception as e:
-            if e in ACCEPTABLE_ERRNO:
-                print("Retriable Error occured, retrying now")
-            else:
-                print(e)
-            pass
-        # print("Status: ", end='')
-        # print(status)
-        if response:
-            if "id" in response:
-                print(
-                    f"Video link is https://www.youtube.com/watch?v={response['id']}")
-                return response['id']
-            else:
-                print(response)
-                print(status)
-                exit("Upload failed, no id in response")
-
-
-def post_upload(options, mcode, youtube, spreadsheet):
+def post_upload(options, mcode):
     try:
         if "thumbnail.png" in options.files:
-            update_thumbnail(youtube, options.vid,
-                             os.path.join(options.where, "thumbnail.png"))
+            update_thumbnail(options.vid, os.path.join(options.where, "thumbnail.png"))
         else:
             print("thumbnail.png does not exist")
-
     except HttpError as e:
         if e.resp.status in retry_status_codes:
             error = f"A retriable HTTP error {e.resp.status} occurred:\n{e.content}"
-
     except retry_exceptions as e:
         error = f"A retriable error occurred: {e}"
 
     try:
-        add_to_playlist(youtube, options.vid, options.pID)
-
+        add_to_playlist(options.vid, options.pID)
     except Exception as e:
+        print(e)
         print("Failed to post to playlist")
 
     if options.tba:
@@ -615,8 +550,7 @@ def post_upload(options, mcode, youtube, spreadsheet):
         post_video(options.tbaID, options.tbaSecret, request_body,
                    options.ecode, "media")
 
-    wasBatch = "True" if any(
-        options.end != y for y in ("For batch uploads", "")) else "False"
+    wasBatch = "True" if options.end else "False"
     usedTBA = "True" if options.tba else "False"
     totalTime = dt.datetime.now() - options.then
     values = [[

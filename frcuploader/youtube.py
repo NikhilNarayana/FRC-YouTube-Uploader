@@ -5,13 +5,18 @@ try:
 except ImportError:
     import httplib
 import httplib2
-import sys
 import os
+import sys
+import errno
+from decimal import Decimal
 
 from googleapiclient.discovery import build
-from oauth2client.client import flow_from_clientsecrets
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
+
 from oauth2client.file import Storage
-from oauth2client.tools import argparser, run_flow
+from oauth2client.tools import run_flow
+from oauth2client.client import flow_from_clientsecrets
 
 httplib2.RETRIES = 1
 
@@ -21,13 +26,66 @@ RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
                         httplib.CannotSendRequest, httplib.CannotSendHeader,
                         httplib.ResponseNotReady, httplib.BadStatusLine)
 
-RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
-
+RETRIABLE_STATUS_CODES = [500, 502, 504]
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-YOUTUBE_UPLOAD_SCOPE = """https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl"""
+YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl"
 SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
+
+
+def upload(yt, body, file):
+    vid = None
+    ret = None
+    while not vid:
+        insert_request = yt.videos().insert(
+            part=",".join(body.keys()),
+            body=body,
+            media_body=MediaFileUpload(file,
+                                       chunksize=104857600,
+                                       resumable=True),)
+        vid = upload_service(insert_request)
+    return vid
+
+
+def upload_service(insert_request):
+        response = None
+        retry_exceptions = get_retry_exceptions()
+        retry_status_codes = get_retry_status_codes()
+        ACCEPTABLE_ERRNO = (errno.EPIPE, errno.EINVAL, errno.ECONNRESET)
+        try:
+            ACCEPTABLE_ERRNO += (errno.WSAECONNABORTED,)
+        except AttributeError:
+            pass  # Not windows
+        while True:
+            try:
+                status, response = insert_request.next_chunk()
+                if status is not None:
+                    percent = Decimal(int(status.resumable_progress) / int(status.total_size))
+                    print(f"{round(100 * percent, 2)}% uploaded")
+            except HttpError as e:
+                if e.resp.status in retry_status_codes:
+                    print(f"A retriable HTTP error {e.resp.status} occurred:\n{e.content}")
+                elif "503" in e.content:
+                    print("Backend Error: will attempt to retry upload")
+                    return None
+            except retry_exceptions as e:
+                print(f"A retriable error occurred: {e}")
+
+            except Exception as e:
+                if e in ACCEPTABLE_ERRNO:
+                    print("Retriable Error occured, retrying now")
+                else:
+                    print(e)
+                pass
+            if response:
+                if "id" in response:
+                    print(f"Video link is https://www.youtube.com/watch?v={response['id']}")
+                    return response['id']
+                else:
+                    print(response)
+                    print(status)
+                    return None
 
 
 def get_youtube_service():
@@ -47,10 +105,8 @@ def get_youtube_service():
     storage = Storage(os.path.join(os.path.expanduser("~"), ".frc-oauth2-youtube.json"))
     credentials = storage.get()
 
-    flags = argparser.parse_args(args=[])
-
     if credentials is None or credentials.invalid:
-        credentials = run_flow(flow, storage, flags)
+        credentials = run_flow(flow, storage)
 
     return build(
         YOUTUBE_API_SERVICE_NAME,
@@ -76,10 +132,8 @@ def get_spreadsheet_service():
     storage = Storage(os.path.join(os.path.expanduser("~"), ".frc-oauth2-spreadsheet.json"))
     credentials = storage.get()
 
-    flags = argparser.parse_args(args=[])
-
     if credentials is None or credentials.invalid:
-        credentials = run_flow(flow, storage, flags)
+        credentials = run_flow(flow, storage)
 
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?version=v4')

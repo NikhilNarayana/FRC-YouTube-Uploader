@@ -9,8 +9,9 @@ from time import sleep
 from queue import Queue
 
 from . import consts
-from . import youtubeup as yup
+from . import utils
 
+import requests
 from datetime import datetime
 from argparse import Namespace
 
@@ -43,16 +44,35 @@ class FRC_Uploader(BaseWidget):
     """
 
     def __init__(self):
+        try:  # check if the user can update the app
+            latest_version = requests.get('https://pypi.python.org/pypi/frcuploader/json').json()['info']['version']
+            if (consts.__version__ != latest_version):
+                if "linux" in sys.platform:
+                    self.message(f"Current Version: {consts.__version__}\nVersion {latest_version} is available.\n You can update with this command: pip3 install -U frcuploader=={latest_version}", title="FRCUploader")
+                else:
+                    resp = self.question(f"Current Version: {consts.__version__}\nVersion {latest_version} is available. Would you like to update?", title="FRCUploader")
+                    if resp == "yes":
+                        subprocess.call(('pip3', 'install', '-U', f'frcuploader=={latest_version}'))
+                        self.message("You can now restart the app to use the new version", title="FRCUploader")
+        except Exception as e:
+            print(e)
         super(FRC_Uploader, self).__init__("FRC YouTube Uploader")
+
         # Redirct print output
         sys.stdout = EmittingStream(textWritten=self.write_print)
+
         # Queue
         self._queue = Queue()
         self._queueref = []
 
+        # Redirect error output to a file
+        if not sys.stderr:
+            sys.stderr = open(consts.log_file, "a")
+
         # Create form fields
         # Event Values
         self._where = ControlDir(" Match Files Location")
+        self._newest = ControlCheckBox("Get Newest File")
         self._prodteam = ControlText(" Production Team")
         self._twit = ControlText("Twitter Handle")
         self._fb = ControlText("Facebook Name")
@@ -62,6 +82,7 @@ class FRC_Uploader(BaseWidget):
         self._pID = ControlText(" Playlist ID")
         self._tbaID = ControlText("TBA ID")
         self._tbaSecret = ControlText("TBA Secret")
+        self._privacy = ControlCombo("Video Privacy Status")
         self._description = ControlTextArea(" Video Description")
         self._description.add_popup_menu_option("Reset", self.__reset_descrip_event)
 
@@ -96,14 +117,14 @@ class FRC_Uploader(BaseWidget):
              (' ', "_eday", ' '), (' ', "_end", ' ')],
             "-Status Output-":
             ["_output", (' ', "_ascrollbutton", ' '), "=", "_qview"],
-            "Event Values-": [("_where", ' '), ("_prodteam", "_twit", "_fb"),
+            "Event Values-": [("_where", "_newest"), ("_prodteam", "_twit", "_fb"),
                               ("_weblink", "_ename", "_ecode"),
-                              ("_pID", "_tbaID", "_tbaSecret"), "_description"]
+                              ("_pID", "_tbaID", "_tbaSecret"), ("_privacy", " "), "_description"]
         }, (' ', '_button', ' ')]
 
         # Main Menu Layout
         self.mainmenu = [{
-            'Settings': [{'Reset Form Values': self.__reset_form_event}, {'Remove Youtube Credentials': self.__reset_cred_event}, {'Show/Hide Match Code': self.__toggle_match_code}],
+            'Settings': [{'Reset Form Values': self.__reset_form_event}, {'Youtube Log Out': self.__reset_cred_event}, {'Show/Hide Match Code': self.__toggle_match_code}],
             'Queue': [{'Toggle Uploads': self.__toggle_worker}, {'Save Queue': self.__save_queue}, {'Load Queue': self.__load_queue}]}]
 
         # Set TBA check
@@ -117,6 +138,8 @@ class FRC_Uploader(BaseWidget):
         self._mnum.value = 1
 
         # Add ControlCombo values
+        for t in consts.VALID_PRIVACY_STATUSES:
+            self._privacy += t
         self._mtype += ("Qualifications", "qm")
         self._mtype += ("Quarterfinals", "qf")
         self._mtype += ("Semifinals", "sf")
@@ -135,9 +158,6 @@ class FRC_Uploader(BaseWidget):
         self._button.value = self.__button_action
         self._ascrollbutton.value = self.__togglescroll
 
-        # Hide Alternate Description Box
-        # self._description.hide()
-        # self._output.hide()
         self.testval = 0
 
         # Get latest values from frc_form_values.json
@@ -145,30 +165,34 @@ class FRC_Uploader(BaseWidget):
             with open(consts.form_values) as f:
                 values = json.load(f)
                 i = 0
+                switcher = {
+                    0: self._where,
+                    1: self._prodteam,
+                    2: self._twit,
+                    3: self._fb,
+                    4: self._weblink,
+                    5: self._ename,
+                    6: self._ecode,
+                    7: self._pID,
+                    8: self._tbaID,
+                    9: self._tbaSecret,
+                    10: self._description,
+                    11: self._mcode,
+                    12: self._mnum,
+                    13: self._mtype,
+                    14: self._tiebreak,
+                    15: self._tba,
+                    16: self._ceremonies,
+                    17: self._eday,
+                    18: self._end,
+                    19: self._newest,
+                    20: self._privacy,
+                }
                 for val in values:
+                    if i > 19:
+                        break
                     if val is not "":
-                        switcher = {
-                            0: self._where,
-                            1: self._prodteam,
-                            2: self._twit,
-                            3: self._fb,
-                            4: self._weblink,
-                            5: self._ename,
-                            6: self._ecode,
-                            7: self._pID,
-                            8: self._tbaID,
-                            9: self._tbaSecret,
-                            10: self._description,
-                            11: self._mcode,
-                            12: self._mnum,
-                            13: self._mtype,
-                            14: self._tiebreak,
-                            15: self._tba,
-                            16: self._ceremonies,
-                            17: self._eday,
-                            18: self._end,
-                        }
-                        if any(i == k for k in (14, 15)):
+                        if any(i == k for k in (14, 15, 19)):
                             if val == "no":
                                 switcher[i].value = False
                             else:
@@ -193,7 +217,7 @@ class FRC_Uploader(BaseWidget):
         """Manipulates and transforms data from the forms into usable
            data that can be used for uploading videos"""
         options = Namespace()
-        row = [0] * 19
+        row = [0] * 21
         options.where = row[0] = self._where.value
         options.prodteam = row[1] = self._prodteam.value
         options.twit = row[2] = self._twit.value
@@ -215,6 +239,8 @@ class FRC_Uploader(BaseWidget):
         options.ceremonies = row[16] = self._ceremonies.value
         options.eday = row[17] = self._eday.value
         options.end = row[18] = self._end.value
+        options.newest, row[19] = (True, "yes") if self._newest.value else (False, "no")
+        options.privacy = row[20] = self._privacy.value
         options.ignore = False
         if not options.end:
             if options.ceremonies:
@@ -258,7 +284,7 @@ class FRC_Uploader(BaseWidget):
             options = self._queue.get()
             if not options.ignore:
                 options.then = datetime.now()
-                yup.init(options)
+                utils.init(options)
                 self._qview -= 0
                 self._queueref.pop(0)
             self._queue.task_done()
@@ -283,6 +309,7 @@ class FRC_Uploader(BaseWidget):
                 self._queueref = pickle.load(f)
         except Exception as e:
             print("You need to save a queue before loading a queue")
+            return
         for options in self._queueref:
             if not options.end:
                 if options.ceremonies:
@@ -322,9 +349,13 @@ class FRC_Uploader(BaseWidget):
         self._pID.value = ""
 
     def __reset_cred_event(self):
-        os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-spreadsheet.json"))
-        os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-youtube.json"))
-        sys.exit(0)
+        title = consts.youtube.channels().list(part='snippet', mine=True).execute()
+        title = title['items'][0]['snippet']['title']
+        resp = self.question(f"You are currently logged into {title}\nWould you like to log out?", title="FRCUploader")
+        if resp == "yes":
+            os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-spreadsheet.json"))
+            os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-youtube.json"))
+            sys.exit(0)
 
     def __reset_descrip_event(self):
         self._description.value = consts.DEFAULT_DESCRIPTION
@@ -335,7 +366,7 @@ class FRC_Uploader(BaseWidget):
         self._queueref.pop(row)
 
     def __toggle_match_code(self):
-        if self._mcode.visible: 
+        if self._mcode.visible:
             self._mcode.hide()
         else:
             self._mcode.show()

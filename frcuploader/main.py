@@ -29,10 +29,6 @@ def main():
             print("-u will load updateTBA")
             print("-t will load updatePlaylistThumbnails")
             exit(0)
-    if "linux" in platform:  # root needed for writing files
-        if geteuid():
-            print("Need sudo for writing files")
-            subprocess.call(['sudo', 'python3', argv[0]])
     try:
         pyforms_lite.start_app(FRC_Uploader, geometry=(200, 200, 1, 1))
     except Exception as e:

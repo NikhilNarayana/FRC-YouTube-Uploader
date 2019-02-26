@@ -4,7 +4,7 @@
 import json
 from urllib.parse import *
 
-from .youtubeup import post_video
+from .utils import post_video
 
 
 def video_id(value):

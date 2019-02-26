@@ -2,7 +2,7 @@
 
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
-from .youtubeAuthenticate import get_youtube_service
+from .youtube import get_youtube_service
 from googleapiclient.http import MediaFileUpload
 
 THUMBNAIL = ""
