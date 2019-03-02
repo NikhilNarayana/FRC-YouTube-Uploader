@@ -44,6 +44,16 @@ def file_size(path):
     return convert_bytes(file_info.st_size)
 
 
+def restart():
+        args = sys.argv[:]
+
+        args.insert(0, sys.executable)
+        if sys.platform == 'win32':
+            args = ['"%s"' % arg for arg in args]
+
+        os.execv(sys.executable, args)
+
+
 """YouTube Title Generators"""
 
 
@@ -362,25 +372,6 @@ def tiebreak_mnum(mnum, mtype):
 
 
 """Additional YouTube Functions"""
-
-
-def upload_multiple_videos(options):
-    while options.mnum <= options.end:
-        options.then = dt.datetime.now()
-        options.file, options.yttitle = create_names(options)
-        if options.file is None:
-            print("No File Found")
-        options.mnum = options.mnum + 1
-        while options.file is None and options.mnum < options.end:
-            print(f"{options.mtype.upper()} Match {options.mnum} is missing")
-            options.then = dt.datetime.now()
-            options.file, options.yttitle = create_names(options)
-            options.mnum = options.mnum + 1
-        try:
-            print(initialize_upload(options))
-        except HttpError as e:
-            print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
-    print("All matches have been uploaded")
 
 
 def update_thumbnail(video_id, thumbnail):

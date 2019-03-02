@@ -53,7 +53,7 @@ class FRC_Uploader(BaseWidget):
                     resp = self.question(f"Current Version: {consts.__version__}\nVersion {latest_version} is available. Would you like to update?", title="FRCUploader")
                     if resp == "yes":
                         subprocess.call(('pip3', 'install', '-U', f'frcuploader=={latest_version}'))
-                        self.message("You can now restart the app to use the new version", title="FRCUploader")
+                        utils.restart()
         except Exception as e:
             print(e)
         super(FRC_Uploader, self).__init__("FRC YouTube Uploader")
@@ -102,7 +102,7 @@ class FRC_Uploader(BaseWidget):
         self._qview = ControlList("Queue", select_entire_row=True)
         self._qview.cell_double_clicked_event = self.__ignore_job
         self._qview.readonly = True
-        self._qview.horizontal_headers = ["Event Code", "Match Type", "Match #", "Last Match #"]
+        self._qview.horizontal_headers = ["Event Code", "Match Type", "Match #"]
 
         # Button
         self._button = ControlButton('Submit')
@@ -238,17 +238,22 @@ class FRC_Uploader(BaseWidget):
         options.tba, row[15] = (True, "yes") if self._tba.value else (False, "no")
         options.ceremonies = row[16] = self._ceremonies.value
         options.eday = row[17] = self._eday.value
-        options.end = row[18] = self._end.value
+        options.end = row[18] = 0
         options.newest, row[19] = (True, "yes") if self._newest.value else (False, "no")
         options.privacy = row[20] = self._privacy.value
         options.ignore = False
-        if not options.end:
+        if not self._end.value:
             if options.ceremonies:
-                self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A", "N/A")
+                self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A")
             else:
-                self._qview += (options.ecode, options.mtype, options.mnum, "N/A")
+                self._qview += (options.ecode, options.mtype, options.mnum)
         else:
-            self._qview += (options.ecode, options.mtype, options.mnum, options.end)
+            for r in range(options.mnum, self._end.value):
+                self._qview += (options.ecode, options.mtype, r)
+                self._queue.put(options)
+                self._queueref.append(options)
+                self._qview.resize_rows_contents()
+                options.mnum += 1
         self._queue.put(options)
         self._queueref.append(options)
         self._qview.resize_rows_contents()
@@ -311,13 +316,10 @@ class FRC_Uploader(BaseWidget):
             print("You need to save a queue before loading a queue")
             return
         for options in self._queueref:
-            if not options.end:
-                if options.ceremonies:
-                    self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A", "N/A")
-                else:
-                    self._qview += (options.ecode, options.mtype, options.mnum, "N/A")
+            if options.ceremonies:
+                self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A", "N/A")
             else:
-                self._qview += (options.ecode, options.mtype, options.mnum, options.end)
+                self._qview += (options.ecode, options.mtype, options.mnum, "N/A")
             self._queue.put(options)
             self._qview.resize_rows_contents()
         thr = threading.Thread(target=self.__worker)
