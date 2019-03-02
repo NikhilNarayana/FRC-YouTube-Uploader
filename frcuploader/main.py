@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from os import geteuid
 from sys import platform, argv, exit
 
 import pyforms_lite
