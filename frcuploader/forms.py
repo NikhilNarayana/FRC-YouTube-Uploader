@@ -240,6 +240,9 @@ class FRC_Uploader(BaseWidget):
         options.eday = row[17] = self._eday.value
         options.end = row[18] = 0
         options.newest, row[19] = (True, "yes") if self._newest.value else (False, "no")
+        if options.newest:
+            files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.')]))
+            options.file = max([os.path.join(options.where, f) for f in files], key=os.path.getctime)
         options.privacy = row[20] = self._privacy.value
         options.ignore = False
         if not self._end.value:
@@ -317,9 +320,9 @@ class FRC_Uploader(BaseWidget):
             return
         for options in self._queueref:
             if options.ceremonies:
-                self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A", "N/A")
+                self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A")
             else:
-                self._qview += (options.ecode, options.mtype, options.mnum, "N/A")
+                self._qview += (options.ecode, options.mtype, options.mnum)
             self._queue.put(options)
             self._qview.resize_rows_contents()
         thr = threading.Thread(target=self.__worker)

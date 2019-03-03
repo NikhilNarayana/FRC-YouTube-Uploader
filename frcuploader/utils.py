@@ -109,10 +109,6 @@ def ceremonies_yt_title(options):
 """File Location Functions"""
 
 
-def get_newest_file(options):
-    return max([os.path.join(options.where, f) for f in options.files], key=os.path.getctime)
-
-
 def quals_filename(options):
     file = None
     for f in options.files:
@@ -231,7 +227,7 @@ def create_names(options):
         }
         try:
             if options.newest:
-                return get_newest_file(options), yt[options.mtype](options)
+                return None, yt[options.mtype](options)
             else:
                 return fname[options.mtype](options), yt[options.mtype](options)
         except KeyError:
@@ -456,8 +452,10 @@ def init(options):
         options.tba = False
     if options.tiebreak:
         options.mnum = tiebreak_mnum(options.mnum, options.mtype)
-
-    options.file, options.yttitle = create_names(options)
+    if options.newest:
+        x, options.yttitle = create_names(options)
+    else:
+        options.file, options.yttitle = create_names(options)
 
     if options.file is not None:
         print(f"Found {options.file} to upload")
