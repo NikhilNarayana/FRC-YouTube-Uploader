@@ -13,7 +13,7 @@ PRs are appreciated and will be reviewed quickly, the only code quality standard
 * Add to a YouTube Playlist
 * Include match results from TBA in description
 * Add videos links to The Blue Alliance
-* Mostly Automated, Non-Blocking Interface
+* Mostly Automated Interface
 * Saves and Loads form values
 
 
@@ -121,10 +121,10 @@ If you want to batch upload a number of files you can do so with this. Every mat
 ![alt text](https://i.imgur.com/atKajjXl.png)
 
 ##### Output
-This will display any information you need to know about an ongoing upload, the same info will be written to the command prompt as a backup. It is currently set to auto scroll to the bottom, but if you hit an infinite loop you can toggle the auto scrolling with the button shown.
+This will display any information you need to know about an ongoing upload, the same info will be written to the command prompt as a backup and any errors will be written to a file in your root user directory. It is currently set to auto scroll to the bottom, but if you hit an infinite loop you can toggle the auto scrolling with the button.
 
 ##### Queue
-The queue lets you hit submit a bunch of times to queue up jobs that can't be done with one submission such as all of qualifications and all of quarterfinals. The queue goes in the order you hit submit so don't worry about fixing your playlists afterwards. The top most item in the queue is the one being worked on.
+The queue shows upcoming uploads with the top most item being the currently uploaded match.
 
 Double clicking on a row in the Queue will remove it from the Queue. Be careful because you can't undo it unless you resubmit a new job.
 
