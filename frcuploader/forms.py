@@ -242,7 +242,7 @@ class FRC_Uploader(BaseWidget):
         options.end = row[18] = 0
         options.newest, row[19] = (True, "yes") if self._newest.value else (False, "no")
         if options.newest:
-            files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.')]))
+            files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.') and any(f.endswith(z) for z in consts.rec_formats)]))
             options.file = max([os.path.join(options.where, f) for f in files], key=os.path.getctime)
         options.privacy = row[20] = self._privacy.value
         options.ignore = False
