@@ -1,3 +1,3 @@
-from .main import *
-from .utils import *
-from .youtube import *
+from . import main
+from . import utils
+from . import youtube

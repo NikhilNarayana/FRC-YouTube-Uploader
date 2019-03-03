@@ -250,13 +250,17 @@ class FRC_Uploader(BaseWidget):
                 self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A")
             else:
                 self._qview += (options.ecode, options.mtype, options.mnum)
-        else:
+        elif not options.newest:
             for r in range(options.mnum, self._end.value):
                 self._qview += (options.ecode, options.mtype, r)
                 self._queue.put(options)
                 self._queueref.append(options)
                 self._qview.resize_rows_contents()
                 options.mnum += 1
+        else:
+            print("Using Last Match Number and Get Newest File together is not supported")
+            print(f"Will fallback to just uploading the newest file for mnum {options.mnum}")
+            self._end.value = 0
         self._queue.put(options)
         self._queueref.append(options)
         self._qview.resize_rows_contents()
