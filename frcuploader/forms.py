@@ -54,7 +54,7 @@ class FRC_Uploader(BaseWidget):
                     resp = self.question(f"Current Version: {consts.__version__}\nVersion {latest_version} is available. Would you like to update?", title="FRCUploader")
                     if resp == "yes":
                         subprocess.call(('pip3', 'install', '-U', f'frcuploader=={latest_version}'))
-                        utils.restart()
+                        self.message("You can now restart the app to use the new version", title="FRCUploader")
         except Exception as e:
             print(e)
         super(FRC_Uploader, self).__init__("FRC YouTube Uploader")
@@ -66,9 +66,8 @@ class FRC_Uploader(BaseWidget):
         self._queue = Queue()
         self._queueref = []
 
-        # Redirect error output to a file
-        if not sys.stderr:
-            sys.stderr = open(consts.log_file, "a")
+        # Redirect error output to status window and a file
+        sys.stderr = EmittingStream(textWritten=self.write_err)
 
         # Create form fields
         # Event Values
@@ -287,6 +286,14 @@ class FRC_Uploader(BaseWidget):
         if self._autoscroll:
             self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
         print(text, file=sys.__stdout__, end='')
+
+    def write_err(self, text):
+        self._output._form.plainTextEdit.insertPlainText(text)
+        if self._autoscroll:
+            self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
+        print(text, file=sys.__stdout__, end='')
+        with open(consts.log_file, "a") as f:
+            f.write(text)
 
     def __worker(self):
         while True:
