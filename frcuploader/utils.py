@@ -64,10 +64,10 @@ def quals_yt_title(options):
 def quarters_yt_title(options):
     mnum = options.mnum
     if mnum <= 8:
-        return options.ename + f" - Quarterfinal Match {mnum}"
+        return f"{options.ename} - Quarterfinal Match {mnum}" if not options.replay else f"{options.ename} - Quarterfinal Match {mnum} Replay"
     elif mnum <= 12:
         mnum -= 8
-        return options.ename + f" - Quarterfinal Tiebreaker {mnum}"
+        return f"{options.ename} - Quarterfinal Tiebreaker {mnum}" if not options.replay else f"{options.ename} - Quarterfinal Tiebreaker {mnum} Replay"
     else:
         raise ValueError("options.mnum must be within 1 and 12")
 
@@ -75,16 +75,16 @@ def quarters_yt_title(options):
 def semis_yt_title(options):
     mnum = options.mnum
     if mnum <= 4:
-        return options.ename + f" - Semifinal Match {mnum}"
+        return f"{options.ename} - Semifinal Match {mnum}" if not options.replay else f"{options.ename} - Semifinal Match {mnum} Replay"
     elif mnum <= 6:
         mnum -= 4
-        return options.ename + f" - Semifinal Tiebreaker {mnum}"
+        return f"{options.ename} - Semifinal Tiebreaker {mnum}" if not options.replay else f"{options.ename} - Semifinal Tiebreaker {mnum} Replay"
     else:
         raise ValueError("options.mnum must be within 1 and 6")
 
 
 def finals_yt_title(options):
-    return options.ename + f" - Final Match {options.mnum}"
+    return f"{options.ename} - Final Match {options.mnum}" if not options.replay else f"{options.ename} - Final Match {options.mnum} Replay"
 
 
 def ceremonies_yt_title(options):
@@ -114,8 +114,14 @@ def quals_filename(options):
     for f in options.files:
         fl = f.lower()
         if all([" " + str(options.mnum) + "." in fl and any(k in fl for k in ("qual", "qualification", "qm"))]):
-            file = f
-            break
+            if options.replay:
+                if "replay" in fl:
+                    file = f
+                    break
+            else:
+                if "replay" not in fl:
+                    file = f
+                    break
     return file
 
 
@@ -126,15 +132,27 @@ def quarters_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("quarter", "final", " " + str(options.mnum) + ".")):
                 if "tiebreak" not in fl:
-                    file = f
-                    break
+                    if options.replay:
+                        if "replay" in fl:
+                            file = f
+                            break
+                    else:
+                        if "replay" not in fl:
+                            file = f
+                            break
     elif 9 <= options.mnum <= 12:
         mnum = options.mnum - 8
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("quarter", "tiebreak", "final", " " + str(mnum) + ".")):
-                file = f
-                break
+                if options.replay:
+                    if "replay" in fl:
+                        file = f
+                        break
+                else:
+                    if "replay" not in fl:
+                        file = f
+                        break
     return file
 
 
@@ -145,15 +163,27 @@ def semis_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("semi", "final", " " + str(options.mnum) + ".")):
                 if "tiebreak" not in fl:
-                    file = f
-                    break
+                    if options.replay:
+                        if "replay" in fl:
+                            file = f
+                            break
+                    else:
+                        if "replay" not in fl:
+                            file = f
+                            break
     elif options.mnum <= 6:
         mnum = options.mnum - 4
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("semi", "tiebreak", "final", " " + str(mnum) + ".")):
-                file = f
-                break
+                if options.replay:
+                    if "replay" in fl:
+                        file = f
+                        break
+                else:
+                    if "replay" not in fl:
+                        file = f
+                        break
     return file
 
 
@@ -164,15 +194,27 @@ def finals_filename(options):
             fl = f.lower()
             if all(k in fl for k in ("final", " " + str(options.mnum) + ".")):
                 if all(k not in fl for k in ("quarter", "semi")) and "tiebreak" not in fl:
-                    file = f
-                    break
+                    if options.replay:
+                        if "replay" in fl:
+                            file = f
+                            break
+                    else:
+                        if "replay" not in fl:
+                            file = f
+                            break
     elif options.mnum >= 3:
         for f in options.files:
             fl = f.lower()
             if "final" in fl and any(k in fl for k in ("tiebreak", " " + str(options.mnum) + ".")):
                 if all(k not in fl for k in ("quarter", "semi")):
-                    file = f
-                    break
+                    if options.replay:
+                        if "replay" in fl:
+                            file = f
+                            break
+                    else:
+                        if "replay" not in fl:
+                            file = f
+                            break
     return file
 
 

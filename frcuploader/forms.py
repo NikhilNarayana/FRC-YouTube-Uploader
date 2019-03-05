@@ -93,6 +93,7 @@ class FRC_Uploader(BaseWidget):
         self._mtype = ControlCombo("Match Type")
         self._tiebreak = ControlCheckBox("Tiebreaker")
         self._tba = ControlCheckBox("Use TBA")
+        self._replay = ControlCheckBox("Replay")
         self._ceremonies = ControlCombo("Ceremonies")
         self._eday = ControlCombo("Event Day")
         self._end = ControlNumber("Last Match Number", minimum=0, maximum=500)
@@ -114,7 +115,7 @@ class FRC_Uploader(BaseWidget):
         self.formset = [{
             "-Match Values":
             [(' ', "_mcode", ' '), (' ', "_mnum", ' '), (' ', "_mtype", ' '),
-             (' ', "_tiebreak", "_tba", ' '), (' ', "_ceremonies", ' '),
+             (' ', "_tiebreak", "_tba", "_replay", ' '), (' ', "_ceremonies", ' '),
              (' ', "_eday", ' '), (' ', "_end", ' ')],
             "-Status Output-":
             ["_output", (' ', "_ascrollbutton", ' '), "=", "_qview"],
@@ -240,6 +241,8 @@ class FRC_Uploader(BaseWidget):
         options.ceremonies = row[16] = self._ceremonies.value
         options.eday = row[17] = self._eday.value
         options.end = row[18] = 0
+        options.replay = self._replay.value
+        self._replay.value = False
         options.newest, row[19] = (True, "yes") if self._newest.value else (False, "no")
         if options.newest:
             files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.') and any(f.endswith(z) for z in consts.rec_formats)]))
@@ -263,7 +266,8 @@ class FRC_Uploader(BaseWidget):
             print("Using Last Match Number and Get Newest File together is not supported")
             print(f"Will fallback to just uploading the newest file for mnum {options.mnum}")
             self._end.value = 0
-        self._qview += (options.ecode, options.mtype, options.mnum)
+        if int(self._end.value):
+            self._qview += (options.ecode, options.mtype, options.mnum)
         self._queue.put(options)
         self._queueref.append(options)
         self._qview.resize_rows_contents()
