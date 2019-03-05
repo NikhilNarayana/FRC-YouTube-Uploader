@@ -58,7 +58,7 @@ def restart():
 
 
 def quals_yt_title(options):
-    return options.title
+    return options.title if not options.replay else f"{options.title} Replay"
 
 
 def quarters_yt_title(options):
