@@ -8,6 +8,7 @@ import threading
 import subprocess
 from time import sleep
 from queue import Queue
+from copy import deepcopy
 
 from . import consts
 from . import utils
@@ -242,25 +243,27 @@ class FRC_Uploader(BaseWidget):
         options.newest, row[19] = (True, "yes") if self._newest.value else (False, "no")
         if options.newest:
             files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.') and any(f.endswith(z) for z in consts.rec_formats)]))
-            options.file = max([os.path.join(options.where, f) for f in files], key=os.path.getctime)
+            options.file = max([os.path.join(options.where, f) for f in files], key=os.path.getmtime)
         options.privacy = row[20] = self._privacy.value
         options.ignore = False
-        if not self._end.value:
+        if not int(self._end.value):
             if options.ceremonies:
                 self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A")
             else:
                 self._qview += (options.ecode, options.mtype, options.mnum)
         elif not options.newest:
-            for r in range(options.mnum, self._end.value):
-                self._qview += (options.ecode, options.mtype, r)
+            for r in range(options.mnum, int(self._end.value)):
+                self._qview += (options.ecode, options.mtype, options.mnum)
                 self._queue.put(options)
                 self._queueref.append(options)
                 self._qview.resize_rows_contents()
+                options = deepcopy(options)
                 options.mnum += 1
         else:
             print("Using Last Match Number and Get Newest File together is not supported")
             print(f"Will fallback to just uploading the newest file for mnum {options.mnum}")
             self._end.value = 0
+        self._qview += (options.ecode, options.mtype, options.mnum)
         self._queue.put(options)
         self._queueref.append(options)
         self._qview.resize_rows_contents()
@@ -270,8 +273,8 @@ class FRC_Uploader(BaseWidget):
             thr.start()
             consts.firstrun = False
         if not self._ceremonies.value:
-            if not self._end.value:
-                self._mnum.value = int(self._mnum.value) + 1
+            if not int(self._end.value):
+                self._mnum.value = self._mnum.value + 1
             else:
                 self._mnum.value = self._end.value + 1
                 self._end.value = 0
@@ -280,8 +283,8 @@ class FRC_Uploader(BaseWidget):
             self._mtype.value = "qf"
         if self._mtype.value == "qm" and self._tiebreak.value:
             row[14] = self._tiebreak.value = False
-        row[12] = self._mnum.value
-        row[18] = self._end.value
+        row[12] = int(self._mnum.value)
+        row[18] = int(self._end.value)
         with open(consts.form_values, 'w') as f:
             f.write(json.dumps(row))
 
