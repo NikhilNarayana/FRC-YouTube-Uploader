@@ -516,6 +516,7 @@ def init(options):
 def initialize_upload(options):
     if not options.ceremonies:
         print(f"Initializing upload for {options.mtype} match {options.mnum}")
+        print(f"YouTube title is {options.yttitle}")
     else:
         print(f"Initializing upload for: {ceremonies_yt_title(options)}")
     if options.tba:
