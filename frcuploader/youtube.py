@@ -66,8 +66,13 @@ def upload_service(insert_request):
             except HttpError as e:
                 if e.resp.status in retry_status_codes:
                     print(f"A retriable HTTP error {e.resp.status} occurred:\n{e.content}")
-                elif "503" in e.content:
+                elif b"503" in e.content:
                     print("Backend Error: will attempt to retry upload")
+                    print(e)
+                    return None
+                else:
+                    print("Unknown Error, please post an issue on github with this info")
+                    print(e)
                     return None
             except retry_exceptions as e:
                 print(f"A retriable error occurred: {e}")
