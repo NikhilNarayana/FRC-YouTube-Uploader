@@ -505,7 +505,7 @@ def init(options):
             upload_multiple_videos(options)
         else:
             try:
-                print(initialize_upload(options))
+                print(pre_upload(options))
             except HttpError as e:
                 print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
     else:
@@ -513,12 +513,15 @@ def init(options):
         return
 
 
-def initialize_upload(options):
+def pre_upload(options):
     if not options.ceremonies:
         print(f"Initializing upload for {options.mtype} match {options.mnum}")
-        print(f"YouTube title is {options.yttitle}")
     else:
         print(f"Initializing upload for: {ceremonies_yt_title(options)}")
+    print(f"YouTube title is {options.yttitle}")
+    if len(options.yttitle) > 100:
+        print(f"Title Length: {len(options.yttitle)} characters")
+        return "Title cannot exceed 100 characters, please adjust your settings to reduce the title length"
     if options.tba:
         blue_data, red_data, mcode = tba_results(options)
         tags = options.tags.split(",")
