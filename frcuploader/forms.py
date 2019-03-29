@@ -74,6 +74,7 @@ class FRC_Uploader(BaseWidget):
         # Event Values
         self._where = ControlDir(" Match Files Location")
         self._newest = ControlCheckBox("Get Newest File")
+        self._sendto = ControlDir(" Move Files To")
         self._prodteam = ControlText(" Production Team")
         self._twit = ControlText("Twitter Handle")
         self._fb = ControlText("Facebook Name")
@@ -119,7 +120,7 @@ class FRC_Uploader(BaseWidget):
              (' ', "_eday", ' '), (' ', "_end", ' ')],
             "-Status Output-":
             ["_output", (' ', "_ascrollbutton", ' '), "=", "_qview"],
-            "Event Values-": [("_where", "_newest"), ("_prodteam", "_twit", "_fb"),
+            "Event Values-": [("_where", "_newest"), "_sendto", ("_prodteam", "_twit", "_fb"),
                               ("_weblink", "_ename", "_ecode"),
                               ("_pID", "_tbaID", "_tbaSecret"), ("_privacy", " "), "_description"]
         }, (' ', '_button', ' ')]
@@ -189,6 +190,7 @@ class FRC_Uploader(BaseWidget):
                     18: self._end,
                     19: self._newest,
                     20: self._privacy,
+                    21: self._sendto,
                 }
                 for val in values:
                     if i > 19:
@@ -219,7 +221,7 @@ class FRC_Uploader(BaseWidget):
         """Manipulates and transforms data from the forms into usable
            data that can be used for uploading videos"""
         options = Namespace()
-        row = [0] * 21
+        row = [0] * 22
         options.where = row[0] = self._where.value
         options.prodteam = row[1] = self._prodteam.value
         options.twit = row[2] = self._twit.value
@@ -248,6 +250,7 @@ class FRC_Uploader(BaseWidget):
             files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.') and any(f.endswith(z) for z in consts.rec_formats)]))
             options.file = max([os.path.join(options.where, f) for f in files], key=os.path.getmtime)
         options.privacy = row[20] = self._privacy.value
+        options.sendto = row[21] = self._sendto.value
         options.ignore = False
         if not int(self._end.value):
             if options.ceremonies:
@@ -364,6 +367,7 @@ class FRC_Uploader(BaseWidget):
         self._eday.value = 0
         self._tba.value = True
         self._where.value = ""
+        self._sendto.value = ""
         self._prodteam.value = ""
         self._twit.value = ""
         self._fb.value = ""

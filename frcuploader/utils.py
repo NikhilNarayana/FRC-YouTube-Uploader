@@ -6,6 +6,7 @@ import sys
 import json
 import time
 import errno
+import shutil
 import random
 import hashlib
 import datetime as dt
@@ -602,4 +603,15 @@ def post_upload(options, mcode):
         print("Added data to spreadsheet")
     except Exception as e:
         print("Failed to write to spreadsheet")
+
+    if options.sendto:
+        if options.newest:
+            print("Moving the file with Get Newest File is not supported yet")
+        else:
+            try:
+                print("Moving file")
+                shutil.move(os.path.join(options.where, options.file), os.path.join(options.sendto, options.file))
+            except Exception as e:
+                print(f"Could not copy to {options.sendto}")
+                print(e)
     return f"DONE UPLOADING {options.file}\n"
