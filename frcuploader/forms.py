@@ -249,6 +249,9 @@ class FRC_Uploader(BaseWidget):
         if options.newest:
             files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.') and any(f.endswith(z) for z in consts.rec_formats)]))
             options.file = max([os.path.join(options.where, f) for f in files], key=os.path.getmtime)
+            for f in files:
+                if f in options.file:
+                    options.filebasename = f
         options.privacy = row[20] = self._privacy.value
         options.sendto = row[21] = self._sendto.value
         options.ignore = False
@@ -312,7 +315,7 @@ class FRC_Uploader(BaseWidget):
             f.write(text)
 
     def __worker(self):
-        while True:
+        while consts.stop_thread:
             options = self._queue.get()
             if not options.ignore:
                 options.then = datetime.now()
@@ -320,6 +323,8 @@ class FRC_Uploader(BaseWidget):
                 self._qview -= 0
                 self._queueref.pop(0)
             self._queue.task_done()
+        else:
+            print("Uploads are stopped")
 
     def __toggle_worker(self):
         if not consts.stop_thread:

@@ -606,7 +606,12 @@ def post_upload(options, mcode):
 
     if options.sendto:
         if options.newest:
-            print("Moving the file with Get Newest File is not supported yet")
+            try:
+                print("Moving file")
+                shutil.move(os.path.join(options.where, options.filebasename), os.path.join(options.sendto, options.filebasename))
+            except Exception as e:
+                print(f"Could not copy to {options.sendto}")
+                print(e)
         else:
             try:
                 print("Moving file")
