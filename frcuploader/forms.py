@@ -268,7 +268,7 @@ class FRC_Uploader(BaseWidget):
             self._mtype.value = "qf"
         if self._mtype.value == "qm" and self._tiebreak.value:
             self._tiebreak.value = False
-        self.__history.append(self.__save_form())
+        self.__save_form()
 
     def write_print(self, text):
         self._output._form.plainTextEdit.insertPlainText(text)
@@ -287,7 +287,7 @@ class FRC_Uploader(BaseWidget):
             f.write(text)
 
     def __worker(self):
-        while consts.stop_thread:
+        while not consts.stop_thread:
             options = self._queue.get()
             if not options.ignore:
                 options.then = datetime.now()
@@ -344,25 +344,17 @@ class FRC_Uploader(BaseWidget):
                 f.write(json.dumps(row))
         return row
 
-    def __load_form(self, history=[]):
-        if history:
-            self._hwin.close()
-            for val, var in zip(history, self._form_fields):
-                if isinstance(val, (list, dict)):
-                    var.load_form(dict(selected=val))
-                elif val:
-                    var.value = val
-        else:
-            try:
-                with open(consts.form_values, "r") as f:
-                    values = json.loads(f.read())
-                    for val, var in zip(values, self._form_fields):
-                        if isinstance(val, bool):
-                            var.value = True if val else False
-                        elif val:
-                            var.value = val
-            except (IOError, OSError, StopIteration, json.decoder.JSONDecodeError) as e:
-                print(f"No {consts.abbrv}_form_values.json to read from, continuing with default values")
+    def __load_form(self):
+        try:
+            with open(consts.form_values, "r") as f:
+                values = json.loads(f.read())
+                for val, var in zip(values, self._form_fields):
+                    if isinstance(val, bool):
+                        var.value = True if val else False
+                    elif val:
+                        var.value = val
+        except (IOError, OSError, StopIteration, json.decoder.JSONDecodeError) as e:
+            print(f"No {consts.abbrv}_form_values.json to read from, continuing with default values")
 
     def __save_queue(self):
         with open(consts.queue_values, "wb") as f:
@@ -382,7 +374,7 @@ class FRC_Uploader(BaseWidget):
                 self._qview += (options.ecode, options.mtype, options.mnum)
             self._queue.put(options)
             self._qview.resize_rows_contents()
-            self.__history.append(self.__save_form(options))
+            self.__save_form(options)
         thr = threading.Thread(target=self.__worker)
         thr.daemon = True
         consts.firstrun = False
