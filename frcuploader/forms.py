@@ -127,7 +127,8 @@ class FRC_Uploader(BaseWidget):
 
         # Main Menu Layout
         self.mainmenu = [{
-            'Settings': [{'Reset Form Values': self.__reset_form_event}, {'Youtube Log Out': self.__reset_cred_event}, {'Show/Hide Match Code': self.__toggle_match_code}],
+            'Settings': [{'Youtube Log Out': self.__reset_cred}, {'Show/Hide Match Code': self.__toggle_match_code}],
+            'Save/Clear': [{'Save Form': self.__save_form}, {'Clear Form': self.__reset_form}],
             'Queue': [{'Toggle Uploads': self.__toggle_worker}, {'Save Queue': self.__save_queue}, {'Load Queue': self.__load_queue}]}]
 
         # Set TBA check
@@ -163,56 +164,30 @@ class FRC_Uploader(BaseWidget):
 
         self.testval = 0
 
-        # Get latest values from frc_form_values.json
-        try:
-            with open(consts.form_values) as f:
-                values = json.load(f)
-                i = 0
-                switcher = {
-                    0: self._where,
-                    1: self._prodteam,
-                    2: self._twit,
-                    3: self._fb,
-                    4: self._weblink,
-                    5: self._ename,
-                    6: self._ecode,
-                    7: self._pID,
-                    8: self._tbaID,
-                    9: self._tbaSecret,
-                    10: self._description,
-                    11: self._mcode,
-                    12: self._mnum,
-                    13: self._mtype,
-                    14: self._tiebreak,
-                    15: self._tba,
-                    16: self._ceremonies,
-                    17: self._eday,
-                    18: self._end,
-                    19: self._newest,
-                    20: self._privacy,
-                    21: self._sendto,
-                }
-                for val in values:
-                    if i > 19:
-                        break
-                    if val is not "":
-                        if any(i == k for k in (14, 15, 19)):
-                            if val == "no":
-                                switcher[i].value = False
-                            else:
-                                switcher[i].value = True
-                        elif i == 12 or i == 18:
-                            try:
-                                switcher[i].value = int(val)
-                            except Exception as e:
-                                pass
-                        else:
-                            switcher[i].value = val
-                    i = i + 1
-        except (IOError, OSError, StopIteration) as e:
-            print("No frc_form_values.json to read from, continuing with default values and creating file")
-            with open(consts.form_values, "w+") as f:  # if the file doesn't exist
-                f.write(json.dumps([]))
+        self._form_fields = (
+            self._where,
+            self._prodteam,
+            self._twit,
+            self._fb,
+            self._weblink,
+            self._ename,
+            self._ecode,
+            self._pID,
+            self._tbaID,
+            self._tbaSecret,
+            self._description,
+            self._mcode,
+            self._mnum,
+            self._mtype,
+            self._tiebreak,
+            self._tba,
+            self._ceremonies,
+            self._eday,
+            self._end,
+            self._newest,
+            self._privacy,
+            self._sendto,
+        )
 
     def __togglescroll(self):
         self._autoscroll = False if self._autoscroll else True
@@ -238,14 +213,14 @@ class FRC_Uploader(BaseWidget):
         options.mcode = row[11] = self._mcode.value
         options.mnum = row[12] = int(self._mnum.value)
         options.mtype = row[13] = self._mtype.value
-        options.tiebreak, row[14] = (True, "yes") if self._tiebreak.value else (False, "no")
-        options.tba, row[15] = (True, "yes") if self._tba.value else (False, "no")
+        options.tiebreak = row[14] = deepcopy(self._tiebreak.value)
+        options.tba = row[15] = deepcopy(self._tba.value)
         options.ceremonies = row[16] = self._ceremonies.value
         options.eday = row[17] = self._eday.value
         options.end = row[18] = 0
         options.replay = self._replay.value
         self._replay.value = False
-        options.newest, row[19] = (True, "yes") if self._newest.value else (False, "no")
+        options.newest = row[19] = deepcopy(self._newest.value)
         if options.newest:
             files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.') and any(f.endswith(z) for z in consts.rec_formats)]))
             options.file = max([os.path.join(options.where, f) for f in files], key=os.path.getmtime)
@@ -336,6 +311,62 @@ class FRC_Uploader(BaseWidget):
             consts.stop_thread = False
             consts.firstrun = True
 
+    def __save_form(self, options=[]):
+        row = [None] * 22
+        if options:
+            f = options.pID.find("PL")
+            options.pID = options.pID[f:f + 34]
+            row[0] = deepcopy(options.where)
+            row[1] = deepcopy(options.prodteam)
+            row[2] = deepcopy(options.twit)
+            row[3] = deepcopy(options.fb)
+            row[4] = deepcopy(options.weblink)
+            row[5] = deepcopy(options.ename)
+            row[6] = deepcopy(options.ecode)
+            row[7] = deepcopy(options.pID)
+            row[8] = deepcopy(options.tbaID)
+            row[9] = deepcopy(options.tbaSecret)
+            row[10] = deepcopy(options.description)
+            row[11] = deepcopy(options.mcode)
+            row[12] = deepcopy(options.mnum)
+            row[13] = deepcopy(options.mtype)
+            row[14] = deepcopy(options.tiebreak)
+            row[15] = deepcopy(options.tba)
+            row[16] = deepcopy(options.ceremonies)
+            row[17] = deepcopy(options.eday)
+            row[18] = deepcopy(options.end)
+            row[19] = deepcopy(options.newest)
+            row[20] = deepcopy(options.privacy)
+            row[21] = deepcopy(options.sendto)
+        else:
+            f = self._pID.value.find("PL")
+            self._pID.value = self._pID.value[f:f + 34]
+            for i, var in zip(range(len(self._form_fields)), self._form_fields):
+                row[i] = deepcopy(var.value)
+        with open(consts.form_values, 'w') as f:
+                f.write(json.dumps(row))
+        return row
+
+    def __load_form(self, history=[]):
+        if history:
+            self._hwin.close()
+            for val, var in zip(history, self._form_fields):
+                if isinstance(val, (list, dict)):
+                    var.load_form(dict(selected=val))
+                elif val:
+                    var.value = val
+        else:
+            try:
+                with open(consts.form_values, "r") as f:
+                    values = json.loads(f.read())
+                    for val, var in zip(values, self._form_fields):
+                        if isinstance(val, (list, dict)):
+                            var.load_form(dict(selected=val))
+                        elif val:
+                            var.value = val
+            except (IOError, OSError, StopIteration, json.decoder.JSONDecodeError) as e:
+                print(f"No {consts.abbrv}_form_values.json to read from, continuing with default values")
+
     def __save_queue(self):
         with open(consts.queue_values, "wb") as f:
             f.write(pickle.dumps(self._queueref))
@@ -354,13 +385,14 @@ class FRC_Uploader(BaseWidget):
                 self._qview += (options.ecode, options.mtype, options.mnum)
             self._queue.put(options)
             self._qview.resize_rows_contents()
+            self.__history.append(self.__save_form(options))
         thr = threading.Thread(target=self.__worker)
         thr.daemon = True
         consts.firstrun = False
         consts.stop_thread = False
         thr.start()
 
-    def __reset_form_event(self):
+    def __reset_form(self):
         with open(consts.form_values, "w+") as f:
             f.write(json.dumps([]))
         self._tbaID.value = "Go to thebluealliance.com/request/apiwrite to get keys"
@@ -383,7 +415,7 @@ class FRC_Uploader(BaseWidget):
         self._ecode.value = ""
         self._pID.value = ""
 
-    def __reset_cred_event(self):
+    def __reset_cred(self):
         title = consts.youtube.channels().list(part='snippet', mine=True).execute()
         title = title['items'][0]['snippet']['title']
         resp = self.question(f"You are currently logged into {title}\nWould you like to log out?", title="FRCUploader")
