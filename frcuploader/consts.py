@@ -72,3 +72,6 @@ queue_values = os.path.join(os.path.expanduser("~"), ".frc_queue_values.txt")
 form_values = os.path.join(os.path.expanduser("~"), '.frc_form_values.json')
 log_file = os.path.join(os.path.expanduser("~"), ".frc_log.txt")
 rec_formats = (".ts", ".mkv", ".avi", ".mp4", ".flv", ".mov", ".flv")
+abbrv = "frc"
+short_name = "frcuploader"
+long_name = "FRC YouTube Uploader"

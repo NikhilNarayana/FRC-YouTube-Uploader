@@ -10,6 +10,8 @@ import sys
 import errno
 from decimal import Decimal
 
+from . import consts
+
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
@@ -37,15 +39,17 @@ SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
 def upload(yt, body, file):
     vid = None
     ret = None
-    while not vid:
+    retries = 0
+    while not vid and retries < 10:
         insert_request = yt.videos().insert(
             part=",".join(body.keys()),
             body=body,
             media_body=MediaFileUpload(file,
                                        chunksize=104857600,
                                        resumable=True),)
-        vid = upload_service(insert_request)
-    return vid
+        ret, vid = upload_service(insert_request)
+        retries += 1
+    return ret, vid
 
 
 def upload_service(insert_request):
@@ -68,12 +72,14 @@ def upload_service(insert_request):
                     print(f"A retriable HTTP error {e.resp.status} occurred:\n{e.content}")
                 elif b"503" in e.content:
                     print("Backend Error: will attempt to retry upload")
-                    print(e)
-                    return None
+                    return False, None
+                elif b"uploadLimitExceeded" in e.content:
+                    print("You have exceeded the YouTube Upload Limit")
+                    print("Waiting 10 minutes before retrying to avoid the limit")
+                    sleep(600)
+                    return False, None
                 else:
-                    print("Unknown Error, please post an issue on github with this info")
-                    print(e)
-                    return None
+                    print("")
             except retry_exceptions as e:
                 print(f"A retriable error occurred: {e}")
 
@@ -86,28 +92,25 @@ def upload_service(insert_request):
             if response:
                 if "id" in response:
                     print(f"Video link is https://www.youtube.com/watch?v={response['id']}")
-                    return response['id']
+                    return True, response['id']
                 else:
                     print(response)
                     print(status)
-                    return None
+                    return False, None
 
 
 def get_youtube_service():
-    """
-    Gets a Credential object that can be used to access YouTube's API
-    """
-    CLIENT_SECRETS_FILE = get_secrets([
+    CLIENT_SECRETS_FILE = get_secrets((
         os.path.expanduser("~"),
         sys.prefix,
         os.path.join(sys.prefix, "local"), "/usr",
         os.path.join("/usr", "local")
-    ], ["share/frcuploader/client_secrets.json", "client_secrets.json"])
+    ), ("client_secrets.json", ".client_secrets.json", f"share/{consts.short_name}/client_secrets.json"))
 
     flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=YOUTUBE_UPLOAD_SCOPE)
 
-    flow.user_agent = "FRC YouTube Uploader"
-    storage = Storage(os.path.join(os.path.expanduser("~"), ".frc-oauth2-youtube.json"))
+    flow.user_agent = consts.long_name
+    storage = Storage(os.path.join(os.path.expanduser("~"), f".{consts.abbrv}-oauth2-youtube.json"))
     credentials = storage.get()
 
     if credentials is None or credentials.invalid:
@@ -119,22 +122,39 @@ def get_youtube_service():
         http=credentials.authorize(httplib2.Http()))
 
 
+def get_partner_service():
+    CLIENT_SECRETS_FILE = get_secrets((os.path.expanduser("~"),), ("client_secrets.json", ".client_secrets.json"))
+
+    if not CLIENT_SECRETS_FILE:
+        return None
+
+    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=("https://www.googleapis.com/auth/youtubepartner", "https://www.googleapis.com/auth/youtube",))
+
+    flow.user_agent = consts.long_name
+    storage = Storage(os.path.join(os.path.expanduser("~"), f".{consts.abbrv}-oauth2-partner.json"))
+    credentials = storage.get()
+
+    if credentials is None or credentials.invalid:
+        credentials = run_flow(flow, storage)
+
+    return build(
+        "youtubePartner",
+        "v1",
+        http=credentials.authorize(httplib2.Http()))
+
+
 def get_spreadsheet_service():
-    """
-    Gets a Credential object that can be used to access Google Sheets' API
-    """
-    CLIENT_SECRETS_FILE = get_secrets([
+    CLIENT_SECRETS_FILE = get_secrets((
         os.path.expanduser("~"),
         sys.prefix,
         os.path.join(sys.prefix, "local"), "/usr",
         os.path.join("/usr", "local")
-    ], ["share/frcuploader/client_secrets.json", "client_secrets.json"])
+    ), ("client_secrets.json", ".client_secrets.json", f"share/{consts.short_name}/client_secrets.json"))
 
     flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=SPREADSHEETS_SCOPE)
 
-    flow.user_agent = "FRC YouTube Uploader"
-
-    storage = Storage(os.path.join(os.path.expanduser("~"), ".frc-oauth2-spreadsheet.json"))
+    flow.user_agent = consts.long_name
+    storage = Storage(os.path.join(os.path.expanduser("~"), f".{consts.abbrv}-oauth2-spreadsheet.json"))
     credentials = storage.get()
 
     if credentials is None or credentials.invalid:
@@ -170,3 +190,5 @@ def get_secrets(prefixes, relative_paths):
                 path = os.path.join(prefix, relative_path)
                 if os.path.exists(path):
                     return path
+        else:
+            return None
