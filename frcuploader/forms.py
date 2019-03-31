@@ -63,12 +63,12 @@ class FRC_Uploader(BaseWidget):
         # Redirct print output
         sys.stdout = EmittingStream(textWritten=self.write_print)
 
+        # Redirect error output to window, console, and file
+        sys.stderr = EmittingStream(textWritten=self.write_err)
+
         # Queue
         self._queue = Queue()
         self._queueref = []
-
-        # Redirect error output to status window and a file
-        sys.stderr = EmittingStream(textWritten=self.write_err)
 
         # Create form fields
         # Event Values
@@ -188,6 +188,7 @@ class FRC_Uploader(BaseWidget):
             self._privacy,
             self._sendto,
         )
+        self.__load_form()
 
     def __togglescroll(self):
         self._autoscroll = False if self._autoscroll else True
@@ -196,39 +197,38 @@ class FRC_Uploader(BaseWidget):
         """Manipulates and transforms data from the forms into usable
            data that can be used for uploading videos"""
         options = Namespace()
-        row = [0] * 22
-        options.where = row[0] = self._where.value
-        options.prodteam = row[1] = self._prodteam.value
-        options.twit = row[2] = self._twit.value
-        options.fb = row[3] = self._fb.value
-        options.weblink = row[4] = self._weblink.value
-        options.ename = row[5] = self._ename.value
-        options.ecode = row[6] = self._ecode.value
+        options.where = self._where.value
+        options.prodteam = self._prodteam.value
+        options.twit = self._twit.value
+        options.fb = self._fb.value
+        options.weblink = self._weblink.value
+        options.ename = self._ename.value
+        options.ecode = self._ecode.value
         f = self._pID.value.find("PL")
         self._pID.value = self._pID.value[f:f + 34]
-        options.pID = row[7] = self._pID.value
-        options.tbaID = row[8] = self._tbaID.value
-        options.tbaSecret = row[9] = self._tbaSecret.value
-        options.description = row[10] = self._description.value
-        options.mcode = row[11] = self._mcode.value
-        options.mnum = row[12] = int(self._mnum.value)
-        options.mtype = row[13] = self._mtype.value
-        options.tiebreak = row[14] = deepcopy(self._tiebreak.value)
-        options.tba = row[15] = deepcopy(self._tba.value)
-        options.ceremonies = row[16] = self._ceremonies.value
-        options.eday = row[17] = self._eday.value
-        options.end = row[18] = 0
+        options.pID = self._pID.value
+        options.tbaID = self._tbaID.value
+        options.tbaSecret = self._tbaSecret.value
+        options.description = self._description.value
+        options.mcode = self._mcode.value
+        options.mnum = int(self._mnum.value)
+        options.mtype = self._mtype.value
+        options.tiebreak = deepcopy(self._tiebreak.value)
+        options.tba = deepcopy(self._tba.value)
+        options.ceremonies = self._ceremonies.value
+        options.eday = self._eday.value
+        options.end = 0
         options.replay = self._replay.value
         self._replay.value = False
-        options.newest = row[19] = deepcopy(self._newest.value)
+        options.newest = deepcopy(self._newest.value)
         if options.newest:
             files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.') and any(f.endswith(z) for z in consts.rec_formats)]))
             options.file = max([os.path.join(options.where, f) for f in files], key=os.path.getmtime)
             for f in files:
                 if f in options.file:
                     options.filebasename = f
-        options.privacy = row[20] = self._privacy.value
-        options.sendto = row[21] = self._sendto.value
+        options.privacy = self._privacy.value
+        options.sendto = self._sendto.value
         options.ignore = False
         if not int(self._end.value):
             if options.ceremonies:
@@ -267,11 +267,8 @@ class FRC_Uploader(BaseWidget):
             self._mnum.value = 1
             self._mtype.value = "qf"
         if self._mtype.value == "qm" and self._tiebreak.value:
-            row[14] = self._tiebreak.value = False
-        row[12] = int(self._mnum.value)
-        row[18] = int(self._end.value)
-        with open(consts.form_values, 'w') as f:
-            f.write(json.dumps(row))
+            self._tiebreak.value = False
+        self.__history.append(self.__save_form())
 
     def write_print(self, text):
         self._output._form.plainTextEdit.insertPlainText(text)
@@ -312,7 +309,7 @@ class FRC_Uploader(BaseWidget):
             consts.firstrun = True
 
     def __save_form(self, options=[]):
-        row = [None] * 22
+        row = [None] * (len(self._form_fields) + 1)
         if options:
             f = options.pID.find("PL")
             options.pID = options.pID[f:f + 34]
@@ -341,7 +338,7 @@ class FRC_Uploader(BaseWidget):
         else:
             f = self._pID.value.find("PL")
             self._pID.value = self._pID.value[f:f + 34]
-            for i, var in zip(range(len(self._form_fields)), self._form_fields):
+            for i, var in zip(range(len(self._form_fields) + 1), self._form_fields):
                 row[i] = deepcopy(var.value)
         with open(consts.form_values, 'w') as f:
                 f.write(json.dumps(row))
@@ -360,8 +357,8 @@ class FRC_Uploader(BaseWidget):
                 with open(consts.form_values, "r") as f:
                     values = json.loads(f.read())
                     for val, var in zip(values, self._form_fields):
-                        if isinstance(val, (list, dict)):
-                            var.load_form(dict(selected=val))
+                        if isinstance(val, bool):
+                            var.value = True if val else False
                         elif val:
                             var.value = val
             except (IOError, OSError, StopIteration, json.decoder.JSONDecodeError) as e:

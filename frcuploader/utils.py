@@ -553,10 +553,10 @@ def pre_upload(options):
                 categoryId=options.category),
             status=dict(privacyStatus=options.privacy))
     if options.newest:
-        options.vid = upload(youtube, body, options.file)
+        ret, options.vid = upload(youtube, body, options.file)
     else:
-        options.vid = upload(youtube, body, os.path.join(options.where, options.file))
-    return post_upload(options, mcode)
+        ret, options.vid = upload(youtube, body, os.path.join(options.where, options.file))
+    return post_upload(options, mcode) if ret else "Failed to Upload\n"
 
 
 def post_upload(options, mcode):

@@ -48,6 +48,10 @@ GAMES = {
     "2013": "Ultimate Ascent"
 }
 
+# Extra Stuff
+abbrv = "frc"
+short_name = "frcuploader"
+long_name = "FRC YouTube Uploader"
 spreadsheetID = "18flsXvAcYvQximmeyG0-9lhYtb5jd_oRtKzIN7zQDqk"
 rowRange = "Data!A1:G1"
 firstrun = True
@@ -71,7 +75,4 @@ cerem = ("None", "Opening Ceremonies", "Alliance Selection", "Closing Ceremonies
 queue_values = os.path.join(os.path.expanduser("~"), ".frc_queue_values.txt")
 form_values = os.path.join(os.path.expanduser("~"), '.frc_form_values.json')
 log_file = os.path.join(os.path.expanduser("~"), ".frc_log.txt")
-rec_formats = (".ts", ".mkv", ".avi", ".mp4", ".flv", ".mov", ".flv")
-abbrv = "frc"
-short_name = "frcuploader"
-long_name = "FRC YouTube Uploader"
+rec_formats = (".ts", ".mkv", ".avi", ".mp4", ".flv", ".mov")
