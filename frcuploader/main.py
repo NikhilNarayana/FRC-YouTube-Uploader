@@ -4,13 +4,17 @@ from sys import platform, argv, exit
 
 import pyforms_lite
 
+from . import consts
 from .forms import *
+from .youtube import *
 from .updateTBA import main as utmain
 from .playlistToTBA import main as pttmain
 from .updatePlaylistThumbnails import main as uptmain
 
 
 def main():
+    consts.youtube = get_youtube_service()
+    consts.spreadsheet = get_spreadsheet_service()
     if len(argv) > 1:
         if "-p" in argv:
             pttmain()

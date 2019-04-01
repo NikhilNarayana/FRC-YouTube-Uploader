@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
+import os
 import pkg_resources
-
-from .youtube import *
 
 import tbapy
 
@@ -62,13 +61,10 @@ error = None
 sleep_minutes = 600
 retry = 0
 retryforlimit = 0
-retry_status_codes = get_retry_status_codes()
-retry_exceptions = get_retry_exceptions()
-max_retries = get_max_retries()
 tags = None
 mcode = None
-youtube = get_youtube_service()
-spreadsheet = get_spreadsheet_service()
+youtube = None
+spreadsheet = None
 tba = tbapy.TBA("wvIxtt5Qvbr2qJtqW7ZsZ4vNppolYy0zMNQduH8LdYA7v2o1myt8ZbEOHAwzRuqf")
 sizes = ("bytes", "KB", "MB", "GB", "TB")
 cerem = ("None", "Opening Ceremonies", "Alliance Selection", "Closing Ceremonies", "Highlight Reel")
