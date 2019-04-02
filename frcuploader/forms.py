@@ -9,12 +9,13 @@ import subprocess
 from time import sleep
 from queue import Queue
 from copy import deepcopy
+from datetime import datetime
+from distutils.version import StrictVersion as sv
 
 from . import consts
 from . import utils
 
 import requests
-from datetime import datetime
 from argparse import Namespace
 
 from pyforms_lite import BaseWidget
@@ -48,7 +49,7 @@ class FRC_Uploader(BaseWidget):
     def __init__(self):
         try:  # check if the user can update the app
             latest_version = requests.get('https://pypi.org/pypi/FRCUploader/json').json()['info']['version']
-            if any(int(x) > int(y) for x, y in zip(latest_version.split("."), consts.__version__.split("."))):  # prevents messages when developing
+            if sv(latest_version) > sv(consts.__version__):  # prevents messages when developing
                 if "linux" in sys.platform:
                     self.message(f"Current Version: {consts.__version__}\nVersion {latest_version} is available.\n You can update with this command: pip3 install -U frcuploader=={latest_version}", title="FRCUploader")
                 else:
