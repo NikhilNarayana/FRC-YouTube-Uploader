@@ -358,29 +358,70 @@ class FRC_Uploader(BaseWidget):
             print(f"No {consts.abbrv}_form_values.json to read from, continuing with default values")
 
     def __save_queue(self):
-        with open(consts.queue_values, "wb") as f:
-            f.write(pickle.dumps(self._queueref))
+        if os.path.exists(consts.queue_values):
+            resp = self.question(f"A queue already exists would you like to overwrite it?\nIt was last modified on {datetime.utcfromtimestamp(int(os.path.getmtime(consts.queue_values))).strftime('%Y-%m-%d')}")
+            if resp == "yes":
+                with open(consts.queue_values, "wb") as f:
+                    f.write(pickle.dumps(self._queueref))
+                print("Saved Queue, you can now close the program")
+            elif resp == "no":
+                resp = self.question("Would you like to add onto the end of that queue?")
+                if resp == "yes":
+                    queueref = None
+                    with open(consts.queue_values, "rb") as f:
+                        queueref = pickle.load(f)
+                    queueref.extend(self._queueref)
+                    with open(consts.queue_values, "wb") as f:
+                        f.write(pickle.dumps(queueref))
+                    print("Saved Queue, you can now close the program")
+                else:
+                    self.message("Not saving queue")
 
     def __load_queue(self):
-        try:
-            with open(consts.queue_values, "rb") as f:
-                self._queueref = pickle.load(f)
-        except Exception as e:
-            print("You need to save a queue before loading a queue")
-            return
-        for options in self._queueref:
-            if options.ceremonies:
-                self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A")
-            else:
-                self._qview += (options.ecode, options.mtype, options.mnum)
-            self._queue.put(options)
-            self._qview.resize_rows_contents()
-            self.__save_form(options)
-        thr = threading.Thread(target=self.__worker)
-        thr.daemon = True
-        consts.firstrun = False
-        consts.stop_thread = False
-        thr.start()
+        if self._queueref:
+            resp = self.question("Would you like to add to the existing queue?\nItems will be added to the front of the queue.")
+            if resp == "yes":
+                try:
+                    with open(consts.queue_values, "rb") as f:
+                        queueref = pickle.load(f)
+                    queueref.extend(self._queueref)
+                    self._queueref = queueref
+                    self._qview.clear()
+                    self._qview.horizontal_headers = ["Event Code", "Match Type", "Match #"]
+                    for options in self._queueref:
+                        if options.ceremonies:
+                            self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A")
+                        else:
+                            self._qview += (options.ecode, options.mtype, options.mnum)
+                        self._queue.put(options)
+                        self._qview.resize_rows_contents()
+                        self.__save_form(options)
+                except Exception as e:
+                    print("You need to save a queue before loading a queue")
+                    return
+        else:
+            try:
+                with open(consts.queue_values, "rb") as f:
+                    self._queueref = pickle.load(f)
+                for options in self._queueref:
+                    if options.ceremonies:
+                        self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A")
+                    else:
+                        self._qview += (options.ecode, options.mtype, options.mnum)
+                    self._queue.put(options)
+                    self._qview.resize_rows_contents()
+                    self.__save_form(options)
+            except Exception as e:
+                print("You need to save a queue before loading a queue")
+                return
+
+        resp = self.question("Do you want to start uploading?")
+        if resp == "yes":
+            thr = threading.Thread(target=self.__worker)
+            thr.daemon = True
+            consts.firstrun = False
+            consts.stop_thread = False
+            thr.start()
 
     def __reset_form(self):
         with open(consts.form_values, "w+") as f:
