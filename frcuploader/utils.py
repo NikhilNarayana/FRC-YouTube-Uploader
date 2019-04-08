@@ -16,7 +16,7 @@ import requests
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
-from .consts import *
+from . import consts
 from .youtube import upload
 
 from cachecontrol import CacheControl
@@ -34,7 +34,7 @@ s.headers.update(app_id)
 
 
 def convert_bytes(num):
-    for x in sizes:
+    for x in consts.sizes:
         if num < 1024.0:
             return "%3.1f %s" % (num, x)
         num /= 1024.0
@@ -339,14 +339,14 @@ def get_match_code(mtype, mnum, mcode):
 
 
 def get_match_results(event_key, match_key):
-    match_data = tba.match("_".join([event_key, match_key]))
+    match_data = consts.tba.match(f"{event_key}_{match_key}")
     if match_data is None:
         raise ValueError(f"{event_key} {match_key} does not exist on TBA. Please use a match that exists")
     blue_data, red_data = parse_data(match_data)
     while (blue_data[0] == -1 or red_data[0] == -1):
         print("Waiting 1 minute for TBA to update scores")
         time.sleep(60)
-        match_data = tba.match("_".join([event_key, match_key]))
+        match_data = consts.tba.match(f"{event_key}_{match_key}")
         blue_data, red_data = parse_data(match_data)
     return blue_data, red_data
 
@@ -373,7 +373,7 @@ def create_description(options, blueScore, blue1, blue2, blue3, redScore, red1,
                        red2, red3):
     if all(x == -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3,
                              blueScore)):
-        return NO_TBA_DESCRIPTION.format(
+        return consts.NO_TBA_DESCRIPTION.format(
             ename=options.ename,
             team=options.prodteam,
             twit=options.twit,
@@ -414,7 +414,7 @@ def tiebreak_mnum(mnum, mtype):
 
 
 def update_thumbnail(video_id, thumbnail):
-    youtube.thumbnails().set(videoId=video_id, media_body=thumbnail).execute()
+    consts.youtube.thumbnails().set(videoId=video_id, media_body=thumbnail).execute()
     print(f"Thumbnail added to video {video_id}")
 
 
@@ -423,7 +423,7 @@ def add_to_playlist(videoID, playlistID):
         for vid in videoID:
             add_video_to_playlist(vid, playlistID)
     else:
-        youtube.playlistItems().insert(
+        consts.youtube.playlistItems().insert(
             part="snippet",
             body={
                 'snippet': {
@@ -472,14 +472,14 @@ def init(options):
     """The program starts here, options is a Namespace() object"""
     options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
     options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.')]))
-    options.tags = DEFAULT_TAGS.format(options.ecode, game=GAMES[options.ecode[:4]])  # add the ecode and game to default tags
+    options.tags = consts.DEFAULT_TAGS.format(options.ecode, game=consts.GAMES[options.ecode[:4]])  # add the ecode and game to default tags
     # default category is science & technology
     options.category = 28
     options.title = options.ename + f" - Qualification Match {options.mnum}"  # default title
-    if any(k == options.description for k in ("Add alternate description here.", "", DEFAULT_DESCRIPTION)):
-        options.description = DEFAULT_DESCRIPTION + CREDITS
+    if any(k == options.description for k in ("Add alternate description here.", "", consts.DEFAULT_DESCRIPTION)):
+        options.description = consts.DEFAULT_DESCRIPTION + consts.CREDITS
     else:
-        options.description += CREDITS
+        options.description += consts.CREDITS
 
     # fix types except options.end
     options.ceremonies = int(options.ceremonies)
@@ -515,6 +515,8 @@ def init(options):
 
 
 def pre_upload(options):
+    mcode = None
+    tags = None
     if not options.ceremonies:
         print(f"Initializing upload for {options.mtype} match {options.mnum}")
     else:
@@ -553,9 +555,9 @@ def pre_upload(options):
                 categoryId=options.category),
             status=dict(privacyStatus=options.privacy))
     if options.newest:
-        ret, options.vid = upload(youtube, body, options.file)
+        ret, options.vid = upload(consts.youtube, body, options.file)
     else:
-        ret, options.vid = upload(youtube, body, os.path.join(options.where, options.file))
+        ret, options.vid = upload(consts.youtube, body, os.path.join(options.where, options.file))
     return post_upload(options, mcode) if ret else "Failed to Upload\n"
 
 
@@ -595,9 +597,9 @@ def post_upload(options, mcode):
     ]]
     sheetbody = {'values': values}
     try:
-        spreadsheet.spreadsheets().values().append(
-            spreadsheetId=spreadsheetID,
-            range=rowRange,
+        consts.spreadsheet.spreadsheets().values().append(
+            spreadsheetId=consts.spreadsheetID,
+            range=consts.rowRange,
             valueInputOption="USER_ENTERED",
             body=sheetbody).execute()
         print("Added data to spreadsheet")

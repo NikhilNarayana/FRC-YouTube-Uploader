@@ -66,6 +66,7 @@ mcode = None
 youtube = None
 spreadsheet = None
 tba = tbapy.TBA("wvIxtt5Qvbr2qJtqW7ZsZ4vNppolYy0zMNQduH8LdYA7v2o1myt8ZbEOHAwzRuqf")
+trusted = False
 sizes = ("bytes", "KB", "MB", "GB", "TB")
 cerem = ("None", "Opening Ceremonies", "Alliance Selection", "Closing Ceremonies", "Highlight Reel")
 queue_values = os.path.join(os.path.expanduser("~"), ".frc_queue_values.txt")

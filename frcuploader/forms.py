@@ -55,7 +55,7 @@ class FRC_Uploader(BaseWidget):
                 else:
                     resp = self.question(f"Current Version: {consts.__version__}\nVersion {latest_version} is available. Would you like to update?", title="FRCUploader")
                     if resp == "yes":
-                        subprocess.call(('pip3', 'install', '-U', f'frcuploader=={latest_version}'))
+                        subprocess.call(('pip3', 'install', '-I', f'frcuploader=={latest_version}'))
                         self.message("You can now restart the app to use the new version", title="FRCUploader")
         except Exception as e:
             print(e)
@@ -210,6 +210,8 @@ class FRC_Uploader(BaseWidget):
         options.pID = self._pID.value
         options.tbaID = self._tbaID.value
         options.tbaSecret = self._tbaSecret.value
+        if not consts.trusted and options.tbaID and options.tbaSecret and option.ecode:
+            consts.tba.update_trusted(options.tbaID, options.tbaSecret, option.ecode)
         options.description = self._description.value
         options.mcode = self._mcode.value
         options.mnum = int(self._mnum.value)
