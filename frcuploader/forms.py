@@ -210,8 +210,8 @@ class FRC_Uploader(BaseWidget):
         options.pID = self._pID.value
         options.tbaID = self._tbaID.value
         options.tbaSecret = self._tbaSecret.value
-        if not consts.trusted and options.tbaID and options.tbaSecret and option.ecode:
-            consts.tba.update_trusted(options.tbaID, options.tbaSecret, option.ecode)
+        if not consts.trusted and options.tbaID and options.tbaSecret and options.ecode:
+            consts.tba.update_trusted(options.tbaID, options.tbaSecret, options.ecode)
         options.description = self._description.value
         options.mcode = self._mcode.value
         options.mnum = int(self._mnum.value)
