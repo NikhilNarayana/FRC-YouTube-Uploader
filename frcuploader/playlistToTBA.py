@@ -3,15 +3,15 @@
 
 import json
 from .youtube import *
-from .consts import DEFAULT_DESCRIPTION, CREDITS
-from .utils import post_video, quarters_match_code, semis_match_code, finals_match_code, tiebreak_mnum, get_match_results
+from . import consts
+from .utils import quarters_match_code, semis_match_code, finals_match_code, tiebreak_mnum, get_match_results
 
 
 def update_description(youtube, snippet, vID, ecode, mcode, ename, team, twit, fb, weblink):
     """
     Creates an updated TBA Description and updates the video
     """
-    description = DEFAULT_DESCRIPTION + CREDITS
+    description = consts.DEFAULT_DESCRIPTION + consts.CREDITS
     print(snippet)
     blue_data, red_data = get_match_results(ecode, mcode)
     description = description.format(ecode=ecode, ename=ename, team=team, twit=twit, fb=fb, weblink=weblink, red1=red_data[1], red2=red_data[2], red3=red_data[3], redscore=red_data[0], blue1=blue_data[1], blue2=blue_data[2], blue3=blue_data[3], bluescore=blue_data[0])
@@ -38,6 +38,7 @@ def main():
     twit = input("Twitter Handle: ")
     fb = input("Facebook Name: ")
     weblink = input("Website Link")
+    consts.tba.update_trusted(TBAID, TBASECRET, ecode)
 
     if (TBAID == "" or TBASECRET == ""):
         print("Can't add to TBA without ID and Secret")
@@ -82,9 +83,8 @@ def main():
             except IndexError as e:
                 print(title)
                 print(e)
-            body = json.dumps({mnum: video_id})
             print(f"Posting {mnum}")
-            post_video(TBAID, TBASECRET, body, ecode, "match_videos")
+            consts.tba.add_match_videos({mnum: video_id})
             update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif "Quarterfinal" in title:
             try:
@@ -94,9 +94,8 @@ def main():
             if "Tiebreak" in title:
                 num = tiebreak_mnum(num, "qf")
             mnum = quarters_match_code("qf", num)
-            body = json.dumps({mnum: video_id})
             print(f"Posting {mnum}")
-            post_video(TBAID, TBASECRET, body, ecode, "match_videos")
+            consts.tba.add_match_videos({mnum: video_id})
             update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif "Semifinal" in title:
             try:
@@ -106,9 +105,8 @@ def main():
             if "Tiebreak" in title:
                 num = tiebreak_mnum(num, "sf")
             mnum = semis_match_code("sf", num)
-            body = json.dumps({mnum: video_id})
             print(f"Posting {mnum}")
-            post_video(TBAID, TBASECRET, body, ecode, "match_videos")
+            consts.tba.add_match_videos({mnum: video_id})
             update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif "Final" in title:
             try:
@@ -118,14 +116,12 @@ def main():
             if "Tiebreak" in title:
                 num = tiebreak_mnum(num, "f1m")
             mnum = finals_match_code("f1m", num)
-            body = json.dumps({mnum: video_id})
             print(f"Posting {mnum}")
-            post_video(TBAID, TBASECRET, body, ecode, "match_videos")
+            consts.tba.add_match_videos({mnum: video_id})
             update_description(youtube, playlist_item, video_id, ecode, mnum, ename, team, twit, fb, weblink)
         elif any(k in title for k in ("Opening", "Closing", "Awards", "Alliance", "Highlight")):
-            body = json.dumps([video_id])
             print(f"Posting {title}")
-            post_video(TBAID, TBASECRET, body, ecode, "media")
+            consts.tba.add_event_videos([video_id])
         else:
             print("I don't know what this is")
             print(title)
