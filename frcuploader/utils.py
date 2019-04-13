@@ -529,9 +529,9 @@ def post_upload(options, mcode):
         print("Failed to post to playlist")
 
     if options.tba and consts.trusted:
-        consts.tba.add_match_videos({mcode: options.vid})
+        print(consts.tba.add_match_videos({mcode: options.vid}))
     elif options.ceremonies and options.post and consts.trusted:
-        consts.tba.add_event_videos([options.vid])
+        print(consts.tba.add_event_videos([options.vid]))
 
     wasBatch = "True" if options.end else "False"
     usedTBA = "True" if options.tba else "False"

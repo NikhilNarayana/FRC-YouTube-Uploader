@@ -53,8 +53,12 @@ def main():
     ).execute()
 
     print("got list")
-    nextPageToken = playlistitems_list["nextPageToken"]
+    try:
+        nextPageToken = playlistitems_list["nextPageToken"]
+    except Exception as e:
+        print(e)
     while ('nextPageToken' in playlistitems_list):
+        nextPageToken = playlistitems_list["nextPageToken"]
         num = None
         print("getting next page")
         nextPageList = youtube.playlistItems().list(
