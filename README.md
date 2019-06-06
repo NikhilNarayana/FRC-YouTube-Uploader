@@ -1,3 +1,5 @@
+I'm taking a long break from FIRST so feature updates will stagnate for a while. I will continue to fix bugs and keep up to date with new games. If anyone is interested in cleaning up the codebase and adding features, feel free to add PRs so I can approve them. Thank you to everyone in FIRST that has helped make this uploader as good as it is.
+
 # FRC-YouTube-Uploader
 
 A YouTube Uploader for FRC Events
