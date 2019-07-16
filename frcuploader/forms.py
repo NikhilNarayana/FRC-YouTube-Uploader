@@ -55,11 +55,14 @@ class FRC_Uploader(BaseWidget):
                 else:
                     resp = self.question(f"Current Version: {consts.__version__}\nVersion {latest_version} is available. Would you like to update?", title="FRCUploader")
                     if resp == "yes":
-                        subprocess.call(('pip3', 'install', '-I', f'frcuploader=={latest_version}'))
-                        self.message("You can now restart the app to use the new version", title="FRCUploader")
+                        ret = subprocess.call(('pip3', 'install', '-U', f'frcuploader=={latest_version}'))
+                        if ret:
+                            self.message(f'The app failed to update\nType "pip3 install -U meleeuploader=={latest_version}" into CMD/Terminal to update', title="FRCUploader")
+                        else:
+                            self.info("You can now restart the app to use the new version", title="FRCUploader")
         except Exception as e:
             print(e)
-        super(FRC_Uploader, self).__init__("FRC YouTube Uploader")
+        super(FRC_Uploader, self).__init__(f"FRC YouTube Uploader - {consts.__version__}")
 
         # Redirct print output
         sys.stdout = EmittingStream(textWritten=self.write_print)

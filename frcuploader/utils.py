@@ -19,6 +19,16 @@ from googleapiclient.http import MediaFileUpload
 from . import consts
 from .youtube import upload
 
+from cachecontrol import CacheControl
+from cachecontrol.heuristics import ExpiresAfter
+
+app_id = {'X-TBA-App-Id': ""}
+trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
+
+s = requests.Session()
+s = CacheControl(s, heuristic=ExpiresAfter(minutes=1))
+s.headers.update(app_id)
+
 
 """Utility Functions"""
 
@@ -417,6 +427,34 @@ def add_to_playlist(videoID, playlistID):
         print("Added to playlist")
 
 
+def post_video(token, secret, match_video, event_key, loc="match_videos"):
+    trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
+    trusted_auth['X-TBA-Auth-Id'] = token
+    request_path = f"/api/trusted/v1/event/{event_key}/{loc}/add"
+    concat = secret + request_path + str(match_video)
+    md5 = hashlib.md5(concat.encode("utf-8")).hexdigest()
+    trusted_auth['X-TBA-Auth-Sig'] = str(md5)
+    url_str = f"https://www.thebluealliance.com/api/trusted/v1/event/{event_key}/{loc}/add"
+    if consts.DEBUG:
+        url_str = f"http://localhost:8080/api/trusted/v1/event/{event_key}/{loc}/add"
+    if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
+        print("TBA ID and/or TBA secret missing. Please set them in the UI")
+        return
+    r = s.post(url_str, data=match_video, headers=trusted_auth)
+    print(r.status_code)
+    while 405 == r.status_code:
+        print("Failed to POST to TBA")
+        print("Attempting to POST to TBA again")
+        r = s.post(url_str, data=match_video, headers=trusted_auth)
+    if r.status_code > 299:
+        print(r.text)
+    elif "Success" in r.text or r.status_code == 200:
+        print("Successfully added to TBA")
+    else:
+        print(r.text)
+        print("Something went wrong")
+
+
 def init(options):
     """The program starts here, options is a Namespace() object"""
     options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
@@ -528,10 +566,14 @@ def post_upload(options, mcode):
         print(e)
         print("Failed to post to playlist")
 
-    if options.tba and consts.trusted:
-        print(consts.tba.add_match_videos({mcode: options.vid}))
-    elif options.ceremonies and options.post and consts.trusted:
-        print(consts.tba.add_event_videos([options.vid]))
+    if options.tba:
+        request_body = json.dumps({mcode: options.vid})
+        post_video(options.tbaID, options.tbaSecret, request_body,
+                   options.ecode)
+    elif options.ceremonies and options.post:
+        request_body = json.dumps([options.vid])
+        post_video(options.tbaID, options.tbaSecret, request_body,
+                   options.ecode, "media")
 
     wasBatch = "True" if options.end else "False"
     usedTBA = "True" if options.tba else "False"
