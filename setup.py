@@ -27,7 +27,7 @@ setup(
         "Natural Language :: English",
     ],
     entry_points=dict(console_scripts=['frcuploader = frcuploader.main:main']),
-    python_requires='~=3.5',
+    python_requires='>=3.6, <3.7.4',
     version=version,
     packages=["frcuploader"],
     install_requires=[
