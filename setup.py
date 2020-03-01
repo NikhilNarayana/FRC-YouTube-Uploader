@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 from os import path
 
 here = path.abspath(path.dirname(__file__))
-version = '3.5.4'
+version = '3.5.5'
 
 long_des = ""
 with open(path.join(here, 'README.md')) as f:
@@ -27,12 +27,13 @@ setup(
         "Natural Language :: English",
     ],
     entry_points=dict(console_scripts=['frcuploader = frcuploader.main:main']),
-    python_requires='>=3.6, <3.7.4',
+    python_requires='>=3.6, <3.8',
     version=version,
     packages=["frcuploader"],
     install_requires=[
         'CacheControl',
         'google-api-python-client',
+        'google_auth_oauthlib',
         'oauth2client',
         'Pyforms-Lite',
         'tbapy',

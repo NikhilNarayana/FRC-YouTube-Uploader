@@ -57,7 +57,7 @@ class FRC_Uploader(BaseWidget):
                     if resp == "yes":
                         ret = subprocess.call(('pip3', 'install', '-U', f'frcuploader=={latest_version}'))
                         if ret:
-                            self.message(f'The app failed to update\nType "pip3 install -U meleeuploader=={latest_version}" into CMD/Terminal to update', title="FRCUploader")
+                            self.message(f'The app failed to update\nType "pip3 install -U frcuploader=={latest_version}" into CMD/Terminal to update', title="FRCUploader")
                         else:
                             self.info("You can now restart the app to use the new version", title="FRCUploader")
         except Exception as e:
@@ -258,11 +258,11 @@ class FRC_Uploader(BaseWidget):
         self._queue.put(options)
         self._queueref.append(options)
         self._qview.resize_rows_contents()
-        if consts.firstrun:
+        if consts.first_run:
             thr = threading.Thread(target=self.__worker)
             thr.daemon = True
             thr.start()
-            consts.firstrun = False
+            consts.first_run = False
         if not self._ceremonies.value:
             if not int(self._end.value):
                 self._mnum.value = self._mnum.value + 1
@@ -308,11 +308,11 @@ class FRC_Uploader(BaseWidget):
         if not consts.stop_thread:
             print("Stopping Uploads")
             consts.stop_thread = True
-            consts.firstrun = False
+            consts.first_run = False
         else:
             print("Ready to Upload")
             consts.stop_thread = False
-            consts.firstrun = True
+            consts.first_run = True
 
     def __save_form(self, options=[]):
         row = [None] * (len(self._form_fields) + 1)
@@ -424,7 +424,7 @@ class FRC_Uploader(BaseWidget):
         if resp == "yes":
             thr = threading.Thread(target=self.__worker)
             thr.daemon = True
-            consts.firstrun = False
+            consts.first_run = False
             consts.stop_thread = False
             thr.start()
 
@@ -456,8 +456,7 @@ class FRC_Uploader(BaseWidget):
         title = title['items'][0]['snippet']['title']
         resp = self.question(f"You are currently logged into {title}\nWould you like to log out?", title="FRCUploader")
         if resp == "yes":
-            os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-spreadsheet.json"))
-            os.remove(os.path.join(os.path.expanduser("~"), ".frc-oauth2-youtube.json"))
+            os.remove(os.path.join(consts.root, ".frc-oauth2-youtube.json"))
             sys.exit(0)
 
     def __reset_descrip_event(self):

@@ -459,7 +459,11 @@ def init(options):
     """The program starts here, options is a Namespace() object"""
     options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
     options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.')]))
-    options.tags = consts.DEFAULT_TAGS.format(options.ecode, game=consts.GAMES[options.ecode[:4]])  # add the ecode and game to default tags
+    try:
+        options.tags = consts.DEFAULT_TAGS.format(options.ecode, game=consts.GAMES[options.ecode[:4]])  # add the ecode and game to default tags
+    except KeyError as e:
+        options.tags = consts.DEFAULT_TAGS.format(options.ecode, game="")  # new year so just use empty string for game
+        print("This must be a new year, please message Nikki or whoever runs this repo at that point")
     # default category is science & technology
     options.category = 28
     options.title = options.ename + f" - Qualification Match {options.mnum}"  # default title
@@ -585,8 +589,8 @@ def post_upload(options, mcode):
     sheetbody = {'values': values}
     try:
         consts.spreadsheet.spreadsheets().values().append(
-            spreadsheetId=consts.spreadsheetID,
-            range=consts.rowRange,
+            spreadsheetId=consts.spreadsheet_id,
+            range=consts.row_range,
             valueInputOption="USER_ENTERED",
             body=sheetbody).execute()
         print("Added data to spreadsheet")
