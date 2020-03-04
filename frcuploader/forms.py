@@ -359,7 +359,7 @@ class FRC_Uploader(BaseWidget):
                         var.value = True if val else False
                     elif val:
                         var.value = val
-        except (IOError, OSError, StopIteration, json.decoder.JSONDecodeError) as e:
+        except (IOError, OSError, StopIteration, json.decoder.JSONDecodeError):
             print(f"No {consts.abbrv}_form_values.json to read from, continuing with default values")
 
     def __save_queue(self):
@@ -401,7 +401,7 @@ class FRC_Uploader(BaseWidget):
                         self._queue.put(options)
                         self._qview.resize_rows_contents()
                         self.__save_form(options)
-                except Exception as e:
+                except Exception:
                     print("You need to save a queue before loading a queue")
                     return
         else:
@@ -416,7 +416,7 @@ class FRC_Uploader(BaseWidget):
                     self._queue.put(options)
                     self._qview.resize_rows_contents()
                     self.__save_form(options)
-            except Exception as e:
+            except Exception:
                 print("You need to save a queue before loading a queue")
                 return
 

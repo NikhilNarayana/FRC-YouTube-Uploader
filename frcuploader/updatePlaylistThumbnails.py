@@ -22,7 +22,7 @@ def update_thumbnails(youtube, pID, thumbnail):
     print(playlistitems_list)
     try:
         nextPageToken = playlistitems_list["nextPageToken"]
-    except KeyError as e:
+    except KeyError:
         print("Only one page")
     while ('nextPageToken' in playlistitems_list):
         print("getting next page")
@@ -47,7 +47,7 @@ def update_thumbnails(youtube, pID, thumbnail):
         video_id = playlist_item["snippet"]["resourceId"]["videoId"]
         try:
             update_thumbnail(youtube, video_id, thumbnail)
-        except HttpError as e:
+        except HttpError:
             x = (title, video_id)
             errorvids.append(x)
             continue

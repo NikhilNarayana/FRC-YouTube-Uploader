@@ -17,7 +17,7 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 from . import consts
-from .youtube import upload
+from .youtube import upload, RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES
 
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import ExpiresAfter
@@ -260,7 +260,7 @@ def create_names(options):
         }
         try:
             if options.newest:
-                return None, yt[options.mtype](options)
+                return yt[options.mtype](options)
             else:
                 return fname[options.mtype](options), yt[options.mtype](options)
         except KeyError:
@@ -411,7 +411,7 @@ def update_thumbnail(video_id, thumbnail):
 def add_to_playlist(videoID, playlistID):
     if type(videoID) is list:  # Recursively add videos if videoID is list
         for vid in videoID:
-            add_video_to_playlist(vid, playlistID)
+            add_to_playlist(vid, playlistID)
     else:
         consts.youtube.playlistItems().insert(
             part="snippet",
@@ -441,7 +441,6 @@ def post_video(token, secret, match_video, event_key, loc="match_videos"):
         print("TBA ID and/or TBA secret missing. Please set them in the UI")
         return
     r = s.post(url_str, data=match_video, headers=trusted_auth)
-    print(r.status_code)
     while 405 == r.status_code:
         print("Failed to POST to TBA")
         print("Attempting to POST to TBA again")
@@ -455,6 +454,16 @@ def post_video(token, secret, match_video, event_key, loc="match_videos"):
         print("Something went wrong")
 
 
+def upload_multiple_videos(options):
+    for mnum in range(options.mnum, options.end + 1):
+        options.mnum = mnum
+        options.file, options.yttitle = create_names(options)
+        try:
+            print(pre_upload(options))
+        except HttpError as e:
+            print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
+
+
 def init(options):
     """The program starts here, options is a Namespace() object"""
     options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
@@ -463,7 +472,7 @@ def init(options):
         options.tags = consts.DEFAULT_TAGS.format(options.ecode, game=consts.GAMES[options.ecode[:4]])  # add the ecode and game to default tags
     except KeyError as e:
         options.tags = consts.DEFAULT_TAGS.format(options.ecode, game="")  # new year so just use empty string for game
-        print("This must be a new year, please message Nikki or whoever runs this repo at that point")
+        print("This must be a new year and frcuploader doesn't know the game name, please message Nikki or whoever runs this repo at that point")
     # default category is science & technology
     options.category = 28
     options.title = options.ename + f" - Qualification Match {options.mnum}"  # default title
@@ -483,11 +492,11 @@ def init(options):
             options.post = True
         else:
             options.post = False
-        options.tba = False
+        options.tba = False # stupid hack to avoid grabbing match data
     if options.tiebreak:
         options.mnum = tiebreak_mnum(options.mnum, options.mtype)
     if options.newest:
-        x, options.yttitle = create_names(options)
+        options.yttitle = create_names(options)
     else:
         options.file, options.yttitle = create_names(options)
 
@@ -559,9 +568,9 @@ def post_upload(options, mcode):
         else:
             print("thumbnail.png does not exist")
     except HttpError as e:
-        if e.resp.status in retry_status_codes:
+        if e.resp.status in RETRIABLE_STATUS_CODES:
             error = f"A retriable HTTP error {e.resp.status} occurred:\n{e.content}"
-    except retry_exceptions as e:
+    except RETRIABLE_EXCEPTIONS as e:
         error = f"A retriable error occurred: {e}"
 
     try:

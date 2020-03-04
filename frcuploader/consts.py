@@ -38,14 +38,14 @@ Uploaded with FRC-YouTube-Uploader (https://github.com/NikhilNarayana/FRC-YouTub
 VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 
 GAMES = {
-    2020: "FIRST Rise: Infinite Recharge, Rise: INFINITE RECHARGE, INFINITE RECHARGE",
-    2019: "FIRST Destination: Deep Space, Destination: Deep Space, Deep Space",
-    2018: "FIRST Power Up, FIRST POWER UP",
-    2017: "FIRST Steamworks, FIRST STEAMworks",
-    2016: "FIRST Stronghold",
-    2015: "Recycle Rush",
-    2014: "Aerial Assist",
-    2013: "Ultimate Ascent"
+    '2020': "FIRST Rise: Infinite Recharge, Rise: INFINITE RECHARGE, INFINITE RECHARGE",
+    '2019': "FIRST Destination: Deep Space, Destination: Deep Space, Deep Space",
+    '2018': "FIRST Power Up, FIRST POWER UP",
+    '2017': "FIRST Steamworks, FIRST STEAMworks",
+    '2016': "FIRST Stronghold",
+    '2015': "Recycle Rush",
+    '2014': "Aerial Assist",
+    '2013': "Ultimate Ascent"
 }
 
 # Extra Stuff
