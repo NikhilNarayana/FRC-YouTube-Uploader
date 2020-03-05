@@ -129,6 +129,8 @@ def test_get_service(scope, service, secret=None):
 def get_service(scope, service, secret=None):
     CLIENT_SECRETS_FILE = get_secrets(PREFIXES, SUFFIXES) if not secret else secret
 
+    print(f"Using {CLIENT_SECRETS_FILE}")
+
     if not CLIENT_SECRETS_FILE:
         return None
 
