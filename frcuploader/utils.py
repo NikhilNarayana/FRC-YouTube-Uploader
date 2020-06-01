@@ -544,7 +544,7 @@ def pre_upload(options):
         mcode = get_match_code(options.mtype, options.mnum, options.mcode)
 
         tags = options.tags.split(",")
-        tags.append("frc" + re.search('\D+', options.ecode).group())
+        tags.append("frc" + re.search(r'\D+', options.ecode).group())
 
         body = dict(
             snippet=dict(
@@ -587,24 +587,6 @@ def post_upload(options, mcode):
         request_body = json.dumps([options.vid])
         post_video(options.tbaID, options.tbaSecret, request_body,
                    options.ecode, "media")
-
-    wasBatch = "True" if options.end else "False"
-    usedTBA = "True" if options.tba else "False"
-    totalTime = dt.datetime.now() - options.then
-    values = [[
-        str(dt.datetime.now()),
-        str(totalTime), f"https://www.youtube.com/watch?v={options.vid}", usedTBA, options.ename, wasBatch, mcode
-    ]]
-    sheetbody = {'values': values}
-    try:
-        consts.spreadsheet.spreadsheets().values().append(
-            spreadsheetId=consts.spreadsheet_id,
-            range=consts.row_range,
-            valueInputOption="USER_ENTERED",
-            body=sheetbody).execute()
-        print("Added data to spreadsheet")
-    except Exception as e:
-        print("Failed to write to spreadsheet")
 
     if options.sendto:
         if options.newest:

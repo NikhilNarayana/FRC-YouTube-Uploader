@@ -14,7 +14,6 @@ from .updatePlaylistThumbnails import main as uptmain
 
 def main():
     consts.youtube = get_youtube_service()
-    consts.spreadsheet = get_spreadsheet_service()
     if len(argv) > 1:
         if "-p" in argv:
             pttmain()
