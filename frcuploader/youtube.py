@@ -224,5 +224,5 @@ def get_secrets(prefixes, relative_paths):
                 if os.path.exists(path):
                     return path
         else:
-            print(f"No paths found, tried {paths_attempted}")
+            print(f"Unable to find client_secrets.json. Checked in the following locations: {paths_attempted}")
             return None
