@@ -38,7 +38,7 @@ YOUTUBE_PARTNER_SCOPE = "https://www.googleapis.com/auth/youtubepartner"
 SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
 
 PREFIXES = (consts.root, sys.prefix, os.path.join(sys.prefix, "local"), "/usr", os.path.join("/usr", "local"))
-SUFFIXES = ("client_secrets.json", ".client_secrets.json", f"share/{consts.short_name}/client_secrets.json")
+SUFFIXES = ("client_secrets.json", ".client_secrets.json", os.path.join("share", consts.short_name, "client_secrets.json"))
 
 
 def upload(yt, body, file, notify=False):
@@ -213,13 +213,16 @@ def get_secrets(prefixes, relative_paths):
     Taken from https://github.com/tokland/youtube-upload/blob/master/youtube_upload/main.py
     Get the first existing filename of relative_path seeking on prefixes directories.
     """
+    paths_attempted = []
     try:
         return os.path.join(sys._MEIPASS, relative_paths[-1])
     except Exception:
         for prefix in prefixes:
             for relative_path in relative_paths:
                 path = os.path.join(prefix, relative_path)
+                paths_attempted.append(path)
                 if os.path.exists(path):
                     return path
         else:
+            print(f"No paths found, tried {paths_attempted}")
             return None
