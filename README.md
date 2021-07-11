@@ -1,4 +1,4 @@
-I'm taking a long break from FIRST so feature updates will stagnate for a while. I will continue to fix bugs and keep up to date with new games. If anyone is interested in cleaning up the codebase and adding features, feel free to add PRs so I can approve them. Thank you to everyone in FIRST that has helped make this uploader as good as it is.
+**I'm no longer involved in FIRST so there will be no future feature updates. If anyone is interested in taking up this project feel free to do so. Otherwise I will review and merge PRs for cleaning up the codebase and adding features. Thank you to everyone in FIRST that has helped make this uploader as good as it is.**
 
 # FRC-YouTube-Uploader
 
