@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from setuptools import setup, find_packages
+from setuptools import setup
 from os import path
 
 root = path.abspath(path.dirname(__file__))
-version = "3.5.10"
+version = "3.6.0"
 
 long_des = ""
 with open(path.join(root, "README.md")) as f:
