@@ -20,7 +20,7 @@ PRs are appreciated and will be reviewed quickly, the only code quality standard
 
 
 ## How to Setup
-1. Install [Python 3.7.2](https://www.python.org/downloads/release/python-372/) for your OS with the PATH added and make sure there are no other versions of Python 3.
+1. Install [Python](https://www.python.org/downloads) for your OS with the PATH added and make sure there are no other versions of Python 3.
 2. Install the program with `pip3 install -U FRCUploader`. If you want untested features you can download the repo and install with `pip3 install -U /path/to/repo`
 3. Create a folder for storing your match videos.
 4. Add the thumbnail to the match video folder as `thumbnail.png` (not required, but suggested).
