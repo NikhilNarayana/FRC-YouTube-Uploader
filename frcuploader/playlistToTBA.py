@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ this script will take any playlist that uploaded videos using the uploader and link the matches to TBA"""
 
-import json
 from .youtube import *
 from . import consts
 from .utils import (

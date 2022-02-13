@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from sys import platform, argv, exit
+from sys import argv, exit
 
 import pyforms_lite
 

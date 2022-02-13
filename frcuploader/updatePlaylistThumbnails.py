@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 from googleapiclient.errors import HttpError
-from oauth2client.tools import argparser
 from .youtube import get_youtube_service
-from googleapiclient.http import MediaFileUpload
 
 THUMBNAIL = ""
 PLAYLISTID = ""

@@ -24,7 +24,7 @@ from PyQt5 import QtCore, QtGui
 from pyforms_lite.controls import ControlNumber
 from pyforms_lite.controls import ControlText, ControlDir
 from pyforms_lite.controls import ControlTextArea, ControlList
-from pyforms_lite.controls import ControlCombo, ControlProgress
+from pyforms_lite.controls import ControlCombo
 from pyforms_lite.controls import ControlButton, ControlCheckBox
 
 

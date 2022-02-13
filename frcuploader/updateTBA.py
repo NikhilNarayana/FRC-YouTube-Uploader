@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """This is a backup solution for if the main script doesn't update TBA properly"""
 
-import json
 from urllib.parse import *
 
 from . import consts

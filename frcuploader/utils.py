@@ -2,19 +2,14 @@
 
 import os
 import re
-import sys
 import json
 import time
-import errno
 import shutil
-import random
 import hashlib
 import datetime as dt
-from decimal import Decimal
 
 import requests
 from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaFileUpload
 
 from . import consts
 from .youtube import upload, RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES
