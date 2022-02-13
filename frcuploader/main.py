@@ -13,7 +13,18 @@ from .updatePlaylistThumbnails import main as uptmain
 
 
 def main():
-    consts.youtube = get_youtube_service()
+    try:
+        if os.path.isfile(consts.youtube_oauth_file) or not len(
+            os.listdir(consts.yt_accounts_folder)
+        ):
+            consts.youtube = get_youtube_service()
+        elif len(os.listdir(consts.yt_accounts_folder)):
+            pyforms_lite.start_app(YouTubeSelector, geometry=(200, 200, 330, 100))
+            consts.youtube = get_youtube_service()
+    except Exception as e:
+        print(e)
+        print("There was an issue with getting Google Credentials")
+        sys.exit(1)
     if len(argv) > 1:
         if "-p" in argv:
             pttmain()

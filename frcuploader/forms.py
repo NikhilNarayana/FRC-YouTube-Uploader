@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import shutil
 import sys
 import json
 import pickle
@@ -174,7 +175,7 @@ class FRC_Uploader(BaseWidget):
         self.mainmenu = [
             {
                 "Settings": [
-                    {"Youtube Log Out": self.__reset_cred},
+                    {"Youtube Log Out": self.__reset_yt_cred},
                     {"Show/Hide Match Code": self.__toggle_match_code},
                 ],
                 "Save/Clear": [
@@ -541,15 +542,26 @@ class FRC_Uploader(BaseWidget):
         self._ecode.value = ""
         self._pID.value = ""
 
-    def __reset_cred(self):
-        title = consts.youtube.channels().list(part="snippet", mine=True).execute()
-        title = title["items"][0]["snippet"]["title"]
+    def __reset_yt_cred(self):
+        channel_name = (
+            consts.youtube.channels()
+            .list(part="snippet", mine=True)
+            .execute()
+            .get("items", [{}])[0]
+            .get("snippet", {})
+            .get("title")
+        )
         resp = self.question(
-            f"You are currently logged into {title}\nWould you like to log out?",
+            f"You are currently logged into {channel_name}\nWould you like to log out?",
             title="FRCUploader",
         )
         if resp == "yes":
-            os.remove(os.path.join(consts.root, ".frc-oauth2-youtube.json"))
+            shutil.copyfile(
+                consts.youtube_oauth_file,
+                os.path.join(consts.yt_accounts_folder, f"{channel_name}.json"),
+            )
+            if consts.youtube:
+                os.remove(consts.youtube_oauth_file)
             sys.exit(0)
 
     def __reset_descrip_event(self):
@@ -565,3 +577,30 @@ class FRC_Uploader(BaseWidget):
             self._mcode.hide()
         else:
             self._mcode.show()
+
+
+class YouTubeSelector(BaseWidget):
+    def __init__(self):
+        super(YouTubeSelector, self).__init__("YouTube Account Selector")
+        self._youtubes = ControlCombo("Accounts")
+        self._ok = ControlButton("Load")
+        self._new = ControlButton("New Account")
+
+        self.formset = ["_youtubes", ("_ok", "_new")]
+
+        accounts = os.listdir(consts.yt_accounts_folder)
+        for account in accounts:
+            self._youtubes += (account.split(".")[0], account)
+
+        self._ok.value = self._ok_action
+        self._new.value = self._new_action
+
+    def _ok_action(self):
+        account = self._youtubes.value
+        shutil.copyfile(
+            os.path.join(consts.yt_accounts_folder, account), consts.youtube_oauth_file
+        )
+        QtCore.QCoreApplication.instance().quit()
+
+    def _new_action(self):
+        QtCore.QCoreApplication.instance().quit()
