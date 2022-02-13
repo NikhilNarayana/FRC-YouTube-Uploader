@@ -22,8 +22,8 @@ from .youtube import upload, RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import ExpiresAfter
 
-app_id = {'X-TBA-App-Id': ""}
-trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
+app_id = {"X-TBA-App-Id": ""}
+trusted_auth = {"X-TBA-Auth-Id": "", "X-TBA-Auth-Sig": ""}
 
 s = requests.Session()
 s = CacheControl(s, heuristic=ExpiresAfter(minutes=1))
@@ -55,10 +55,18 @@ def quals_yt_title(options):
 def quarters_yt_title(options):
     mnum = options.mnum
     if mnum <= 8:
-        return f"{options.ename} - Quarterfinal Match {mnum}" if not options.replay else f"{options.ename} - Quarterfinal Match {mnum} Replay"
+        return (
+            f"{options.ename} - Quarterfinal Match {mnum}"
+            if not options.replay
+            else f"{options.ename} - Quarterfinal Match {mnum} Replay"
+        )
     elif mnum <= 12:
         mnum -= 8
-        return f"{options.ename} - Quarterfinal Tiebreaker {mnum}" if not options.replay else f"{options.ename} - Quarterfinal Tiebreaker {mnum} Replay"
+        return (
+            f"{options.ename} - Quarterfinal Tiebreaker {mnum}"
+            if not options.replay
+            else f"{options.ename} - Quarterfinal Tiebreaker {mnum} Replay"
+        )
     else:
         raise ValueError("options.mnum must be within 1 and 12")
 
@@ -66,16 +74,28 @@ def quarters_yt_title(options):
 def semis_yt_title(options):
     mnum = options.mnum
     if mnum <= 4:
-        return f"{options.ename} - Semifinal Match {mnum}" if not options.replay else f"{options.ename} - Semifinal Match {mnum} Replay"
+        return (
+            f"{options.ename} - Semifinal Match {mnum}"
+            if not options.replay
+            else f"{options.ename} - Semifinal Match {mnum} Replay"
+        )
     elif mnum <= 6:
         mnum -= 4
-        return f"{options.ename} - Semifinal Tiebreaker {mnum}" if not options.replay else f"{options.ename} - Semifinal Tiebreaker {mnum} Replay"
+        return (
+            f"{options.ename} - Semifinal Tiebreaker {mnum}"
+            if not options.replay
+            else f"{options.ename} - Semifinal Tiebreaker {mnum} Replay"
+        )
     else:
         raise ValueError("options.mnum must be within 1 and 6")
 
 
 def finals_yt_title(options):
-    return f"{options.ename} - Final Match {options.mnum}" if not options.replay else f"{options.ename} - Final Match {options.mnum} Replay"
+    return (
+        f"{options.ename} - Final Match {options.mnum}"
+        if not options.replay
+        else f"{options.ename} - Final Match {options.mnum} Replay"
+    )
 
 
 def ceremonies_yt_title(options):
@@ -104,7 +124,12 @@ def quals_filename(options):
     file = None
     for f in options.files:
         fl = f.lower()
-        if all([" " + str(options.mnum) + "." in fl and any(k in fl for k in ("qual", "qualification", "qm"))]):
+        if all(
+            [
+                " " + str(options.mnum) + "." in fl
+                and any(k in fl for k in ("qual", "qualification", "qm"))
+            ]
+        ):
             if options.replay:
                 if "replay" in fl:
                     file = f
@@ -121,7 +146,9 @@ def quarters_filename(options):
     if 1 <= options.mnum <= 8:
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("quarter", "final", " " + str(options.mnum) + ".")):
+            if all(
+                k in fl for k in ("quarter", "final", " " + str(options.mnum) + ".")
+            ):
                 if "tiebreak" not in fl:
                     if options.replay:
                         if "replay" in fl:
@@ -135,7 +162,9 @@ def quarters_filename(options):
         mnum = options.mnum - 8
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("quarter", "tiebreak", "final", " " + str(mnum) + ".")):
+            if all(
+                k in fl for k in ("quarter", "tiebreak", "final", " " + str(mnum) + ".")
+            ):
                 if options.replay:
                     if "replay" in fl:
                         file = f
@@ -166,7 +195,9 @@ def semis_filename(options):
         mnum = options.mnum - 4
         for f in options.files:
             fl = f.lower()
-            if all(k in fl for k in ("semi", "tiebreak", "final", " " + str(mnum) + ".")):
+            if all(
+                k in fl for k in ("semi", "tiebreak", "final", " " + str(mnum) + ".")
+            ):
                 if options.replay:
                     if "replay" in fl:
                         file = f
@@ -184,7 +215,10 @@ def finals_filename(options):
         for f in options.files:
             fl = f.lower()
             if all(k in fl for k in ("final", " " + str(options.mnum) + ".")):
-                if all(k not in fl for k in ("quarter", "semi")) and "tiebreak" not in fl:
+                if (
+                    all(k not in fl for k in ("quarter", "semi"))
+                    and "tiebreak" not in fl
+                ):
                     if options.replay:
                         if "replay" in fl:
                             file = f
@@ -196,7 +230,9 @@ def finals_filename(options):
     elif options.mnum >= 3:
         for f in options.files:
             fl = f.lower()
-            if "final" in fl and any(k in fl for k in ("tiebreak", " " + str(options.mnum) + ".")):
+            if "final" in fl and any(
+                k in fl for k in ("tiebreak", " " + str(options.mnum) + ".")
+            ):
                 if all(k not in fl for k in ("quarter", "semi")):
                     if options.replay:
                         if "replay" in fl:
@@ -228,8 +264,7 @@ def ceremonies_filename(options):
         for f in options.files:
             fl = f.lower()
             if any(k in fl for k in ("closing", "award")) and "ceremon" in fl:
-                if any(
-                        k in fl for k in (options.day.lower(), f"day {options.eday}")):
+                if any(k in fl for k in (options.day.lower(), f"day {options.eday}")):
                     file = f
                     break
                 elif options.eday == 0:
@@ -331,9 +366,11 @@ def get_match_code(mtype, mnum, mcode):
 def get_match_results(event_key, match_key):
     match_data = consts.tba.match(f"{event_key}_{match_key}")
     if match_data is None:
-        raise ValueError(f"{event_key} {match_key} does not exist on TBA. Please use a match that exists")
+        raise ValueError(
+            f"{event_key} {match_key} does not exist on TBA. Please use a match that exists"
+        )
     blue_data, red_data = parse_data(match_data)
-    while (blue_data[0] == -1 or red_data[0] == -1):
+    while blue_data[0] == -1 or red_data[0] == -1:
         print("Waiting 1 minute for TBA to update scores")
         time.sleep(60)
         match_data = consts.tba.match(f"{event_key}_{match_key}")
@@ -342,10 +379,10 @@ def get_match_results(event_key, match_key):
 
 
 def parse_data(match_data):
-    blue = match_data['alliances']['blue']['team_keys']
-    red = match_data['alliances']['red']['team_keys']
-    blue_data = [match_data['alliances']['blue']['score']]
-    red_data = [match_data['alliances']['red']['score']]
+    blue = match_data["alliances"]["blue"]["team_keys"]
+    red = match_data["alliances"]["red"]["team_keys"]
+    blue_data = [match_data["alliances"]["blue"]["score"]]
+    red_data = [match_data["alliances"]["red"]["score"]]
     for team in blue:
         blue_data.append(team[3:])
     for team in red:
@@ -359,16 +396,19 @@ def tba_results(options):
     return blue_data, red_data, mcode
 
 
-def create_description(options, blueScore, blue1, blue2, blue3, redScore, red1,
-                       red2, red3):
-    if all(x == -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3,
-                             blueScore)):
+def create_description(
+    options, blueScore, blue1, blue2, blue3, redScore, red1, red2, red3
+):
+    if all(
+        x == -1 for x in (red1, red2, red3, redScore, blue1, blue2, blue3, blueScore)
+    ):
         return consts.NO_TBA_DESCRIPTION.format(
             ename=options.ename,
             team=options.prodteam,
             twit=options.twit,
             fb=options.fb,
-            weblink=options.weblink)
+            weblink=options.weblink,
+        )
     try:
         return options.description.format(
             ename=options.ename,
@@ -384,7 +424,8 @@ def create_description(options, blueScore, blue1, blue2, blue3, redScore, red1,
             ecode=options.ecode,
             twit=options.twit,
             fb=options.fb,
-            weblink=options.weblink)
+            weblink=options.weblink,
+        )
     except TypeError as e:
         print(e)
         return options.description
@@ -416,28 +457,28 @@ def add_to_playlist(videoID, playlistID):
         consts.youtube.playlistItems().insert(
             part="snippet",
             body={
-                'snippet': {
-                    'playlistId': playlistID,
-                    'resourceId': {
-                        'kind': 'youtube#video',
-                        'videoId': videoID
-                    }
+                "snippet": {
+                    "playlistId": playlistID,
+                    "resourceId": {"kind": "youtube#video", "videoId": videoID},
                 }
-            }).execute()
+            },
+        ).execute()
         print("Added to playlist")
 
 
 def post_video(token, secret, match_video, event_key, loc="match_videos"):
-    trusted_auth = {'X-TBA-Auth-Id': "", 'X-TBA-Auth-Sig': ""}
-    trusted_auth['X-TBA-Auth-Id'] = token
+    trusted_auth = {"X-TBA-Auth-Id": "", "X-TBA-Auth-Sig": ""}
+    trusted_auth["X-TBA-Auth-Id"] = token
     request_path = f"/api/trusted/v1/event/{event_key}/{loc}/add"
     concat = secret + request_path + str(match_video)
     md5 = hashlib.md5(concat.encode("utf-8")).hexdigest()
-    trusted_auth['X-TBA-Auth-Sig'] = str(md5)
-    url_str = f"https://www.thebluealliance.com/api/trusted/v1/event/{event_key}/{loc}/add"
+    trusted_auth["X-TBA-Auth-Sig"] = str(md5)
+    url_str = (
+        f"https://www.thebluealliance.com/api/trusted/v1/event/{event_key}/{loc}/add"
+    )
     if consts.DEBUG:
         url_str = f"http://localhost:8080/api/trusted/v1/event/{event_key}/{loc}/add"
-    if trusted_auth['X-TBA-Auth-Id'] == "" or trusted_auth['X-TBA-Auth-Sig'] == "":
+    if trusted_auth["X-TBA-Auth-Id"] == "" or trusted_auth["X-TBA-Auth-Sig"] == "":
         print("TBA ID and/or TBA secret missing. Please set them in the UI")
         return
     r = s.post(url_str, data=match_video, headers=trusted_auth)
@@ -467,16 +508,36 @@ def upload_multiple_videos(options):
 def init(options):
     """The program starts here, options is a Namespace() object"""
     options.day = dt.datetime.now().strftime("%A")  # weekday in english ex: "Monday"
-    options.files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.')]))
+    options.files = list(
+        reversed(
+            [
+                f
+                for f in os.listdir(options.where)
+                if os.path.isfile(os.path.join(options.where, f))
+                and not f.startswith(".")
+            ]
+        )
+    )
     try:
-        options.tags = consts.DEFAULT_TAGS.format(options.ecode, game=consts.GAMES[options.ecode[:4]])  # add the ecode and game to default tags
+        options.tags = consts.DEFAULT_TAGS.format(
+            options.ecode, game=consts.GAMES[options.ecode[:4]]
+        )  # add the ecode and game to default tags
     except KeyError as e:
-        options.tags = consts.DEFAULT_TAGS.format(options.ecode, game="")  # new year so just use empty string for game
-        print("This must be a new year and frcuploader doesn't know the game name, please message Nikki or whoever runs this repo at that point")
+        options.tags = consts.DEFAULT_TAGS.format(
+            options.ecode, game=""
+        )  # new year so just use empty string for game
+        print(
+            "This must be a new year and frcuploader doesn't know the game name, please message Nikki or whoever runs this repo at that point"
+        )
     # default category is science & technology
     options.category = 28
-    options.title = options.ename + f" - Qualification Match {options.mnum}"  # default title
-    if any(k == options.description for k in ("Add alternate description here.", "", consts.DEFAULT_DESCRIPTION)):
+    options.title = (
+        options.ename + f" - Qualification Match {options.mnum}"
+    )  # default title
+    if any(
+        k == options.description
+        for k in ("Add alternate description here.", "", consts.DEFAULT_DESCRIPTION)
+    ):
         options.description = consts.DEFAULT_DESCRIPTION + consts.CREDITS
     else:
         options.description += consts.CREDITS
@@ -492,7 +553,7 @@ def init(options):
             options.post = True
         else:
             options.post = False
-        options.tba = False # stupid hack to avoid grabbing match data
+        options.tba = False  # stupid hack to avoid grabbing match data
     if options.tiebreak:
         options.mnum = tiebreak_mnum(options.mnum, options.mtype)
     if options.newest:
@@ -531,33 +592,38 @@ def pre_upload(options):
         for team in blue_data[1:] + red_data[1:]:
             tags.append(f"frc{team}")
         tags.extend(options.ename.split(" "))
-        tags.append("frc" + re.search('\D+', options.ecode).group())
+        tags.append("frc" + re.search("\D+", options.ecode).group())
 
         body = dict(
             snippet=dict(
                 title=options.yttitle,
                 description=create_description(options, *blue_data, *red_data),
                 tags=tags,
-                categoryId=options.category),
-            status=dict(privacyStatus=options.privacy))
+                categoryId=options.category,
+            ),
+            status=dict(privacyStatus=options.privacy),
+        )
     else:
         mcode = get_match_code(options.mtype, options.mnum, options.mcode)
 
         tags = options.tags.split(",")
-        tags.append("frc" + re.search(r'\D+', options.ecode).group())
+        tags.append("frc" + re.search(r"\D+", options.ecode).group())
 
         body = dict(
             snippet=dict(
                 title=options.yttitle,
-                description=create_description(options, -1, -1, -1, -1, -1, -1,
-                                               -1, -1),
+                description=create_description(options, -1, -1, -1, -1, -1, -1, -1, -1),
                 tags=tags,
-                categoryId=options.category),
-            status=dict(privacyStatus=options.privacy))
+                categoryId=options.category,
+            ),
+            status=dict(privacyStatus=options.privacy),
+        )
     if options.newest:
         ret, options.vid = upload(consts.youtube, body, options.file)
     else:
-        ret, options.vid = upload(consts.youtube, body, os.path.join(options.where, options.file))
+        ret, options.vid = upload(
+            consts.youtube, body, os.path.join(options.where, options.file)
+        )
     return post_upload(options, mcode) if ret else "Failed to Upload\n"
 
 
@@ -581,25 +647,31 @@ def post_upload(options, mcode):
 
     if options.tba:
         request_body = json.dumps({mcode: options.vid})
-        post_video(options.tbaID, options.tbaSecret, request_body,
-                   options.ecode)
+        post_video(options.tbaID, options.tbaSecret, request_body, options.ecode)
     elif options.ceremonies and options.post:
         request_body = json.dumps([options.vid])
-        post_video(options.tbaID, options.tbaSecret, request_body,
-                   options.ecode, "media")
+        post_video(
+            options.tbaID, options.tbaSecret, request_body, options.ecode, "media"
+        )
 
     if options.sendto:
         if options.newest:
             try:
                 print("Moving file")
-                shutil.move(os.path.join(options.where, options.filebasename), os.path.join(options.sendto, options.filebasename))
+                shutil.move(
+                    os.path.join(options.where, options.filebasename),
+                    os.path.join(options.sendto, options.filebasename),
+                )
             except Exception as e:
                 print(f"Could not copy to {options.sendto}")
                 print(e)
         else:
             try:
                 print("Moving file")
-                shutil.move(os.path.join(options.where, options.file), os.path.join(options.sendto, options.file))
+                shutil.move(
+                    os.path.join(options.where, options.file),
+                    os.path.join(options.sendto, options.file),
+                )
             except Exception as e:
                 print(f"Could not copy to {options.sendto}")
                 print(e)

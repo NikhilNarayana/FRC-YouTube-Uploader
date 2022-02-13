@@ -10,35 +10,39 @@ PLAYLISTID = ""
 
 
 def update_thumbnail(youtube, video_id, thumbnail):
-    youtube.thumbnails().set(
-        videoId=video_id,
-        media_body=thumbnail).execute()
+    youtube.thumbnails().set(videoId=video_id, media_body=thumbnail).execute()
     print(f"Thumbnail added to video {video_id}")
 
 
 def update_thumbnails(youtube, pID, thumbnail):
-    playlistitems_list = youtube.playlistItems().list(
-        playlistId=pID, part="snippet", maxResults=50).execute()
+    playlistitems_list = (
+        youtube.playlistItems()
+        .list(playlistId=pID, part="snippet", maxResults=50)
+        .execute()
+    )
     print(playlistitems_list)
     try:
         nextPageToken = playlistitems_list["nextPageToken"]
     except KeyError:
         print("Only one page")
-    while ('nextPageToken' in playlistitems_list):
+    while "nextPageToken" in playlistitems_list:
         print("getting next page")
-        nextPageList = youtube.playlistItems().list(
-            playlistId=pID,
-            part="snippet",
-            maxResults=50,
-            pageToken=nextPageToken).execute()
+        nextPageList = (
+            youtube.playlistItems()
+            .list(
+                playlistId=pID, part="snippet", maxResults=50, pageToken=nextPageToken
+            )
+            .execute()
+        )
         print("got next page")
-        playlistitems_list["items"] = playlistitems_list["items"] + \
-            nextPageList["items"]
+        playlistitems_list["items"] = (
+            playlistitems_list["items"] + nextPageList["items"]
+        )
         if "nextPageToken" not in nextPageList:
-            playlistitems_list.pop('nextPageToken', None)
+            playlistitems_list.pop("nextPageToken", None)
             print("no more pages")
         else:
-            nextPageToken = nextPageList['nextPageToken']
+            nextPageToken = nextPageList["nextPageToken"]
             print("got next page token")
             # Print information about each video.
     errorvids = []
@@ -62,7 +66,7 @@ def main():
     PID = input("Playlist Link: ")
     THUMBNAIL = input("Thumbnail file name: ")
     f = PID.find("PL")
-    PID = PID[f:f+34]
+    PID = PID[f : f + 34]
     try:
         update_thumbnails(youtube, PID, THUMBNAIL)
     except HttpError as e:

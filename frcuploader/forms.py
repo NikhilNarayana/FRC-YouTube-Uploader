@@ -31,6 +31,7 @@ class EmittingStream(QtCore.QObject):
     """
     Capture any uses of print so it can be printed to a custom text box
     """
+
     textWritten = QtCore.pyqtSignal(str)
 
     def write(self, text):
@@ -48,21 +49,39 @@ class FRC_Uploader(BaseWidget):
 
     def __init__(self):
         try:  # check if the user can update the app
-            latest_version = requests.get('https://pypi.org/pypi/FRCUploader/json').json()['info']['version']
-            if sv(latest_version) > sv(consts.__version__):  # prevents messages when developing
+            latest_version = requests.get(
+                "https://pypi.org/pypi/FRCUploader/json"
+            ).json()["info"]["version"]
+            if sv(latest_version) > sv(consts.__version__):
                 if "linux" in sys.platform:
-                    self.message(f"Current Version: {consts.__version__}\nVersion {latest_version} is available.\n You can update with this command: pip3 install -U frcuploader=={latest_version}", title="FRCUploader")
+                    self.message(
+                        f"Current Version: {consts.__version__}\nVersion {latest_version} is available.\n You can update with this command: pip3 install -U frcuploader=={latest_version}",
+                        title="FRCUploader",
+                    )
                 else:
-                    resp = self.question(f"Current Version: {consts.__version__}\nVersion {latest_version} is available. Would you like to update?", title="FRCUploader")
+                    resp = self.question(
+                        f"Current Version: {consts.__version__}\nVersion {latest_version} is available. Would you like to update?",
+                        title="FRCUploader",
+                    )
                     if resp == "yes":
-                        ret = subprocess.call(('pip3', 'install', '-U', f'frcuploader=={latest_version}'))
+                        ret = subprocess.call(
+                            ("pip3", "install", "-U", f"frcuploader=={latest_version}")
+                        )
                         if ret:
-                            self.message(f'The app failed to update\nType "pip3 install -U frcuploader=={latest_version}" into CMD/Terminal to update', title="FRCUploader")
+                            self.message(
+                                f'The app failed to update\nType "pip3 install -U frcuploader=={latest_version}" into CMD/Terminal to update',
+                                title="FRCUploader",
+                            )
                         else:
-                            self.info("You can now restart the app to use the new version", title="FRCUploader")
+                            self.info(
+                                "You can now restart the app to use the new version",
+                                title="FRCUploader",
+                            )
         except Exception as e:
             print(e)
-        super(FRC_Uploader, self).__init__(f"FRC YouTube Uploader - {consts.__version__}")
+        super(FRC_Uploader, self).__init__(
+            f"FRC YouTube Uploader - {consts.__version__}"
+        )
 
         # Redirct print output
         sys.stdout = EmittingStream(textWritten=self.write_print)
@@ -93,7 +112,11 @@ class FRC_Uploader(BaseWidget):
         self._description.add_popup_menu_option("Reset", self.__reset_descrip_event)
 
         # Match Values
-        self._mcode = ControlText("Match Code", visible=False, helptext="READ THE INSTRUCTIONS TO FIND OUT HOW TO USE THIS!")
+        self._mcode = ControlText(
+            "Match Code",
+            visible=False,
+            helptext="READ THE INSTRUCTIONS TO FIND OUT HOW TO USE THIS!",
+        )
         self._mnum = ControlNumber("Match Number", minimum=1, maximum=500)
         self._mtype = ControlCombo("Match Type")
         self._tiebreak = ControlCheckBox("Tiebreaker")
@@ -112,28 +135,59 @@ class FRC_Uploader(BaseWidget):
         self._qview.horizontal_headers = ["Event Code", "Match Type", "Match #"]
 
         # Button
-        self._button = ControlButton('Submit')
+        self._button = ControlButton("Submit")
         self._ascrollbutton = ControlButton("Toggle Scroll")
         self._autoscroll = True
 
         # Form Layout
-        self.formset = [{
-            "-Match Values":
-            [(' ', "_mcode", ' '), (' ', "_mnum", ' '), (' ', "_mtype", ' '),
-             (' ', "_tiebreak", "_tba", "_replay", ' '), (' ', "_ceremonies", ' '),
-             (' ', "_eday", ' '), (' ', "_end", ' ')],
-            "-Status Output-":
-            ["_output", (' ', "_ascrollbutton", ' '), "=", "_qview"],
-            "Event Values-": [("_where", "_newest"), "_sendto", ("_prodteam", "_twit", "_fb"),
-                              ("_weblink", "_ename", "_ecode"),
-                              ("_pID", "_tbaID", "_tbaSecret"), ("_privacy", " "), "_description"]
-        }, (' ', '_button', ' ')]
+        self.formset = [
+            {
+                "-Match Values": [
+                    (" ", "_mcode", " "),
+                    (" ", "_mnum", " "),
+                    (" ", "_mtype", " "),
+                    (" ", "_tiebreak", "_tba", "_replay", " "),
+                    (" ", "_ceremonies", " "),
+                    (" ", "_eday", " "),
+                    (" ", "_end", " "),
+                ],
+                "-Status Output-": [
+                    "_output",
+                    (" ", "_ascrollbutton", " "),
+                    "=",
+                    "_qview",
+                ],
+                "Event Values-": [
+                    ("_where", "_newest"),
+                    "_sendto",
+                    ("_prodteam", "_twit", "_fb"),
+                    ("_weblink", "_ename", "_ecode"),
+                    ("_pID", "_tbaID", "_tbaSecret"),
+                    ("_privacy", " "),
+                    "_description",
+                ],
+            },
+            (" ", "_button", " "),
+        ]
 
         # Main Menu Layout
-        self.mainmenu = [{
-            'Settings': [{'Youtube Log Out': self.__reset_cred}, {'Show/Hide Match Code': self.__toggle_match_code}],
-            'Save/Clear': [{'Save Form': self.__save_form}, {'Clear Form': self.__reset_form}],
-            'Queue': [{'Toggle Uploads': self.__toggle_worker}, {'Save Queue': self.__save_queue}, {'Load Queue': self.__load_queue}]}]
+        self.mainmenu = [
+            {
+                "Settings": [
+                    {"Youtube Log Out": self.__reset_cred},
+                    {"Show/Hide Match Code": self.__toggle_match_code},
+                ],
+                "Save/Clear": [
+                    {"Save Form": self.__save_form},
+                    {"Clear Form": self.__reset_form},
+                ],
+                "Queue": [
+                    {"Toggle Uploads": self.__toggle_worker},
+                    {"Save Queue": self.__save_queue},
+                    {"Load Queue": self.__load_queue},
+                ],
+            }
+        ]
 
         # Set TBA check
         self._tba.value = True
@@ -199,7 +253,7 @@ class FRC_Uploader(BaseWidget):
 
     def __button_action(self):
         """Manipulates and transforms data from the forms into usable
-           data that can be used for uploading videos"""
+        data that can be used for uploading videos"""
         options = Namespace()
         options.where = self._where.value
         options.prodteam = self._prodteam.value
@@ -209,7 +263,7 @@ class FRC_Uploader(BaseWidget):
         options.ename = self._ename.value
         options.ecode = self._ecode.value
         f = self._pID.value.find("PL")
-        self._pID.value = self._pID.value[f:f + 34]
+        self._pID.value = self._pID.value[f : f + 34]
         options.pID = self._pID.value
         options.tbaID = self._tbaID.value
         options.tbaSecret = self._tbaSecret.value
@@ -228,8 +282,20 @@ class FRC_Uploader(BaseWidget):
         self._replay.value = False
         options.newest = deepcopy(self._newest.value)
         if options.newest:
-            files = list(reversed([f for f in os.listdir(options.where) if os.path.isfile(os.path.join(options.where, f)) and not f.startswith('.') and any(f.endswith(z) for z in consts.rec_formats)]))
-            options.file = max([os.path.join(options.where, f) for f in files], key=os.path.getmtime)
+            files = list(
+                reversed(
+                    [
+                        f
+                        for f in os.listdir(options.where)
+                        if os.path.isfile(os.path.join(options.where, f))
+                        and not f.startswith(".")
+                        and any(f.endswith(z) for z in consts.rec_formats)
+                    ]
+                )
+            )
+            options.file = max(
+                [os.path.join(options.where, f) for f in files], key=os.path.getmtime
+            )
             for f in files:
                 if f in options.file:
                     options.filebasename = f
@@ -250,8 +316,12 @@ class FRC_Uploader(BaseWidget):
                 options = deepcopy(options)
                 options.mnum += 1
         else:
-            print("Using Last Match Number and Get Newest File together is not supported")
-            print(f"Will fallback to just uploading the newest file for mnum {options.mnum}")
+            print(
+                "Using Last Match Number and Get Newest File together is not supported"
+            )
+            print(
+                f"Will fallback to just uploading the newest file for mnum {options.mnum}"
+            )
             self._end.value = 0
         if int(self._end.value):
             self._qview += (options.ecode, options.mtype, options.mnum)
@@ -281,14 +351,14 @@ class FRC_Uploader(BaseWidget):
         if self._autoscroll:
             self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
         if sys.__stdout__:
-            print(text, file=sys.__stdout__, end='')
+            print(text, file=sys.__stdout__, end="")
 
     def write_err(self, text):
         self._output._form.plainTextEdit.insertPlainText(text)
         if self._autoscroll:
             self._output._form.plainTextEdit.moveCursor(QtGui.QTextCursor.End)
         if sys.__stdout__:
-            print(text, file=sys.__stdout__, end='')
+            print(text, file=sys.__stdout__, end="")
         with open(consts.log_file, "a") as f:
             f.write(text)
 
@@ -318,7 +388,7 @@ class FRC_Uploader(BaseWidget):
         row = [None] * (len(self._form_fields) + 1)
         if options:
             f = options.pID.find("PL")
-            options.pID = options.pID[f:f + 34]
+            options.pID = options.pID[f : f + 34]
             row[0] = deepcopy(options.where)
             row[1] = deepcopy(options.prodteam)
             row[2] = deepcopy(options.twit)
@@ -343,11 +413,11 @@ class FRC_Uploader(BaseWidget):
             row[21] = deepcopy(options.sendto)
         else:
             f = self._pID.value.find("PL")
-            self._pID.value = self._pID.value[f:f + 34]
+            self._pID.value = self._pID.value[f : f + 34]
             for i, var in zip(range(len(self._form_fields) + 1), self._form_fields):
                 row[i] = deepcopy(var.value)
-        with open(consts.form_values, 'w') as f:
-                f.write(json.dumps(row))
+        with open(consts.form_values, "w") as f:
+            f.write(json.dumps(row))
         return row
 
     def __load_form(self):
@@ -360,17 +430,23 @@ class FRC_Uploader(BaseWidget):
                     elif val:
                         var.value = val
         except (IOError, OSError, StopIteration, json.decoder.JSONDecodeError):
-            print(f"No {consts.abbrv}_form_values.json to read from, continuing with default values")
+            print(
+                f"No {consts.abbrv}_form_values.json to read from, continuing with default values"
+            )
 
     def __save_queue(self):
         if os.path.exists(consts.queue_values):
-            resp = self.question(f"A queue already exists would you like to overwrite it?\nIt was last modified on {datetime.utcfromtimestamp(int(os.path.getmtime(consts.queue_values))).strftime('%Y-%m-%d')}")
+            resp = self.question(
+                f"A queue already exists would you like to overwrite it?\nIt was last modified on {datetime.utcfromtimestamp(int(os.path.getmtime(consts.queue_values))).strftime('%Y-%m-%d')}"
+            )
             if resp == "yes":
                 with open(consts.queue_values, "wb") as f:
                     f.write(pickle.dumps(self._queueref))
                 print("Saved Queue, you can now close the program")
             elif resp == "no":
-                resp = self.question("Would you like to add onto the end of that queue?")
+                resp = self.question(
+                    "Would you like to add onto the end of that queue?"
+                )
                 if resp == "yes":
                     queueref = None
                     with open(consts.queue_values, "rb") as f:
@@ -384,7 +460,9 @@ class FRC_Uploader(BaseWidget):
 
     def __load_queue(self):
         if self._queueref:
-            resp = self.question("Would you like to add to the existing queue?\nItems will be added to the front of the queue.")
+            resp = self.question(
+                "Would you like to add to the existing queue?\nItems will be added to the front of the queue."
+            )
             if resp == "yes":
                 try:
                     with open(consts.queue_values, "rb") as f:
@@ -392,10 +470,18 @@ class FRC_Uploader(BaseWidget):
                     queueref.extend(self._queueref)
                     self._queueref = queueref
                     self._qview.clear()
-                    self._qview.horizontal_headers = ["Event Code", "Match Type", "Match #"]
+                    self._qview.horizontal_headers = [
+                        "Event Code",
+                        "Match Type",
+                        "Match #",
+                    ]
                     for options in self._queueref:
                         if options.ceremonies:
-                            self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A")
+                            self._qview += (
+                                options.ecode,
+                                consts.cerem[options.ceremonies],
+                                "N/A",
+                            )
                         else:
                             self._qview += (options.ecode, options.mtype, options.mnum)
                         self._queue.put(options)
@@ -410,7 +496,11 @@ class FRC_Uploader(BaseWidget):
                     self._queueref = pickle.load(f)
                 for options in self._queueref:
                     if options.ceremonies:
-                        self._qview += (options.ecode, consts.cerem[options.ceremonies], "N/A")
+                        self._qview += (
+                            options.ecode,
+                            consts.cerem[options.ceremonies],
+                            "N/A",
+                        )
                     else:
                         self._qview += (options.ecode, options.mtype, options.mnum)
                     self._queue.put(options)
@@ -452,9 +542,12 @@ class FRC_Uploader(BaseWidget):
         self._pID.value = ""
 
     def __reset_cred(self):
-        title = consts.youtube.channels().list(part='snippet', mine=True).execute()
-        title = title['items'][0]['snippet']['title']
-        resp = self.question(f"You are currently logged into {title}\nWould you like to log out?", title="FRCUploader")
+        title = consts.youtube.channels().list(part="snippet", mine=True).execute()
+        title = title["items"][0]["snippet"]["title"]
+        resp = self.question(
+            f"You are currently logged into {title}\nWould you like to log out?",
+            title="FRCUploader",
+        )
         if resp == "yes":
             os.remove(os.path.join(consts.root, ".frc-oauth2-youtube.json"))
             sys.exit(0)

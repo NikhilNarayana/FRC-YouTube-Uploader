@@ -38,15 +38,15 @@ Uploaded with FRC-YouTube-Uploader (https://github.com/NikhilNarayana/FRC-YouTub
 VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 
 GAMES = {
-    '2021': "FIRST Rise: Infinite Recharge, Rise: INFINITE RECHARGE, INFINITE RECHARGE",
-    '2020': "FIRST Rise: Infinite Recharge, Rise: INFINITE RECHARGE, INFINITE RECHARGE",
-    '2019': "FIRST Destination: Deep Space, Destination: Deep Space, Deep Space",
-    '2018': "FIRST Power Up, FIRST POWER UP",
-    '2017': "FIRST Steamworks, FIRST STEAMworks",
-    '2016': "FIRST Stronghold",
-    '2015': "Recycle Rush",
-    '2014': "Aerial Assist",
-    '2013': "Ultimate Ascent"
+    "2021": "FIRST Rise: Infinite Recharge, Rise: INFINITE RECHARGE, INFINITE RECHARGE",
+    "2020": "FIRST Rise: Infinite Recharge, Rise: INFINITE RECHARGE, INFINITE RECHARGE",
+    "2019": "FIRST Destination: Deep Space, Destination: Deep Space, Deep Space",
+    "2018": "FIRST Power Up, FIRST POWER UP",
+    "2017": "FIRST Steamworks, FIRST STEAMworks",
+    "2016": "FIRST Stronghold",
+    "2015": "Recycle Rush",
+    "2014": "Aerial Assist",
+    "2013": "Ultimate Ascent",
 }
 
 # Extra Stuff
@@ -65,8 +65,15 @@ youtube = None
 tba = tbapy.TBA("wvIxtt5Qvbr2qJtqW7ZsZ4vNppolYy0zMNQduH8LdYA7v2o1myt8ZbEOHAwzRuqf")
 trusted = False
 sizes = ("bytes", "KB", "MB", "GB", "TB")
+cerem = (
+    "None",
+    "Opening Ceremonies",
+    "Alliance Selection",
+    "Closing Ceremonies",
+    "Highlight Reel",
+)
 root = os.path.join(os.path.expanduser("~"), ".frcuploader")
 queue_values = os.path.join(root, ".frc_queue_values.txt")
-form_values = os.path.join(root, '.frc_form_values.json')
+form_values = os.path.join(root, ".frc_form_values.json")
 log_file = os.path.join(root, ".frc_log.txt")
 rec_formats = (".ts", ".mkv", ".avi", ".mp4", ".flv", ".mov")
