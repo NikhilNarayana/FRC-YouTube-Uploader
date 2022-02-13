@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 from os import path
 
 root = path.abspath(path.dirname(__file__))
-version = "3.5.9"
+version = "3.5.10"
 
 long_des = ""
 with open(path.join(root, "README.md")) as f:
