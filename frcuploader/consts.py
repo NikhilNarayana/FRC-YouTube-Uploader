@@ -72,8 +72,13 @@ cerem = (
     "Closing Ceremonies",
     "Highlight Reel",
 )
-root = os.path.join(os.path.expanduser("~"), ".frcuploader")
-queue_values = os.path.join(root, ".frc_queue_values.txt")
-form_values = os.path.join(root, ".frc_form_values.json")
-log_file = os.path.join(root, ".frc_log.txt")
+
+frc_folder = os.path.join(os.path.expanduser("~"), ".frcuploader")
+yt_accounts_folder = os.path.join(frc_folder, "accounts")
+youtube_oauth_file = os.path.join(frc_folder, "frc-oauth2-youtube.json")
+os.makedirs(yt_accounts_folder, exist_ok=True)
+
+queue_values = os.path.join(frc_folder, "frc_queue_values.txt")
+form_values = os.path.join(frc_folder, "frc_form_values.json")
+log_file = os.path.join(frc_folder, "frc_log.txt")
 rec_formats = (".ts", ".mkv", ".avi", ".mp4", ".flv", ".mov")

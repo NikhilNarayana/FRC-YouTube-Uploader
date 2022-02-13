@@ -44,7 +44,7 @@ YOUTUBE_PARTNER_SCOPE = "https://www.googleapis.com/auth/youtubepartner"
 SPREADSHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
 
 PREFIXES = (
-    consts.root,
+    consts.frc_folder,
     sys.prefix,
     os.path.join(sys.prefix, "local"),
     "/usr",
@@ -122,30 +122,22 @@ def upload_service(insert_request):
                 return False, None
 
 
-def get_service(scope, service, secret=None):
-    CLIENT_SECRETS_FILE = get_secrets(PREFIXES, SUFFIXES) if not secret else secret
+def get_youtube_service():
+    CLIENT_SECRETS_FILE = get_secrets(PREFIXES, SUFFIXES)
 
     print(f"Using {CLIENT_SECRETS_FILE}")
 
     if not CLIENT_SECRETS_FILE:
         return None
 
-    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=scope)
+    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=YOUTUBE_UPLOAD_SCOPE)
 
     flow.user_agent = consts.long_name
-    storage = Storage(
-        os.path.join(consts.root, f".{consts.abbrv}-oauth2-{service}.json")
-    )
+    storage = Storage(consts.youtube_oauth_file)
     credentials = storage.get()
 
     if credentials is None or credentials.invalid:
         credentials = run_flow(flow, storage)
-
-    return credentials
-
-
-def get_youtube_service():
-    credentials = get_service(YOUTUBE_UPLOAD_SCOPE, "youtube")
 
     if not credentials:
         return None
