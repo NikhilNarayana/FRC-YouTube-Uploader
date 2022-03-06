@@ -38,6 +38,7 @@ Uploaded with FRC-YouTube-Uploader (https://github.com/NikhilNarayana/FRC-YouTub
 VALID_PRIVACY_STATUSES = ("public", "unlisted", "private")
 
 GAMES = {
+    "2022": "Rapid React, RAPID REACT",
     "2021": "FIRST Rise: Infinite Recharge, Rise: INFINITE RECHARGE, INFINITE RECHARGE",
     "2020": "FIRST Rise: Infinite Recharge, Rise: INFINITE RECHARGE, INFINITE RECHARGE",
     "2019": "FIRST Destination: Deep Space, Destination: Deep Space, Deep Space",
