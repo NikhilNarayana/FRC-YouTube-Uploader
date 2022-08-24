@@ -37,7 +37,7 @@ setup(
         "oauth2client",
         "Pyforms-Lite",
         "tbapy",
-        "urllib3==1.23",
+        "urllib3==1.26.12",
     ],
     data_files=[("share/frcuploader", ["frcuploader/client_secrets.json"])],
     package_data={"frcuploader": ["frcuploader/client_secrets.json"]},
