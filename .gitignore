@@ -109,3 +109,5 @@ ENV/
 
 # IntelliJ
 .idea/
+
+client_secrets.json
