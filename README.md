@@ -6,7 +6,7 @@ A YouTube Uploader for FRC Events
 
 
 ## Contributing
-PRs are appreciated and will be reviewed quickly, the only code quality standard I have is to follow PEP8 standard except for the line length. If you have trouble understanding my code just ask me.
+PRs are appreciated and will be reviewed in a timely manner. Code standards are enforced by `black`, there is a CI check to ensure conformity.
 
 
 ## Current Feature Set:
